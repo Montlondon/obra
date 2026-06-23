@@ -263,7 +263,45 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:14px 12px 40px;fon
 
 <script>
 var KEY='obra_ctrl_v5';
-var db=JSON.parse(localStorage.getItem(KEY)||'null');
+
+// Migracao: tenta carregar de versoes anteriores
+function loadDb(){
+  var d=localStorage.getItem(KEY);
+  if(d)return JSON.parse(d);
+  // tenta versoes antigas
+  var old=['obra_ctrl_v4','obra_ctrl_v3','obra_pintura_v2','obra_pintura_adames_v1','obra_pintura_adames'];
+  for(var i=0;i<old.length;i++){
+    var legacy=localStorage.getItem(old[i]);
+    if(legacy){
+      try{
+        var parsed=JSON.parse(legacy);
+        // migra schema
+        if(parsed.mo)parsed.mo.forEach(function(item){
+          if(item.day&&!item.date){item.date=brToISO(item.day)}
+        });
+        if(parsed.mat)parsed.mat.forEach(function(item){
+          if(item.day&&!item.date){item.date=brToISO(item.day)}
+        });
+        if(parsed.config&&parsed.config.data&&!parsed.config.dataIni){
+          parsed.config.dataIni=parsed.config.data;
+          parsed.config.dataFim='';
+        }
+        if(!parsed.config)parsed.config={nome:'Obra',empreiteiro:'',equipe:'',local:'',dataIni:'',dataFim:''};
+        return parsed;
+      }catch(e){}
+    }
+  }
+  return null;
+}
+
+function brToISO(br){
+  if(!br||br==='--')return '';
+  var p=br.split('/');
+  if(p.length===3)return p[2]+'-'+p[1]+'-'+p[0];
+  return '';
+}
+
+var db=loadDb();
 if(!db){
   db={
     config:{nome:'Obra — Pintura',empreiteiro:'Adames',equipe:'Mateus, Sinval',local:'',dataIni:'2025-06-23',dataFim:''},
@@ -274,8 +312,8 @@ if(!db){
       {id:uid(),desc:'Lona 8,20m',val:53,obs:'',date:'2025-06-23'}
     ]
   };
-  save();
 }
+save();
 var editing=null;
 
 function uid(){return Math.random().toString(36).slice(2,9)}
