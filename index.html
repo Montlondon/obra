@@ -265,6 +265,8 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:14px 12px 40px;fon
 var KEY='obra_ctrl_v5';
 
 // Migracao: tenta carregar de versoes anteriores
+function uid(){return Math.random().toString(36).slice(2,9)}
+
 function loadDb(){
   var d=localStorage.getItem(KEY);
   if(d)return JSON.parse(d);
@@ -316,7 +318,7 @@ if(!db){
 save();
 var editing=null;
 
-function uid(){return Math.random().toString(36).slice(2,9)}
+
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function fmt(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function todayISO(){return new Date().toISOString().slice(0,10)}
