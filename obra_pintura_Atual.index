@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Obra">
+<meta name="theme-color" content="#1B3A5C">
+<title>Controle de Obra</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:#F5F3EE;color:#1A1918;font-size:15px;line-height:1.5;min-height:100vh}
+
+header{background:#1B3A5C;padding:16px 16px 14px;position:sticky;top:0;z-index:10}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+header h1{font-family:'Lora',serif;font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.2px;line-height:1.2}
+header p{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:400}
+.header-btns{display:flex;gap:6px;flex-shrink:0;padding-top:2px}
+.btn-hd{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.9);border-radius:7px;padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif}
+.btn-hd:active{background:rgba(255,255,255,0.22)}
+
+.main{padding:16px 14px;max-width:480px;margin:0 auto}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.metric{background:#fff;border:1px solid #E8E5DF;border-radius:10px;padding:12px 10px}
+.metric-label{font-size:10px;color:#8A8680;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;font-weight:500}
+.metric-value{font-size:16px;font-weight:600;letter-spacing:-0.4px;color:#1A1918;font-family:'Lora',serif}
+.metric-value.accent{color:#1B3A5C}
+
+.section{background:#fff;border:1px solid #E8E5DF;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #EDEAE4;background:#FAFAF8}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.09em;color:#8A8680;display:flex;align-items:center;gap:6px}
+.section-sub{font-size:14px;font-weight:600;color:#1A1918;font-family:'Lora',serif}
+
+.day-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#B0ADA8;padding:9px 16px 5px;background:#F8F6F2;border-bottom:1px solid #EDEAE4}
+
+.item{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #F0EDE8;gap:10px}
+.item:last-of-type{border-bottom:none}
+.item-desc{font-size:14px;font-weight:500;color:#1A1918}
+.item-obs{font-size:12px;color:#A8A5A0;margin-top:2px;word-break:break-word}
+.item-right{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.item-val{font-size:14px;font-weight:600;white-space:nowrap;color:#1B3A5C;font-family:'Lora',serif;margin-right:4px}
+.btn-ic{background:none;border:none;cursor:pointer;padding:7px;border-radius:7px;display:flex;align-items:center;justify-content:center;min-width:34px;min-height:34px;color:#B0ADA8}
+.btn-ic:active{background:#F5F3EE;color:#1A1918}
+.btn-ic.del:active{color:#A32D2D}
+
+.add-form{padding:14px 16px;background:#F8F6F2;border-top:1px solid #EDEAE4;display:flex;flex-direction:column;gap:10px}
+.field-row{display:grid;grid-template-columns:1fr 118px;gap:8px}
+.field-row3{display:grid;grid-template-columns:1fr 118px 130px;gap:8px}
+input,textarea,select{background:#fff;border:1px solid #DDD9D2;border-radius:8px;padding:10px 12px;font-size:14px;color:#1A1918;font-family:'Inter',sans-serif;width:100%;outline:none;-webkit-appearance:none;appearance:none;transition:border-color 0.15s}
+input:focus,textarea:focus,select:focus{border-color:#1B3A5C;box-shadow:0 0 0 3px rgba(27,58,92,0.1)}
+input[type="date"]{color:#1A1918;font-size:13px}
+textarea{resize:none;height:56px;font-size:13px}
+.btn-add{background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;width:100%;font-family:'Inter',sans-serif}
+.btn-add:active{background:#142d47;transform:scale(0.99)}
+
+.empty{text-align:center;padding:22px;color:#B0ADA8;font-size:13px}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,20,30,0.55);z-index:100;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:480px;padding-bottom:env(safe-area-inset-bottom,16px);max-height:92vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 14px;border-bottom:1px solid #EDEAE4;position:sticky;top:0;background:#fff;z-index:1}
+.modal-head h2{font-family:'Lora',serif;font-size:17px;font-weight:600;color:#1A1918}
+.modal-body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.modal-body label{font-size:11px;font-weight:600;color:#8A8680;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;display:block}
+.modal-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-foot{display:flex;gap:8px;padding:14px 18px;border-top:1px solid #EDEAE4}
+.btn-save{flex:1;background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-cancel{background:none;border:1px solid #DDD9D2;border-radius:8px;padding:13px 16px;font-size:14px;cursor:pointer;color:#8A8680;font-family:'Inter',sans-serif}
+.btn-save:active{opacity:0.85}
+
+.share-preview{background:#F8F6F2;border:1px solid #E8E5DF;border-radius:8px;padding:14px;font-size:12px;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:#1A1918;font-family:'Inter',sans-serif;max-height:300px;overflow-y:auto}
+.share-btns{display:flex;flex-direction:column;gap:8px}
+.btn-whats{background:#25A244;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif}
+.btn-whats:active{opacity:0.85}
+.btn-copy{background:none;border:1px solid #DDD9D2;border-radius:8px;padding:13px;font-size:14px;cursor:pointer;color:#1A1918;width:100%;font-weight:500;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-copy:active{background:#F5F3EE}
+
+footer{text-align:center;font-size:11px;color:#C0BDB8;padding:14px 12px 40px;font-style:italic;font-family:'Lora',serif}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div style="flex:1;min-width:0">
+      <h1 id="hd-nome">Controle de Obra</h1>
+      <p id="hd-equipe">&nbsp;</p>
+    </div>
+    <div class="header-btns">
+      <button class="btn-hd" onclick="openShare()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Resumo
+      </button>
+      <button class="btn-hd" onclick="openConfig()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Obra
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Mo. obra</div><div class="metric-value" id="m-mo">—</div></div>
+    <div class="metric"><div class="metric-label">Materiais</div><div class="metric-value" id="m-mat">—</div></div>
+    <div class="metric"><div class="metric-label">Total</div><div class="metric-value accent" id="m-total">—</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Mao de obra
+      </span>
+      <span class="section-sub" id="st-mo"></span>
+    </div>
+    <div id="list-mo"></div>
+    <div class="add-form">
+      <div class="field-row">
+        <input type="text" id="mo-desc" placeholder="Ex: 1 ambiente — sala" />
+        <input type="number" id="mo-val" placeholder="Valor R$" step="0.01" inputmode="decimal" />
+      </div>
+      <div class="field-row">
+        <textarea id="mo-obs" placeholder="Observacao (opcional)" style="height:44px"></textarea>
+        <input type="date" id="mo-date" />
+      </div>
+      <button class="btn-add" onclick="addItem('mo')">Adicionar</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Materiais
+      </span>
+      <span class="section-sub" id="st-mat"></span>
+    </div>
+    <div id="list-mat"></div>
+    <div class="add-form">
+      <div class="field-row">
+        <input type="text" id="mat-desc" placeholder="Ex: Tinta Coral Rende Mais" />
+        <input type="number" id="mat-val" placeholder="Valor R$" step="0.01" inputmode="decimal" />
+      </div>
+      <div class="field-row">
+        <textarea id="mat-obs" placeholder="Marca, cor, quantidade..." style="height:44px"></textarea>
+        <input type="date" id="mat-date" />
+      </div>
+      <button class="btn-add" onclick="addItem('mat')">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<footer>Montgomery Saude Integrada</footer>
+
+<!-- Modal editar item -->
+<div class="modal-overlay" id="modal-item" onclick="overlayClick(event,'modal-item')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Editar item</h2>
+      <button class="btn-ic" onclick="closeModal('modal-item')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div><label>Descricao</label><input type="text" id="edit-desc" /></div>
+      <div class="modal-row2">
+        <div><label>Valor (R$)</label><input type="number" id="edit-val" step="0.01" inputmode="decimal" /></div>
+        <div><label>Data</label><input type="date" id="edit-date" /></div>
+      </div>
+      <div><label>Observacao</label><textarea id="edit-obs" placeholder="Marca, cor, quantidade..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('modal-item')">Cancelar</button>
+      <button class="btn-save" onclick="saveEdit()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal configurar obra -->
+<div class="modal-overlay" id="modal-config" onclick="overlayClick(event,'modal-config')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Dados da obra</h2>
+      <button class="btn-ic" onclick="closeModal('modal-config')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div><label>Nome da obra</label><input type="text" id="cfg-nome" placeholder="Ex: Pintura sala principal" /></div>
+      <div><label>Empreiteiro</label><input type="text" id="cfg-empreiteiro" placeholder="Nome do empreiteiro" /></div>
+      <div><label>Equipe</label><input type="text" id="cfg-equipe" placeholder="Ex: Mateus, Sinval" /></div>
+      <div><label>Local</label><input type="text" id="cfg-local" placeholder="Ex: Sala e corredor" /></div>
+      <div class="modal-row2">
+        <div><label>Data de inicio</label><input type="date" id="cfg-data-ini" /></div>
+        <div><label>Previsao fim</label><input type="date" id="cfg-data-fim" /></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('modal-config')">Cancelar</button>
+      <button class="btn-save" onclick="saveConfig()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal compartilhar -->
+<div class="modal-overlay" id="modal-share" onclick="overlayClick(event,'modal-share')">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Resumo da obra</h2>
+      <button class="btn-ic" onclick="closeModal('modal-share')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="share-preview" id="share-preview"></div>
+      <div class="share-btns">
+        <button class="btn-whats" onclick="shareWhats()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Enviar pelo WhatsApp
+        </button>
+        <button class="btn-copy" onclick="copyText()" id="btn-copy">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar texto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var KEY='obra_ctrl_v5';
+var db=JSON.parse(localStorage.getItem(KEY)||'null');
+if(!db){
+  db={
+    config:{nome:'Obra — Pintura',empreiteiro:'Adames',equipe:'Mateus, Sinval',local:'',dataIni:'2025-06-23',dataFim:''},
+    mo:[{id:uid(),desc:'1 ambiente',val:900,obs:'',date:'2025-06-23'}],
+    mat:[
+      {id:uid(),desc:'Tinta',val:295,obs:'',date:'2025-06-23'},
+      {id:uid(),desc:'2 Fitas crepe',val:25,obs:'',date:'2025-06-23'},
+      {id:uid(),desc:'Lona 8,20m',val:53,obs:'',date:'2025-06-23'}
+    ]
+  };
+  save();
+}
+var editing=null;
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function fmt(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function isoToBR(iso){if(!iso)return '—';var p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+var SVG_EDIT='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+var SVG_TRASH='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+var SVG_CHECK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+var SVG_COPY='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+// set today on date inputs on load
+window.addEventListener('DOMContentLoaded',function(){
+  var t=todayISO();
+  document.getElementById('mo-date').value=t;
+  document.getElementById('mat-date').value=t;
+});
+
+function buildResumo(){
+  var c=db.config;
+  var mo=db.mo.reduce(function(s,i){return s+Number(i.val)},0);
+  var mat=db.mat.reduce(function(s,i){return s+Number(i.val)},0);
+  var lines=[];
+  lines.push('🏠 '+(c.nome||'Obra'));
+  if(c.empreiteiro)lines.push('Empreiteiro: '+c.empreiteiro);
+  if(c.equipe)lines.push('Equipe: '+c.equipe);
+  if(c.local)lines.push('Local: '+c.local);
+  if(c.dataIni)lines.push('Inicio: '+isoToBR(c.dataIni));
+  if(c.dataFim)lines.push('Previsao fim: '+isoToBR(c.dataFim));
+  lines.push('');
+  lines.push('🔨 Mao de obra: '+fmt(mo));
+  db.mo.forEach(function(i){lines.push('  • ['+isoToBR(i.date)+'] '+i.desc+' — '+fmt(i.val)+(i.obs?' ('+i.obs+')':''))});
+  lines.push('');
+  lines.push('🛒 Materiais: '+fmt(mat));
+  db.mat.forEach(function(i){lines.push('  • ['+isoToBR(i.date)+'] '+i.desc+' — '+fmt(i.val)+(i.obs?' ('+i.obs+')':''))});
+  lines.push('');
+  lines.push('💰 Total geral: '+fmt(mo+mat));
+  return lines.join('\n');
+}
+
+function openShare(){
+  document.getElementById('share-preview').textContent=buildResumo();
+  document.getElementById('btn-copy').innerHTML=SVG_COPY+' Copiar texto';
+  document.getElementById('modal-share').classList.add('open');
+}
+function shareWhats(){window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(buildResumo()),'_blank')}
+function copyText(){
+  var btn=document.getElementById('btn-copy');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(buildResumo()).then(function(){
+      btn.innerHTML=SVG_CHECK+' Copiado!';
+      setTimeout(function(){btn.innerHTML=SVG_COPY+' Copiar texto'},2000);
+    });
+  } else {
+    var ta=document.createElement('textarea');ta.value=buildResumo();ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.innerHTML=SVG_CHECK+' Copiado!';
+    setTimeout(function(){btn.innerHTML=SVG_COPY+' Copiar texto'},2000);
+  }
+}
+
+function renderHeader(){
+  var c=db.config;
+  document.getElementById('hd-nome').textContent=c.nome||'Controle de Obra';
+  var sub=[];
+  if(c.empreiteiro)sub.push('Empreiteiro: '+c.empreiteiro);
+  if(c.equipe)sub.push(c.equipe);
+  if(c.local)sub.push(c.local);
+  document.getElementById('hd-equipe').textContent=sub.join(' · ')||' ';
+  document.title=c.nome||'Controle de Obra';
+}
+
+function render(){
+  renderHeader();
+  var mo=db.mo.reduce(function(s,i){return s+Number(i.val)},0);
+  var mat=db.mat.reduce(function(s,i){return s+Number(i.val)},0);
+  document.getElementById('m-mo').textContent=fmt(mo);
+  document.getElementById('m-mat').textContent=fmt(mat);
+  document.getElementById('m-total').textContent=fmt(mo+mat);
+  document.getElementById('st-mo').textContent=fmt(mo);
+  document.getElementById('st-mat').textContent=fmt(mat);
+  renderList('mo');renderList('mat');
+}
+
+function renderList(type){
+  var el=document.getElementById('list-'+type);
+  var items=db[type];
+  if(!items.length){el.innerHTML='<div class="empty">Nenhum item adicionado</div>';return}
+  // sort by date desc
+  var sorted=items.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});
+  var groups={};var order=[];
+  sorted.forEach(function(item){
+    var d=item.date||'';
+    if(!groups[d]){groups[d]=[];order.push(d)}
+    groups[d].push(item);
+  });
+  var html='';
+  order.forEach(function(date){
+    html+='<div class="day-label">'+esc(isoToBR(date))+'</div>';
+    groups[date].forEach(function(item){
+      html+='<div class="item">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="item-desc">'+esc(item.desc)+'</div>'+
+          (item.obs?'<div class="item-obs">'+esc(item.obs)+'</div>':'')+
+        '</div>'+
+        '<div class="item-right">'+
+          '<span class="item-val">'+fmt(item.val)+'</span>'+
+          '<button class="btn-ic" onclick="openEdit(\''+type+'\',\''+item.id+'\')" title="Editar">'+SVG_EDIT+'</button>'+
+          '<button class="btn-ic del" onclick="removeItem(\''+type+'\',\''+item.id+'\')" title="Remover">'+SVG_TRASH+'</button>'+
+        '</div>'+
+      '</div>';
+    });
+  });
+  el.innerHTML=html;
+}
+
+function addItem(type){
+  var desc=document.getElementById(type+'-desc').value.trim();
+  var val=parseFloat(document.getElementById(type+'-val').value);
+  var obs=document.getElementById(type+'-obs').value.trim();
+  var date=document.getElementById(type+'-date').value||todayISO();
+  if(!desc||isNaN(val)||val<0)return;
+  db[type].push({id:uid(),desc:desc,val:val,obs:obs,date:date});
+  save();render();
+  document.getElementById(type+'-desc').value='';
+  document.getElementById(type+'-val').value='';
+  document.getElementById(type+'-obs').value='';
+  document.getElementById(type+'-date').value=todayISO();
+}
+
+function removeItem(type,id){
+  if(!confirm('Remover este item?'))return;
+  db[type]=db[type].filter(function(i){return i.id!==id});
+  save();render();
+}
+
+function openEdit(type,id){
+  var item=db[type].find(function(i){return i.id===id});
+  if(!item)return;
+  editing={type:type,id:id};
+  document.getElementById('edit-desc').value=item.desc;
+  document.getElementById('edit-val').value=item.val;
+  document.getElementById('edit-obs').value=item.obs||'';
+  document.getElementById('edit-date').value=item.date||todayISO();
+  document.getElementById('modal-item').classList.add('open');
+}
+
+function saveEdit(){
+  if(!editing)return;
+  var desc=document.getElementById('edit-desc').value.trim();
+  var val=parseFloat(document.getElementById('edit-val').value);
+  var obs=document.getElementById('edit-obs').value.trim();
+  var date=document.getElementById('edit-date').value||todayISO();
+  if(!desc||isNaN(val))return;
+  var item=db[editing.type].find(function(i){return i.id===editing.id});
+  if(item){item.desc=desc;item.val=val;item.obs=obs;item.date=date}
+  save();render();closeModal('modal-item');
+}
+
+function openConfig(){
+  var c=db.config;
+  document.getElementById('cfg-nome').value=c.nome||'';
+  document.getElementById('cfg-empreiteiro').value=c.empreiteiro||'';
+  document.getElementById('cfg-equipe').value=c.equipe||'';
+  document.getElementById('cfg-local').value=c.local||'';
+  document.getElementById('cfg-data-ini').value=c.dataIni||'';
+  document.getElementById('cfg-data-fim').value=c.dataFim||'';
+  document.getElementById('modal-config').classList.add('open');
+}
+
+function saveConfig(){
+  db.config={
+    nome:document.getElementById('cfg-nome').value.trim(),
+    empreiteiro:document.getElementById('cfg-empreiteiro').value.trim(),
+    equipe:document.getElementById('cfg-equipe').value.trim(),
+    local:document.getElementById('cfg-local').value.trim(),
+    dataIni:document.getElementById('cfg-data-ini').value,
+    dataFim:document.getElementById('cfg-data-fim').value
+  };
+  save();render();closeModal('modal-config');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function overlayClick(e,id){if(e.target===document.getElementById(id))closeModal(id)}
+
+render();
+</script>
+</body>
+</html>
