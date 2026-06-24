@@ -390,7 +390,7 @@ function buildResumo(){
   if(meta2.length)L.push(meta2.join(' | '));
   // Mao de obra
   L.push('');
-  L.push('🔨 Mao de obra: '+fmt(mo));
+  L.push('🔨 Mao de obra');
   var sorted_mo=db.mo.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'')});
   var lastDay='';
   sorted_mo.forEach(function(i){
@@ -399,7 +399,7 @@ function buildResumo(){
   });
   // Materiais
   L.push('');
-  L.push('🛒 Materiais: '+fmt(mat));
+  L.push('🛒 Materiais');
   var sorted_mat=db.mat.slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'')});
   lastDay='';
   sorted_mat.forEach(function(i){
