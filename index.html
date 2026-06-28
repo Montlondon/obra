@@ -21,6 +21,27 @@ body{font-family:'Inter',sans-serif;background:#F5F3EE;color:#1A1918;font-size:1
 header{background:#1B3A5C;padding:14px 16px 12px;position:sticky;top:0;z-index:20}
 header h1{font-family:'Lora',serif;font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.2px}
 header p{font-size:12px;color:rgba(255,255,255,0.6);margin-top:3px}
+.hd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.hd-top h1{flex:1}
+/* ── Timer Pin ─────────────────────────────────── */
+.timer-pin{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:0.5px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px 9px;cursor:pointer;position:relative;flex-shrink:0;margin-top:2px}
+.timer-pin:active{background:rgba(255,255,255,0.2)}
+.tpin-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0;transition:background 0.3s}
+.tpin-dot.alerta{background:#f87171;animation:blink 0.8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.tpin-tempo{font-size:11px;color:rgba(255,255,255,0.9);font-weight:500;letter-spacing:0.3px;min-width:36px}
+.tpin-ico{width:12px;height:12px;stroke:rgba(255,255,255,0.5);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.timer-panel{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border-radius:10px;border:0.5px solid #d4cfc5;padding:13px 14px;min-width:200px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.timer-panel.open{display:block}
+.tp-titulo{font-size:11px;color:#888;font-weight:500;margin-bottom:8px}
+.tp-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid #eee}
+.tp-row:last-of-type{border-bottom:none}
+.tp-key{color:#666}
+.tp-val{font-weight:500;color:#1B3A5C}
+.tp-barra-wrap{background:#e0dbd0;border-radius:20px;height:5px;margin:8px 0 3px}
+.tp-barra{background:#1B3A5C;border-radius:20px;height:5px;width:0%;transition:width 0.5s}
+.tp-barra.alerta{background:#a32d2d}
+.tp-pct{font-size:10px;color:#888;text-align:right;margin-bottom:4px}
 .hbtns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .hbtn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;flex:1;justify-content:center}
 .hbtn:active{background:rgba(255,255,255,0.25)}
@@ -166,7 +187,23 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:8px 12px 12px;font
 <body>
 
 <header>
-  <h1 id="hd-nome">MMObras</h1>
+  <div class="hd-top">
+    <h1 id="hd-nome">MMObras</h1>
+    <div class="timer-pin" id="timerPin" onclick="timerToggle(event)">
+      <div class="tpin-dot" id="tpinDot"></div>
+      <span class="tpin-tempo" id="tpinTempo">--:--</span>
+      <svg class="tpin-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div class="timer-panel" id="timerPanel">
+        <div class="tp-titulo">Créditos Claude · BRT</div>
+        <div class="tp-row"><span class="tp-key">Agora</span><span class="tp-val" id="tp-agora">--:--</span></div>
+        <div class="tp-row"><span class="tp-key">Início</span><span class="tp-val" id="tp-inicio">--:--</span></div>
+        <div class="tp-row"><span class="tp-key">Renovação</span><span class="tp-val" id="tp-renova">--:--</span></div>
+        <div class="tp-barra-wrap"><div class="tp-barra" id="tp-barra"></div></div>
+        <div class="tp-pct" id="tp-pct">—</div>
+        <div class="tp-row"><span class="tp-key">Restante</span><span class="tp-val" id="tp-restante" style="color:#2d7a4f">--:--</span></div>
+      </div>
+    </div>
+  </div>
   <p id="hd-sub">&nbsp;</p>
   <div class="hbtns">
     <button class="hbtn" onclick="exportData()">
@@ -1064,6 +1101,93 @@ renderCalcFields('tinta','retangulo');
 renderCalcFields('terreno','retangulo');
 render();
 renderNotas();
+
+// ── Timer de Créditos BRT ─────────────────────────────
+(function(){
+  const JANELA = 8 * 3600; // 8 horas em segundos
+  const KEY = 'mmobras_timer_inicio';
+  let panelOpen = false;
+
+  function brt() {
+    const n = new Date();
+    return new Date(n.getTime() + n.getTimezoneOffset()*60000 - 3*3600000);
+  }
+  function hm(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function fmt(s){
+    s = Math.max(0, Math.floor(s));
+    const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  }
+
+  function getInicio() {
+    const saved = localStorage.getItem(KEY);
+    if(saved) return parseInt(saved);
+    const now = brt().getTime();
+    localStorage.setItem(KEY, now);
+    return now;
+  }
+
+  function timerTick() {
+    const agora = brt();
+    const inicio = getInicio();
+    const dec = (agora.getTime() - inicio) / 1000;
+    const rest = JANELA - dec;
+    const pct = Math.min(100, Math.round(dec / JANELA * 100));
+    const renova = new Date(inicio + JANELA * 1000);
+
+    // Se janela encerrou, resetar automaticamente
+    if(rest <= 0) {
+      const novo = agora.getTime();
+      localStorage.setItem(KEY, novo);
+      return;
+    }
+
+    const dot = document.getElementById('tpinDot');
+    const tempo = document.getElementById('tpinTempo');
+    const alerta = rest < 1800;
+
+    if(tempo) tempo.textContent = fmt(rest);
+    if(dot) {
+      dot.classList.toggle('alerta', alerta);
+      dot.style.background = alerta ? '' : '#4ade80';
+    }
+
+    const el = (id) => document.getElementById(id);
+    if(el('tp-agora')) el('tp-agora').textContent = hm(agora);
+    if(el('tp-inicio')) el('tp-inicio').textContent = hm(new Date(inicio));
+    if(el('tp-renova')) el('tp-renova').textContent = hm(renova);
+    if(el('tp-barra')) {
+      el('tp-barra').style.width = pct + '%';
+      el('tp-barra').classList.toggle('alerta', alerta);
+    }
+    if(el('tp-pct')) el('tp-pct').textContent = pct + '% da janela usada';
+    if(el('tp-restante')) {
+      el('tp-restante').textContent = fmt(rest) + ' restantes';
+      el('tp-restante').style.color = alerta ? '#a32d2d' : '#2d7a4f';
+    }
+  }
+
+  window.timerToggle = function(e) {
+    e.stopPropagation();
+    panelOpen = !panelOpen;
+    const panel = document.getElementById('timerPanel');
+    if(panel) panel.classList.toggle('open', panelOpen);
+  };
+
+  window.timerReset = function() {
+    localStorage.setItem(KEY, brt().getTime());
+  };
+
+  document.addEventListener('click', function(){
+    panelOpen = false;
+    const panel = document.getElementById('timerPanel');
+    if(panel) panel.classList.remove('open');
+  });
+
+  setInterval(timerTick, 1000);
+  document.addEventListener('DOMContentLoaded', timerTick);
+  setTimeout(timerTick, 100);
+})();
 </script>
 </body>
 </html>
