@@ -182,6 +182,81 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:8px 12px 12px;font
   .metrics{grid-template-columns:repeat(4,1fr)}
   .frow3{grid-template-columns:repeat(4,1fr)}
 }
+
+/* ── Fornecedores ─────────────────────────────── */
+/* Fibonacci: 5,8,13,21,34,55,89 */
+.forn-resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:21px}
+.forn-resumo-card{background:#fff;border:1px solid #E8E5DF;border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:5px}
+.forn-resumo-label{font-size:10px;color:#8A8680;text-transform:uppercase;letter-spacing:0.08em;font-weight:500}
+.forn-resumo-val{font-family:'Lora',serif;font-size:17px;font-weight:600;line-height:1.2}
+.forn-resumo-val.pago{color:#27500A}
+.forn-resumo-val.aberto{color:#791F1F}
+.forn-resumo-val.credito{color:#1B3A5C}
+.forn-resumo-sub{font-size:11px;color:#A8A5A0}
+
+.forn-search-wrap{position:relative;margin-bottom:8px}
+.forn-search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #DDD9D2;border-radius:8px;padding:0 13px}
+.forn-search input{flex:1;border:none;outline:none;font-size:14px;padding:11px 0;background:transparent;font-family:'Inter',sans-serif;color:#1A1918}
+.forn-search svg{width:16px;height:16px;stroke:#B0ADA8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.forn-ac{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#fff;border:1px solid #DDD9D2;border-radius:8px;z-index:30;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.1);display:none}
+.forn-ac.open{display:block}
+.forn-ac-item{padding:11px 13px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F0EDE8;color:#1A1918}
+.forn-ac-item:last-child{border-bottom:none}
+.forn-ac-item:active{background:#F8F6F2}
+.forn-ac-nome{font-weight:500}
+.forn-ac-cat{font-size:11px;padding:2px 8px;background:#EAF1F8;color:#1B3A5C;border-radius:20px}
+.forn-ac-novo{color:#1B3A5C;font-weight:500}
+
+.forn-card{background:#fff;border:1px solid #E8E5DF;border-radius:12px;margin-bottom:13px;overflow:hidden}
+.forn-card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;border-bottom:1px solid #EDEAE4;background:#FAFAF8}
+.forn-card-head:active{background:#F5F3EE}
+.forn-card-nome{font-family:'Lora',serif;font-size:16px;font-weight:600;color:#1B3A5C}
+.forn-card-cat{font-size:11px;padding:2px 8px;background:#EAF1F8;color:#1B3A5C;border-radius:20px;font-weight:500}
+.forn-card-body{display:none;padding:0}
+.forn-card-body.open{display:block}
+
+.forn-saldo-row{display:flex;gap:13px;padding:13px 16px;border-bottom:1px solid #F0EDE8;background:#F8F6F2}
+.forn-saldo-item{flex:1}
+.forn-saldo-label{font-size:10px;color:#8A8680;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px}
+.forn-saldo-val{font-size:14px;font-weight:600;font-family:'Lora',serif}
+.forn-saldo-val.pago{color:#27500A}
+.forn-saldo-val.aberto{color:#791F1F}
+
+.forn-conta-item{display:flex;align-items:flex-start;justify-content:space-between;padding:11px 16px;border-bottom:1px solid #F0EDE8;gap:8px}
+.forn-conta-item:last-of-type{border-bottom:none}
+.forn-conta-desc{font-size:14px;font-weight:500;color:#1A1918}
+.forn-conta-meta{font-size:11px;color:#A8A5A0;margin-top:2px}
+.forn-conta-right{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.forn-conta-val{font-size:14px;font-weight:600;font-family:'Lora',serif;color:#1B3A5C;white-space:nowrap}
+.status-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;cursor:pointer;flex-shrink:0;border:none}
+.status-badge.pago{background:#EAF3DE;color:#27500A}
+.status-badge.aberto{background:#FCEBEB;color:#791F1F}
+
+.forn-credito{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#EAF3DE;border-top:1px solid #d4e8c4;font-size:12px;color:#27500A}
+.forn-credito svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+.forn-checklist{border-top:1px solid #EDEAE4}
+.forn-checklist-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#F8F6F2;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#8A8680}
+.forn-check-item{display:flex;align-items:center;gap:11px;padding:10px 16px;border-top:1px solid #F0EDE8}
+.forn-check-box{width:18px;height:18px;border-radius:50%;border:2px solid #DDD9D2;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.forn-check-box.done{background:#1B3A5C;border-color:#1B3A5C}
+.forn-check-box svg{display:none;width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.forn-check-box.done svg{display:block}
+.forn-check-text{flex:1;font-size:13px;color:#1A1918}
+.forn-check-text.done{text-decoration:line-through;color:#B0ADA8}
+
+.forn-add-conta{padding:13px 16px;border-top:1px solid #EDEAE4;display:flex;flex-direction:column;gap:8px;background:#F8F6F2}
+.forn-add-conta-row{display:grid;grid-template-columns:1fr 110px;gap:8px}
+.forn-add-conta-row3{display:grid;grid-template-columns:1fr 1fr 90px;gap:8px}
+
+.btn-novo-forn{display:flex;align-items:center;justify-content:center;gap:8px;background:#1B3A5C;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;width:100%;font-family:'Inter',sans-serif;margin-top:5px}
+.btn-novo-forn:active{opacity:0.85}
+.btn-novo-forn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* Modal fornecedor */
+.forn-modal-tabs{display:flex;gap:6px;padding:0 18px 14px}
+.forn-modal-tab{flex:1;background:#F5F3EE;border:1px solid #E8E5DF;border-radius:8px;padding:8px 6px;font-size:12px;font-weight:500;cursor:pointer;text-align:center;color:#8A8680;font-family:'Inter',sans-serif}
+.forn-modal-tab.active{background:#1B3A5C;color:#fff;border-color:#1B3A5C}
 </style>
 </head>
 <body>
@@ -447,11 +522,52 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:8px 12px 12px;font
   <footer>Montgomery Saude Integrada</footer>
 </div>
 
+<!-- ── ABA: FORNECEDORES ──────────────────────── -->
+<div class="page" id="page-forn">
+  <div class="forn-resumo">
+    <div class="forn-resumo-card">
+      <div class="forn-resumo-label">Pago</div>
+      <div class="forn-resumo-val pago" id="frs-pago">R$ 0</div>
+      <div class="forn-resumo-sub" id="frs-pago-sub">—</div>
+    </div>
+    <div class="forn-resumo-card">
+      <div class="forn-resumo-label">Em aberto</div>
+      <div class="forn-resumo-val aberto" id="frs-aberto">R$ 0</div>
+      <div class="forn-resumo-sub" id="frs-aberto-sub">—</div>
+    </div>
+    <div class="forn-resumo-card">
+      <div class="forn-resumo-label">Creditos</div>
+      <div class="forn-resumo-val credito" id="frs-credito">R$ 0</div>
+      <div class="forn-resumo-sub" id="frs-credito-sub">sobras</div>
+    </div>
+  </div>
+
+  <div class="forn-search-wrap">
+    <div class="forn-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="forn-busca" placeholder="Buscar ou adicionar fornecedor..." oninput="fornBusca(this.value)" autocomplete="off">
+    </div>
+    <div class="forn-ac" id="forn-ac"></div>
+  </div>
+
+  <div id="forn-lista"></div>
+
+  <button class="btn-novo-forn" onclick="abrirNovoForn()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo fornecedor
+  </button>
+  <footer>Montgomery Saude Integrada</footer>
+</div>
+
 <!-- ── Bottom Nav ────────────────────────────── -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="goPage('obra',this)" id="nav-obra">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     Obra
+  </button>
+  <button class="nav-btn" onclick="goPage('forn',this)" id="nav-forn">
+    <svg viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4"/><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/></svg>
+    Fornec.
   </button>
   <button class="nav-btn" onclick="goPage('notas',this)" id="nav-notas">
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -559,6 +675,63 @@ footer{text-align:center;font-size:11px;color:#C0BDB8;padding:8px 12px 12px;font
   </div>
 </div>
 
+<!-- Modal novo fornecedor -->
+<div class="overlay" id="ov-novo-forn">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Novo fornecedor</h2>
+      <button class="btic" onclick="closeModal('ov-novo-forn')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div><label>Nome</label><input type="text" id="nf-nome" placeholder="Ex: Adson pintor, MD Tintas..."></div>
+      <div><label>Categoria (livre)</label><input type="text" id="nf-cat" placeholder="Ex: Pintura, Material, Serviço..."></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('ov-novo-forn')">Cancelar</button>
+      <button class="btn-save" onclick="salvarNovoForn()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nova conta de fornecedor -->
+<div class="overlay" id="ov-nova-conta">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="nc-titulo">Nova conta</h2>
+      <button class="btic" onclick="closeModal('ov-nova-conta')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="forn-modal-tabs">
+      <button class="forn-modal-tab active" onclick="ncTab('conta',this)">Conta</button>
+      <button class="forn-modal-tab" onclick="ncTab('checklist',this)">Checklist</button>
+      <button class="forn-modal-tab" onclick="ncTab('credito',this)">Sobra/Credito</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tab conta -->
+      <div id="nc-tab-conta">
+        <div><label>Descricao</label><input type="text" id="nc-desc" placeholder="Ex: Pintura teto sala"></div>
+        <div class="mrow2">
+          <div><label>Valor (R$)</label><input type="number" id="nc-val" placeholder="0,00" step="0.01" inputmode="decimal"></div>
+          <div><label>Data</label><input type="date" id="nc-date"></div>
+        </div>
+        <div><label>Observacao</label><textarea id="nc-obs" placeholder="Opcional"></textarea></div>
+      </div>
+      <!-- Tab checklist -->
+      <div id="nc-tab-checklist" style="display:none">
+        <div><label>Tarefa</label><input type="text" id="nc-check-text" placeholder="Ex: Lixar antes de pintar, revisar acabamento..."></div>
+      </div>
+      <!-- Tab credito/sobra -->
+      <div id="nc-tab-credito" style="display:none">
+        <div><label>Descricao da sobra</label><input type="text" id="nc-cred-desc" placeholder="Ex: 2L tinta acrílica branca"></div>
+        <div><label>Valor do credito (R$)</label><input type="number" id="nc-cred-val" placeholder="0,00" step="0.01" inputmode="decimal"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('ov-nova-conta')">Cancelar</button>
+      <button class="btn-save" onclick="salvarNovaConta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Utilitários ──────────────────────────────
 function uid(){return Math.random().toString(36).slice(2,9)}
@@ -633,6 +806,7 @@ function goPage(name,btn){
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='hist')renderHist();
+  if(name==='forn')renderForn();
 }
 
 // ── Modais ────────────────────────────────────
@@ -642,10 +816,16 @@ function openModal(id){
 }
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.addEventListener('click',function(e){
-  ['ov-item','ov-config','ov-share','ov-hist'].forEach(function(id){
+  ['ov-item','ov-config','ov-share','ov-hist','ov-novo-forn','ov-nova-conta'].forEach(function(id){
     var el=document.getElementById(id);
     if(el&&e.target===el)el.classList.remove('open');
   });
+  // fechar autocomplete de fornecedor ao clicar fora
+  var ac=document.getElementById('forn-ac');
+  var busca=document.getElementById('forn-busca');
+  if(ac&&busca&&!busca.contains(e.target)&&!ac.contains(e.target)){
+    ac.classList.remove('open');
+  }
 });
 
 // ── Config ────────────────────────────────────
@@ -907,7 +1087,8 @@ function importData(e){
       if(!db.des)db.des=[];
       if(!db.notas)db.notas={comprar:[],orcar:[]};
       if(!db.hist)db.hist=[];
-      save();render();renderNotas();alert('Restaurado!');
+      if(!db.fornecedores)db.fornecedores=[];
+      save();render();renderNotas();renderForn();alert('Restaurado!');
     }catch(err){alert('Erro: '+err.message);}
     e.target.value='';
   };
@@ -1093,6 +1274,264 @@ function renderNotas(){
   });
 }
 
+// ── Fornecedores ──────────────────────────────
+if(!db.fornecedores)db.fornecedores=[];
+save();
+
+var ncFornId=null, ncTabAtual='conta';
+
+function fornBusca(q){
+  var ac=document.getElementById('forn-ac');
+  q=q.trim();
+  if(!q){ac.classList.remove('open');ac.innerHTML='';return;}
+  var matches=db.fornecedores.filter(function(f){return f.nome.toLowerCase().indexOf(q.toLowerCase())>=0});
+  var html='';
+  matches.forEach(function(f){
+    html+='<div class="forn-ac-item" onclick="fornAcSelect(\''+f.id+'\')">'+
+      '<span class="forn-ac-nome">'+esc(f.nome)+'</span>'+
+      (f.cat?'<span class="forn-ac-cat">'+esc(f.cat)+'</span>':'')+
+    '</div>';
+  });
+  // opção criar novo se não existe exato
+  var existe=db.fornecedores.find(function(f){return f.nome.toLowerCase()===q.toLowerCase()});
+  if(!existe){
+    html+='<div class="forn-ac-item" onclick="criarFornDaBusca()">'+
+      '<span class="forn-ac-novo">+ Criar "'+esc(q)+'"</span>'+
+    '</div>';
+  }
+  ac.innerHTML=html;
+  ac.classList.add('open');
+}
+
+function fornAcSelect(id){
+  document.getElementById('forn-ac').classList.remove('open');
+  document.getElementById('forn-busca').value='';
+  // scroll ao card
+  var card=document.getElementById('forn-card-'+id);
+  if(card){card.scrollIntoView({behavior:'smooth',block:'start'});toggleFornCard(id);}
+}
+
+function criarFornDaBusca(){
+  var q=document.getElementById('forn-busca').value.trim();
+  document.getElementById('forn-ac').classList.remove('open');
+  document.getElementById('forn-busca').value='';
+  document.getElementById('nf-nome').value=q;
+  document.getElementById('nf-cat').value='';
+  document.getElementById('ov-novo-forn').classList.add('open');
+}
+
+function abrirNovoForn(){
+  document.getElementById('nf-nome').value='';
+  document.getElementById('nf-cat').value='';
+  document.getElementById('ov-novo-forn').classList.add('open');
+}
+
+function salvarNovoForn(){
+  var nome=document.getElementById('nf-nome').value.trim();
+  if(!nome)return;
+  var cat=document.getElementById('nf-cat').value.trim();
+  db.fornecedores.push({id:uid(),nome:nome,cat:cat,contas:[],checklist:[],creditos:[]});
+  save();renderForn();closeModal('ov-novo-forn');
+}
+
+function toggleFornCard(id){
+  var body=document.getElementById('forn-body-'+id);
+  if(body)body.classList.toggle('open');
+}
+
+function abrirNovaConta(fornId){
+  ncFornId=fornId;
+  var f=db.fornecedores.find(function(x){return x.id===fornId});
+  document.getElementById('nc-titulo').textContent='Nova conta — '+(f?f.nome:'');
+  document.getElementById('nc-desc').value='';
+  document.getElementById('nc-val').value='';
+  document.getElementById('nc-date').value=todayISO();
+  document.getElementById('nc-obs').value='';
+  document.getElementById('nc-check-text').value='';
+  document.getElementById('nc-cred-desc').value='';
+  document.getElementById('nc-cred-val').value='';
+  ncTab('conta',document.querySelector('.forn-modal-tab'));
+  document.getElementById('ov-nova-conta').classList.add('open');
+}
+
+function ncTab(tab,btn){
+  ncTabAtual=tab;
+  ['conta','checklist','credito'].forEach(function(t){
+    document.getElementById('nc-tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.forn-modal-tab').forEach(function(b){b.classList.remove('active')});
+  if(btn)btn.classList.add('active');
+}
+
+function salvarNovaConta(){
+  if(!ncFornId)return;
+  var f=db.fornecedores.find(function(x){return x.id===ncFornId});
+  if(!f)return;
+  if(ncTabAtual==='conta'){
+    var desc=document.getElementById('nc-desc').value.trim();
+    var val=parseFloat(document.getElementById('nc-val').value);
+    if(!desc||isNaN(val)||val<0)return;
+    if(!f.contas)f.contas=[];
+    f.contas.push({id:uid(),desc:desc,val:val,date:document.getElementById('nc-date').value||todayISO(),obs:document.getElementById('nc-obs').value.trim(),pago:false});
+  } else if(ncTabAtual==='checklist'){
+    var txt=document.getElementById('nc-check-text').value.trim();
+    if(!txt)return;
+    if(!f.checklist)f.checklist=[];
+    f.checklist.push({id:uid(),text:txt,done:false});
+  } else if(ncTabAtual==='credito'){
+    var cdesc=document.getElementById('nc-cred-desc').value.trim();
+    var cval=parseFloat(document.getElementById('nc-cred-val').value)||0;
+    if(!cdesc)return;
+    if(!f.creditos)f.creditos=[];
+    f.creditos.push({id:uid(),desc:cdesc,val:cval});
+  }
+  save();renderForn();closeModal('ov-nova-conta');
+}
+
+function toggleContaPago(fornId,contaId){
+  var f=db.fornecedores.find(function(x){return x.id===fornId});
+  if(!f)return;
+  var c=f.contas.find(function(x){return x.id===contaId});
+  if(c)c.pago=!c.pago;
+  save();renderForn();
+}
+
+function removerConta(fornId,contaId){
+  if(!confirm('Remover esta conta?'))return;
+  var f=db.fornecedores.find(function(x){return x.id===fornId});
+  if(f)f.contas=f.contas.filter(function(c){return c.id!==contaId});
+  save();renderForn();
+}
+
+function toggleCheckForn(fornId,checkId){
+  var f=db.fornecedores.find(function(x){return x.id===fornId});
+  if(!f)return;
+  var c=f.checklist.find(function(x){return x.id===checkId});
+  if(c)c.done=!c.done;
+  save();renderForn();
+}
+
+function removerForn(id){
+  if(!confirm('Remover este fornecedor e todos os dados?'))return;
+  db.fornecedores=db.fornecedores.filter(function(f){return f.id!==id});
+  save();renderForn();
+}
+
+function renderForn(){
+  // Resumo
+  var totalPago=0,totalAberto=0,totalCredito=0,nAberto=0;
+  db.fornecedores.forEach(function(f){
+    (f.contas||[]).forEach(function(c){
+      if(c.pago)totalPago+=Number(c.val);
+      else{totalAberto+=Number(c.val);nAberto++;}
+    });
+    (f.creditos||[]).forEach(function(cr){totalCredito+=Number(cr.val);});
+  });
+  document.getElementById('frs-pago').textContent=fmt(totalPago);
+  document.getElementById('frs-aberto').textContent=fmt(totalAberto);
+  document.getElementById('frs-credito').textContent=fmt(totalCredito);
+  document.getElementById('frs-pago-sub').textContent=db.fornecedores.length+' fornecedor(es)';
+  document.getElementById('frs-aberto-sub').textContent=nAberto+' conta(s) abertas';
+  document.getElementById('frs-credito-sub').textContent=
+    db.fornecedores.reduce(function(s,f){return s+(f.creditos||[]).length},0)+' sobra(s)';
+
+  // Lista
+  var el=document.getElementById('forn-lista');
+  if(!db.fornecedores.length){
+    el.innerHTML='<div class="empty" style="margin-bottom:13px">Nenhum fornecedor cadastrado</div>';
+    return;
+  }
+  var html='';
+  db.fornecedores.forEach(function(f){
+    var pago=(f.contas||[]).filter(function(c){return c.pago}).reduce(function(s,c){return s+Number(c.val)},0);
+    var aberto=(f.contas||[]).filter(function(c){return !c.pago}).reduce(function(s,c){return s+Number(c.val)},0);
+    var credTotal=(f.creditos||[]).reduce(function(s,cr){return s+Number(cr.val)},0);
+    var chkTotal=(f.checklist||[]).length;
+    var chkDone=(f.checklist||[]).filter(function(c){return c.done}).length;
+
+    html+='<div class="forn-card" id="forn-card-'+f.id+'">';
+    // head
+    html+='<div class="forn-card-head" onclick="toggleFornCard(\''+f.id+'\')">'+
+      '<div>'+
+        '<div class="forn-card-nome">'+esc(f.nome)+'</div>'+
+        '<div style="font-size:11px;color:#A8A5A0;margin-top:3px">'+
+          (aberto>0?'<span style="color:#791F1F">'+fmt(aberto)+' em aberto</span>':'<span style="color:#27500A">Quitado</span>')+
+          (chkTotal?' · '+chkDone+'/'+chkTotal+' tarefas':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        (f.cat?'<span class="forn-card-cat">'+esc(f.cat)+'</span>':'')+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="#B0ADA8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="6 9 12 15 18 9"/></svg>'+
+      '</div>'+
+    '</div>';
+
+    // body
+    html+='<div class="forn-card-body" id="forn-body-'+f.id+'">';
+
+    // saldo
+    html+='<div class="forn-saldo-row">'+
+      '<div class="forn-saldo-item"><div class="forn-saldo-label">Pago</div><div class="forn-saldo-val pago">'+fmt(pago)+'</div></div>'+
+      '<div class="forn-saldo-item"><div class="forn-saldo-label">Em aberto</div><div class="forn-saldo-val aberto">'+fmt(aberto)+'</div></div>'+
+    '</div>';
+
+    // contas
+    if((f.contas||[]).length){
+      f.contas.forEach(function(c){
+        html+='<div class="forn-conta-item">'+
+          '<div style="flex:1;min-width:0">'+
+            '<div class="forn-conta-desc">'+esc(c.desc)+'</div>'+
+            '<div class="forn-conta-meta">'+isoToBR(c.date)+(c.obs?' · '+esc(c.obs):'')+'</div>'+
+          '</div>'+
+          '<div class="forn-conta-right">'+
+            '<span class="forn-conta-val">'+fmt(c.val)+'</span>'+
+            '<button class="status-badge '+(c.pago?'pago':'aberto')+'" onclick="toggleContaPago(\''+f.id+'\',\''+c.id+'\')">'+
+              (c.pago?'pago':'aberto')+
+            '</button>'+
+            '<button class="btic" onclick="removerConta(\''+f.id+'\',\''+c.id+'\')">'+SVG_DEL+'</button>'+
+          '</div>'+
+        '</div>';
+      });
+    }
+
+    // creditos
+    if((f.creditos||[]).length){
+      f.creditos.forEach(function(cr){
+        html+='<div class="forn-credito">'+
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+
+          'Sobra: '+esc(cr.desc)+(cr.val?' — crédito '+fmt(cr.val):'')+
+        '</div>';
+      });
+    }
+
+    // checklist
+    if((f.checklist||[]).length){
+      html+='<div class="forn-checklist">'+
+        '<div class="forn-checklist-head">'+
+          '<span>Checklist</span>'+
+          '<span>'+chkDone+'/'+chkTotal+'</span>'+
+        '</div>';
+      f.checklist.forEach(function(ck){
+        html+='<div class="forn-check-item">'+
+          '<div class="forn-check-box'+(ck.done?' done':'')+'" onclick="toggleCheckForn(\''+f.id+'\',\''+ck.id+'\')">'+
+            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'+
+          '</div>'+
+          '<span class="forn-check-text'+(ck.done?' done':'')+'">'+esc(ck.text)+'</span>'+
+        '</div>';
+      });
+      html+='</div>';
+    }
+
+    // ações
+    html+='<div class="forn-add-conta">'+
+      '<button class="btn-add" style="font-size:13px;padding:10px" onclick="abrirNovaConta(\''+f.id+'\')">+ Conta / Tarefa / Sobra</button>'+
+      '<button class="btn-cancel" style="font-size:12px;padding:8px;margin-top:0;width:100%;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;color:#8A8680;border:1px solid #DDD9D2;background:transparent" onclick="removerForn(\''+f.id+'\')">Remover fornecedor</button>'+
+    '</div>';
+
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
 // ── Init ──────────────────────────────────────
 document.getElementById('mo-date').value=todayISO();
 document.getElementById('mat-date').value=todayISO();
@@ -1191,3 +1630,4 @@ renderNotas();
 </script>
 </body>
 </html>
+
