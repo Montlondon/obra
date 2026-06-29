@@ -1194,6 +1194,31 @@ function enviarRelatorioWpp(encoded){
   window.open('https://wa.me/?text='+encoded,'_blank');
 }
 
+
+// ── Restore from backup (injected 29/06/2026) ──
+(function(){
+  var RKEY='mmobras_restored_29jun';
+  if(localStorage.getItem(RKEY))return;
+  var existing=null;
+  try{existing=JSON.parse(localStorage.getItem('mmobras_v2'))}catch(e){}
+  // only restore if no data or empty
+  var hasData=existing&&(
+    (existing.mo&&existing.mo.length)||
+    (existing.mat&&existing.mat.length)||
+    (existing.fornecedores&&existing.fornecedores.length)
+  );
+  if(!hasData){
+    var rd={"config": {"nome": "Obra — Pintura Montgomery", "empreiteiro": "Adson", "equipe": "Mateus e Sinval", "local": "Basement", "dataIni": "2025-06-22", "dataFim": ""}, "mo": [{"id": "xrbkb5n", "desc": "Basement", "val": 900, "obs": "", "date": "2026-06-24", "resp": "Adson", "loja": "Adson"}], "mat": [{"id": "w6p8tea", "desc": "Tinta desempenho fosco", "val": 295, "obs": "Eucatex Rendimento Extra Ultra\n[Adson]", "date": "2025-06-22", "resp": "", "loja": "Adson"}, {"id": "plh7a67", "desc": "2 Fitas crepe", "val": 25, "obs": "[Varandão]", "date": "2025-06-22", "resp": "", "loja": "Varandão"}, {"id": "7mukqh3", "desc": "Lona 8,20m", "val": 53, "obs": "[Varandão]", "date": "2025-06-22", "resp": "", "loja": ""}, {"id": "bvofutn", "desc": "Lona 8 m", "val": 52, "obs": "[Varandão]", "date": "2026-06-23", "resp": "", "loja": ""}, {"id": "t50n3xi", "desc": "1 Fita crepe", "val": 12.5, "obs": "[Varandão]", "date": "2026-06-23", "resp": "", "loja": ""}, {"id": "q90seye", "desc": "Tinta desempenho Fosco", "val": 295, "obs": "Eucatex Rendimento Extra Ultra \n[Adson]", "date": "2026-06-23", "resp": "", "loja": ""}, {"id": "q52mlbw", "desc": "Spray Branco Fosco", "val": 18, "obs": "[Varandão]", "date": "2026-06-23", "resp": "", "loja": ""}, {"id": "o701hpv", "desc": "3 Tinta rusterit 3 litros", "val": 420, "obs": "Eucatex  Direto na Ferragem", "date": "2026-06-26", "resp": "", "loja": "Adson"}], "des": [], "notas": {"comprar": [{"id": "kvvgn9p", "text": "Tinta prata na cor do corpo da casa", "done": true}, {"id": "5fxf7c7", "text": "Tinta para as grades", "done": false}], "orcar": []}, "hist": [], "fornecedores": []};
+    if(!rd.fornecedores)rd.fornecedores=[];
+    if(!rd.notas)rd.notas={comprar:[],orcar:[]};
+    if(!rd.hist)rd.hist=[];
+    if(!rd.des)rd.des=[];
+    localStorage.setItem('mmobras_v2',JSON.stringify(rd));
+    localStorage.setItem(RKEY,'1');
+    location.reload();
+  }
+})();
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 buildNavTemp();
 renderAll();
