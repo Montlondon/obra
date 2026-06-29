@@ -152,6 +152,15 @@ input:focus,select:focus{border-color:#1B3A5C}
 .fpill.on{border-color:#1B3A5C;color:#1B3A5C;background:#EBF5FF}
 .pirow{display:grid;grid-template-columns:1fr 52px 64px 28px;gap:5px;align-items:center;margin-bottom:6px}
 .pirow input{padding:8px 10px;font-size:13px}
+.tagwrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1px solid #D4D9DF;border-radius:9px;background:#fff;min-height:42px;align-items:center}
+.tagchip{display:flex;align-items:center;gap:4px;background:#EBF5FF;border:1px solid #B3D4FC;color:#1B3A5C;border-radius:14px;padding:3px 8px 3px 10px;font-size:11px;font-weight:600}
+.tagchip.cat{background:#FFF3E0;border-color:#FFCC80;color:#E65100}
+.tagchip button{background:none;border:none;color:inherit;font-size:13px;cursor:pointer;padding:0;line-height:1;opacity:.6}
+.tagin{border:none!important;outline:none;flex:1;min-width:80px;font-size:13px;padding:4px!important}
+.fctags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.fctag{font-size:9px;font-weight:600;background:#EBF5FF;color:#1B3A5C;border-radius:8px;padding:2px 7px}
+.fctag.cat{background:#FFF3E0;color:#E65100}
+
 .delpeca{background:#fee2e2;border:none;border-radius:7px;width:28px;height:36px;cursor:pointer;color:#b91c1c;font-size:16px;display:flex;align-items:center;justify-content:center}
 .sbar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #D4D9DF;border-radius:10px;padding:8px 12px;margin-bottom:12px}
 .sbar svg{width:16px;height:16px;stroke:#8A9BAC;fill:none;stroke-width:2;flex-shrink:0}
@@ -216,11 +225,6 @@ input:focus,select:focus{border-color:#1B3A5C}
 <div class="pg on" id="pg-dash">
   <div class="sl">Resumo do periodo</div>
   <div class="rg" id="res-cards"></div>
-  <div class="sl">Nota Fiscal</div>
-  <div class="nfb" onclick="alert('NF via Claude API - em breve')">
-    <div class="nfi"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-    <div><div class="nft1">Fotografar Nota Fiscal</div><div class="nft2">Classifica e vai direto pro fornecedor</div></div>
-  </div>
   <div class="sl">Lancamentos do dia</div>
   <div id="ld" style="background:#fff;border-radius:12px;border:1px solid #D4D9DF;overflow:hidden;margin-bottom:8px"></div>
   <div class="bkpr">
@@ -298,7 +302,6 @@ input:focus,select:focus{border-color:#1B3A5C}
 </div>
 
 <div class="fabw">
-  <button class="fab cam" onclick="alert('NF via Claude API - em breve')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
   <button class="fab main" onclick="abrirLanc()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 </div>
 
@@ -317,13 +320,20 @@ input:focus,select:focus{border-color:#1B3A5C}
   <input type="hidden" id="mf-id">
   <label>Nome</label><input id="mf-nome" placeholder="Ex: Pedrao da Carroca">
   <label>Telefone WhatsApp</label><input id="mf-tel" type="tel" placeholder="33 99999-9999">
-  <label>Tipo</label>
+  <label>Tipos de servico (Enter para adicionar)</label>
+  <div class="tagwrap" id="mf-tipos-wrap">
+    <input class="tagin" id="mf-tipo-in" placeholder="Ex: Pintura, Faxina..." onkeydown="if(event.key==='Enter'){event.preventDefault();addTag('tipo');}">
+  </div>
+  <label>Categorias / Materiais (Enter para adicionar)</label>
+  <div class="tagwrap" id="mf-cats-wrap">
+    <input class="tagin" id="mf-cat-in" placeholder="Ex: Tinta, Cimento..." onkeydown="if(event.key==='Enter'){event.preventDefault();addTag('cat');}">
+  </div>
+  <label>Tipo base (define cor/icone do cartao)</label>
   <div class="tpills">
-    <div class="tpill on" data-t="servico" onclick="selT(this)">Servico/MO</div>
+    <div class="tpill on" data-t="servico" onclick="selT(this)">Servico</div>
     <div class="tpill" data-t="material" onclick="selT(this)">Material</div>
     <div class="tpill alg" data-t="aluguel" onclick="selT(this)">Locacao</div>
   </div>
-  <label>Categoria</label><input id="mf-cat" placeholder="Ex: Pintor, Tinta, Andaime">
   <div id="mf-pw" style="display:none">
     <label>Pecas para alugar</label>
     <div id="mf-pl"></div>
@@ -377,6 +387,7 @@ input:focus,select:focus{border-color:#1B3A5C}
 <script>
 var KEY='mmobras_v2';
 var fTipo='servico', fForma='dinheiro', pfList=[], listaAt='todo';
+var tiposTags=[], catsTags=[];
 var eFid=null, eFcid=null, eCfid=null, eCcid=null, eLitipo=null, eLiid=null;
 var filtro={ano:null,mes:null,sem:null,dia:null};
 
@@ -535,7 +546,11 @@ function renderFC(f){
     '<button class="fac" onclick="abrirCF(\''+f.id+'\')"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>Sobra</button>'+
     '<button class="fac" onclick="editF(\''+f.id+'\')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'+
     '<button class="fac wpp" onclick="envWpp(\''+f.id+'\')"><svg viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.6 5.6 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.99.582 3.844 1.591 5.4L2.055 22l4.715-1.517A9.952 9.952 0 0 0 12 22c5.523 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WhatsApp</button></div>';
-  return '<div class="fc" id="fc-'+f.id+'"><div class="fch" onclick="tgFB(\''+f.id+'\')"><div class="fcav '+avC(f)+'">'+esc(ini(f.nome))+'</div><div class="fci"><div class="fcn">'+esc(f.nome)+'</div><div class="fcc">'+esc(f.cat||f.tipo)+(f.tel?' / '+esc(f.tel):'')+'</div></div><div class="fcs"><div class="fct">'+fmt(tot)+'</div><div class="fcbg">'+bdg+'</div></div></div><div class="fcb" id="fcb-'+f.id+'">'+body+'</div></div>';
+  var tagsH='';
+  if((f.tiposTags||[]).length||(f.catsTags||[]).length){
+    tagsH='<div class="fctags">'+(f.tiposTags||[]).map(function(t){return '<span class="fctag">'+esc(t)+'</span>';}).join('')+(f.catsTags||[]).map(function(t){return '<span class="fctag cat">'+esc(t)+'</span>';}).join('')+'</div>';
+  }
+  return '<div class="fc" id="fc-'+f.id+'"><div class="fch" onclick="tgFB(\''+f.id+'\')"><div class="fcav '+avC(f)+'">'+esc(ini(f.nome))+'</div><div class="fci"><div class="fcn">'+esc(f.nome)+'</div><div class="fcc">'+(f.tel?esc(f.tel):'')+'</div>'+tagsH+'</div><div class="fcs"><div class="fct">'+fmt(tot)+'</div><div class="fcbg">'+bdg+'</div></div></div><div class="fcb" id="fcb-'+f.id+'">'+body+'</div></div>';
 }
 function tgFB(id){var b=document.getElementById('fcb-'+id);if(b)b.classList.toggle('on');}
 function renderContas(f){
@@ -582,13 +597,38 @@ function renderAlg(f){
   return h;
 }
 
+// Tags
+function addTag(kind){
+  var inp=document.getElementById(kind==='tipo'?'mf-tipo-in':'mf-cat-in');
+  var val=inp.value.trim();
+  if(!val)return;
+  if(kind==='tipo'){if(!tiposTags.includes(val))tiposTags.push(val);}
+  else{if(!catsTags.includes(val))catsTags.push(val);}
+  inp.value='';
+  renderTags();
+}
+function removeTag(kind,idx){
+  if(kind==='tipo')tiposTags.splice(idx,1);else catsTags.splice(idx,1);
+  renderTags();
+}
+function renderTags(){
+  var tw=document.getElementById('mf-tipos-wrap');
+  var inp1=document.getElementById('mf-tipo-in');
+  tw.innerHTML=tiposTags.map(function(t,i){return '<span class="tagchip">'+esc(t)+'<button onclick="removeTag(\'tipo\','+i+')">x</button></span>';}).join('');
+  tw.appendChild(inp1);
+  var cw=document.getElementById('mf-cats-wrap');
+  var inp2=document.getElementById('mf-cat-in');
+  cw.innerHTML=catsTags.map(function(t,i){return '<span class="tagchip cat">'+esc(t)+'<button onclick="removeTag(\'cat\','+i+')">x</button></span>';}).join('');
+  cw.appendChild(inp2);
+}
+
 // CRUD Fornecedor
-function abrirNF(){eFid=null;pfList=[];document.getElementById('mft').textContent='Novo Fornecedor';document.getElementById('mf-id').value='';document.getElementById('mf-nome').value='';document.getElementById('mf-tel').value='';document.getElementById('mf-cat').value='';document.getElementById('mf-del').style.display='none';document.getElementById('mf-pw').style.display='none';document.getElementById('mf-pl').innerHTML='';fTipo='servico';document.querySelectorAll('.tpill').forEach(function(p,i){p.classList.toggle('on',i===0);});oM('m-forn');}
-function editF(fid){var f=db.fornecedores.find(function(x){return x.id===fid;});if(!f)return;eFid=fid;document.getElementById('mft').textContent='Editar - '+f.nome;document.getElementById('mf-id').value=fid;document.getElementById('mf-nome').value=f.nome;document.getElementById('mf-tel').value=f.tel||'';document.getElementById('mf-cat').value=f.cat||'';document.getElementById('mf-del').style.display='block';fTipo=f.tipo||'servico';document.querySelectorAll('.tpill').forEach(function(p){p.classList.toggle('on',p.dataset.t===fTipo);});document.getElementById('mf-pw').style.display=fTipo==='aluguel'?'block':'none';pfList=(f.pecas||[]).map(function(p){return {id:p.id,nome:p.nome,qtd:p.qtd,valDia:p.valDia};});renderPF();oM('m-forn');}
+function abrirNF(){eFid=null;pfList=[];tiposTags=[];catsTags=[];document.getElementById('mft').textContent='Novo Fornecedor';document.getElementById('mf-id').value='';document.getElementById('mf-nome').value='';document.getElementById('mf-tel').value='';document.getElementById('mf-del').style.display='none';document.getElementById('mf-pw').style.display='none';document.getElementById('mf-pl').innerHTML='';fTipo='servico';document.querySelectorAll('.tpill').forEach(function(p,i){p.classList.toggle('on',i===0);});renderTags();oM('m-forn');}
+function editF(fid){var f=db.fornecedores.find(function(x){return x.id===fid;});if(!f)return;eFid=fid;document.getElementById('mft').textContent='Editar - '+f.nome;document.getElementById('mf-id').value=fid;document.getElementById('mf-nome').value=f.nome;document.getElementById('mf-tel').value=f.tel||'';document.getElementById('mf-del').style.display='block';fTipo=f.tipo||'servico';document.querySelectorAll('.tpill').forEach(function(p){p.classList.toggle('on',p.dataset.t===fTipo);});document.getElementById('mf-pw').style.display=fTipo==='aluguel'?'block':'none';pfList=(f.pecas||[]).map(function(p){return {id:p.id,nome:p.nome,qtd:p.qtd,valDia:p.valDia};});tiposTags=(f.tiposTags||(f.cat?[]:[])).slice();catsTags=(f.catsTags||[]).slice();if(!tiposTags.length&&f.cat)catsTags=catsTags.length?catsTags:[f.cat];renderPF();renderTags();oM('m-forn');}
 function selT(el){document.querySelectorAll('.tpill').forEach(function(p){p.classList.remove('on');});el.classList.add('on');fTipo=el.dataset.t;document.getElementById('mf-pw').style.display=fTipo==='aluguel'?'block':'none';}
 function addPF(){pfList.push({id:uid(),nome:'',qtd:1,valDia:3});renderPF();}
 function renderPF(){document.getElementById('mf-pl').innerHTML=pfList.map(function(p,i){return '<div class="pirow"><input placeholder="Peca" value="'+esc(p.nome)+'" oninput="pfList['+i+'].nome=this.value"><input type="number" value="'+p.qtd+'" min="1" oninput="pfList['+i+'].qtd=Number(this.value)||1"><input type="number" value="'+p.valDia+'" step="0.5" oninput="pfList['+i+'].valDia=parseFloat(this.value)||0"><button class="delpeca" onclick="pfList.splice('+i+',1);renderPF()">x</button></div>';}).join('');}
-function salvarF(){var nome=document.getElementById('mf-nome').value.trim();if(!nome)return;var tel=document.getElementById('mf-tel').value.trim(),cat=document.getElementById('mf-cat').value.trim();if(eFid){var f=db.fornecedores.find(function(x){return x.id===eFid;});if(f){f.nome=nome;f.tel=tel;f.cat=cat;f.tipo=fTipo;if(fTipo==='aluguel')f.pecas=pfList.filter(function(p){return p.nome;});}}else{var nf={id:uid(),nome:nome,tel:tel,cat:cat,tipo:fTipo,contas:[],checklist:[],creditos:[],pecas:[],locacoes:[],recibos:[]};if(fTipo==='aluguel')nf.pecas=pfList.filter(function(p){return p.nome;}).map(function(p){return {id:uid(),nome:p.nome,qtd:p.qtd,valDia:p.valDia};});db.fornecedores.push(nf);}save();cM('m-forn');renderForn();renderAll();document.getElementById('tvf').textContent=db.fornecedores.length;}
+function salvarF(){var nome=document.getElementById('mf-nome').value.trim();if(!nome)return;var tel=document.getElementById('mf-tel').value.trim();var catStr=catsTags.join(', '),tipoStr=tiposTags.join(', ');if(eFid){var f=db.fornecedores.find(function(x){return x.id===eFid;});if(f){f.nome=nome;f.tel=tel;f.cat=catStr;f.tiposTags=tiposTags.slice();f.catsTags=catsTags.slice();f.tipo=fTipo;if(fTipo==='aluguel')f.pecas=pfList.filter(function(p){return p.nome;});}}else{var nf={id:uid(),nome:nome,tel:tel,cat:catStr,tiposTags:tiposTags.slice(),catsTags:catsTags.slice(),tipo:fTipo,contas:[],checklist:[],creditos:[],pecas:[],locacoes:[],recibos:[]};if(fTipo==='aluguel')nf.pecas=pfList.filter(function(p){return p.nome;}).map(function(p){return {id:uid(),nome:p.nome,qtd:p.qtd,valDia:p.valDia};});db.fornecedores.push(nf);}save();cM('m-forn');renderForn();renderAll();document.getElementById('tvf').textContent=db.fornecedores.length;}
 function delF(){if(!eFid||!confirm('Deletar fornecedor e todos os dados?'))return;db.fornecedores=db.fornecedores.filter(function(f){return f.id!==eFid;});save();cM('m-forn');renderForn();renderAll();document.getElementById('tvf').textContent=db.fornecedores.length;}
 
 // CRUD Lancamento
