@@ -244,7 +244,7 @@ input:focus,select:focus,textarea:focus{border-color:#1B3A5C}
   <div class="hd-logo">MM<span>Obras</span></div>
   <div class="hd-right">
     <div class="hd-brt"><strong id="brt-h">--:--</strong><span id="brt-d"></span></div>
-    <button class="hd-icon-btn" onclick="openModal('m-busca')" title="Busca">
+    <button class="hd-icon-btn" onclick="toggleBuscaBar()" title="Busca" id="btn-busca-hdr">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </button>
     <button class="hd-icon-btn" onclick="doBackup()" title="Backup">
@@ -253,6 +253,14 @@ input:focus,select:focus,textarea:focus{border-color:#1B3A5C}
   </div>
 </header>
 
+<div id="busca-bar-global" style="display:none;position:sticky;top:60px;z-index:60;background:#1B3A5C;padding:6px 14px;border-bottom:1px solid #C9A84C;">
+  <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 12px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A9BAC" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="busca-global-input" placeholder="Buscar em tudo..." oninput="renderBuscaGlobal()" style="border:none;outline:none;font-size:14px;color:#1A1918;width:100%;font-family:Inter,sans-serif;background:transparent">
+    <button onclick="toggleBuscaBar()" style="background:none;border:none;font-size:18px;color:#8A9BAC;cursor:pointer;padding:0 2px">×</button>
+  </div>
+  <div id="busca-global-res" style="margin-top:6px;max-height:60vh;overflow-y:auto;border-radius:10px;overflow:hidden;"></div>
+</div>
 <div class="nav-temp" id="navTemp"></div>
 
 <div class="tab-bar">
@@ -447,12 +455,7 @@ input:focus,select:focus,textarea:focus{border-color:#1B3A5C}
 </nav>
 
 <!-- MODAIS -->
-<div class="modal" id="m-busca"><div class="mbox">
-  <button class="mclose" onclick="closeModal('m-busca')">×</button>
-  <div class="mtitle">🔍 Busca Geral</div>
-  <div class="search-bar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="busca-input" placeholder="Buscar em tudo..." oninput="renderBusca()"></div>
-  <div id="busca-resultados"></div>
-</div></div>
+
 
 <div class="modal" id="m-novo-forn"><div class="mbox">
   <button class="mclose" onclick="closeModal('m-novo-forn')">×</button>
@@ -1282,7 +1285,14 @@ function renderBusca(){
 // ── Relatório ─────────────────────────────────────────────────────────────────
 function renderRelatorio(){
   var q=(document.getElementById('rel-search')||{value:''}).value.toLowerCase();
-  var list=db.fornecedores.filter(function(f){return !q||f.nome.toLowerCase().includes(q);});
+  var list=db.fornecedores.filter(function(f){
+    if(!q)return true;
+    if(f.nome.toLowerCase().includes(q))return true;
+    if((f.cat||'').toLowerCase().includes(q))return true;
+    if((f.tel||'').includes(q))return true;
+    if((f.contas||[]).some(function(c){return (c.desc||'').toLowerCase().includes(q)||(c.obs||'').toLowerCase().includes(q);}))return true;
+    return false;
+  });
   var html='';
   var totGeral=0,totPagoGeral=0,totPendGeral=0;
   list.forEach(function(f){
@@ -1339,6 +1349,65 @@ function doRestore(inp){
 
 // ── NF ────────────────────────────────────────────────────────────────────────
 function abrirNF(){alert('Foto de NF: integração com Claude API em desenvolvimento.');}
+
+// ── Busca Global ─────────────────────────────────────────────────────────────
+function toggleBuscaBar(){
+  var bar=document.getElementById('busca-bar-global');
+  var inp=document.getElementById('busca-global-input');
+  if(bar.style.display==='none'){
+    bar.style.display='block';
+    if(inp)setTimeout(function(){inp.focus();},100);
+  } else {
+    bar.style.display='none';
+    if(inp){inp.value='';document.getElementById('busca-global-res').innerHTML='';}
+  }
+}
+
+function renderBuscaGlobal(){
+  var q=(document.getElementById('busca-global-input').value||'').toLowerCase().trim();
+  var el=document.getElementById('busca-global-res');
+  if(!q){el.innerHTML='';return;}
+  var res=[];
+  // Fornecedores
+  db.fornecedores.forEach(function(f){
+    var fMatch=f.nome.toLowerCase().includes(q)||(f.cat||'').toLowerCase().includes(q)||(f.tel||'').includes(q);
+    if(fMatch){
+      res.push('<div class="lrow" style="background:#fff;cursor:pointer" onclick="goPage('forn',document.querySelector('.bn:nth-child(2)'));toggleBuscaBar()">'+
+        '<div class="lr-esq"><div class="ln">👤 '+esc(f.nome)+'</div><div class="ld">'+esc(f.cat||f.tipo)+(f.tel?' · '+esc(f.tel):'')+'</div></div>'+
+        '<div class="lr-dir"><div class="lr-val">'+fmt((f.contas||[]).reduce(function(a,c){return a+c.val},0))+'</div></div></div>');
+    }
+    // Lançamentos
+    (f.contas||[]).forEach(function(c){
+      if((c.desc||'').toLowerCase().includes(q)||(c.obs||'').toLowerCase().includes(q)||f.nome.toLowerCase().includes(q)){
+        res.push('<div class="lrow" style="background:#fff">'+
+          '<div class="lr-esq"><div class="ln">'+esc(c.desc)+'</div>'+
+          '<div class="ld">'+esc(f.nome)+' · '+isoToBR(c.date)+'</div></div>'+
+          '<div class="lr-dir"><div class="lr-val">'+fmt(c.val)+'</div>'+
+          '<span class="sbg '+(c.pago?'pg':'pd')+'">'+(c.pago?'pago':'pendente')+'</span></div></div>');
+      }
+    });
+  });
+  // Listas
+  ['todo','pendencias','compras','sobras'].forEach(function(tipo){
+    (db.listas[tipo]||[]).forEach(function(it){
+      if((it.text||'').toLowerCase().includes(q)){
+        res.push('<div class="lrow" style="background:#fff"><div class="lr-esq">'+
+          '<div class="ln">📋 '+esc(it.text)+'</div><div class="ld">Lista: '+tipo+'</div></div></div>');
+      }
+    });
+  });
+  // MO/MAT legados
+  (db.mo||[]).forEach(function(i){
+    if((i.desc||i.obs||'').toLowerCase().includes(q))
+      res.push('<div class="lrow" style="background:#fff"><div class="lr-esq"><div class="ln">'+esc(i.desc||i.obs)+'</div><div class="ld">MO · '+isoToBR(i.date)+'</div></div><div class="lr-dir"><div class="lr-val">'+fmt(i.val)+'</div></div></div>');
+  });
+  (db.mat||[]).forEach(function(i){
+    if((i.desc||i.obs||'').toLowerCase().includes(q))
+      res.push('<div class="lrow" style="background:#fff"><div class="lr-esq"><div class="ln">'+esc(i.desc||i.obs)+'</div><div class="ld">Material · '+isoToBR(i.date)+'</div></div><div class="lr-dir"><div class="lr-val">'+fmt(i.val)+'</div></div></div>');
+  });
+  if(!res.length){el.innerHTML='<div style="background:#fff;padding:14px;text-align:center;font-size:13px;color:#8A9BAC;border-radius:10px">Nenhum resultado para "'+esc(q)+'"</div>';return;}
+  el.innerHTML='<div style="background:#fff;border-radius:10px;overflow:hidden">'+res.join('')+'</div>';
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildNavTemp();
