@@ -529,49 +529,49 @@ function migrate(){
 }
 
 // ── Nav Temporal ─────────────────────────────────────────────────────────────
-var filtro={ano:null,mes:null,sem:null,dia:null};
+var filtro={ano:null,mes:null,sem:null,dia:null}; // null = Todos
 
 function buildNavTemp(){
   var now=brtNow();
   var anoAtual=now.getFullYear();
-  // anos disponíveis: 2025 e atual
   var anos=[2025,anoAtual].filter(function(a,i,arr){return arr.indexOf(a)===i}).sort();
-  if(!filtro.ano)filtro.ano=anoAtual;
   var meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  var mesAtual=now.getMonth();
-  if(filtro.mes===null)filtro.mes=mesAtual;
 
   var html='<span class="nt-lv">Ano</span>';
+  html+='<div class="nt-chip'+(filtro.ano===null?' on':'')+'" onclick="setFiltro(\'ano\',null)">Todos</div>';
   anos.forEach(function(a){
     html+='<div class="nt-chip'+(filtro.ano===a?' on':'')+'" onclick="setFiltro(\'ano\','+a+')">'+a+'</div>';
   });
+
   html+='<span class="nt-sep">›</span><span class="nt-lv">Mês</span>';
+  html+='<div class="nt-chip'+(filtro.mes===null?' on':'')+'" onclick="setFiltro(\'mes\',null)">Todos</div>';
   meses.forEach(function(m,i){
     html+='<div class="nt-chip'+(filtro.mes===i?' on':'')+'" onclick="setFiltro(\'mes\','+i+')">'+m+'</div>';
   });
-  html+='<span class="nt-sep">›</span><span class="nt-lv">Sem</span>';
-  // semanas do mês selecionado
-  var semanas=getSemanasDoMes(filtro.ano,filtro.mes);
-  semanas.forEach(function(s,i){
-    html+='<div class="nt-chip'+(filtro.sem===i?' on':'')+'" onclick="setFiltro(\'sem\','+i+')">S'+(i+1)+'</div>';
-  });
-  html+='<div class="nt-chip'+(filtro.sem===null?' on':'')+'" onclick="setFiltro(\'sem\',null)">Todas</div>';
 
-  // dias da semana selecionada
-  if(filtro.sem!==null){
-    var sem=semanas[filtro.sem];
-    if(sem){
-      html+='<span class="nt-sep">›</span><span class="nt-lv">Dia</span>';
-      var d=new Date(sem.inicio+'T12:00:00');
-      var fim=new Date(sem.fim+'T12:00:00');
-      var diasNomes=['D','S','T','Q','Q','S','S'];
-      while(d<=fim){
-        var iso=d.toISOString().slice(0,10);
-        var dnum=d.getDate();
-        html+='<div class="nt-chip'+(filtro.dia===iso?' on':'')+'" onclick="setFiltro(\'dia\',\''+iso+'\')">'+diasNomes[d.getDay()]+' '+dnum+'</div>';
-        d.setDate(d.getDate()+1);
+  if(filtro.mes!==null){
+    var anoSem=filtro.ano!==null?filtro.ano:anoAtual;
+    var semanas=getSemanasDoMes(anoSem,filtro.mes);
+    html+='<span class="nt-sep">›</span><span class="nt-lv">Sem</span>';
+    html+='<div class="nt-chip'+(filtro.sem===null?' on':'')+'" onclick="setFiltro(\'sem\',null)">Todas</div>';
+    semanas.forEach(function(s,i){
+      html+='<div class="nt-chip'+(filtro.sem===i?' on':'')+'" onclick="setFiltro(\'sem\','+i+')">S'+(i+1)+'</div>';
+    });
+
+    if(filtro.sem!==null){
+      var sem=semanas[filtro.sem];
+      if(sem){
+        html+='<span class="nt-sep">›</span><span class="nt-lv">Dia</span>';
+        html+='<div class="nt-chip'+(filtro.dia===null?' on':'')+'" onclick="setFiltro(\'dia\',null)">Todos</div>';
+        var dd=new Date(sem.inicio+'T12:00:00');
+        var fim=new Date(sem.fim+'T12:00:00');
+        var dn=['D','S','T','Q','Q','S','S'];
+        while(dd<=fim){
+          var iso=dd.toISOString().slice(0,10);
+          html+='<div class="nt-chip'+(filtro.dia===iso?' on':'')+'" onclick="setFiltro(\'dia\',\''+iso+'\')">'+dn[dd.getDay()]+' '+dd.getDate()+'</div>';
+          dd.setDate(dd.getDate()+1);
+        }
       }
-      html+='<div class="nt-chip'+(filtro.dia===null&&filtro.sem!==null?' on':'')+'" onclick="setFiltro(\'dia\',null)">Todos</div>';
     }
   }
   document.getElementById('navTemp').innerHTML=html;
@@ -605,14 +605,15 @@ function setFiltro(campo,val){
 function isNoFiltro(dateISO){
   if(!dateISO)return true;
   var d=new Date(dateISO+'T12:00:00');
-  if(filtro.ano&&d.getFullYear()!==filtro.ano)return false;
+  if(filtro.ano!==null&&d.getFullYear()!==filtro.ano)return false;
   if(filtro.mes!==null&&d.getMonth()!==filtro.mes)return false;
-  if(filtro.sem!==null){
-    var sems=getSemanasDoMes(filtro.ano,filtro.mes);
+  if(filtro.sem!==null&&filtro.mes!==null){
+    var anoSem=filtro.ano!==null?filtro.ano:d.getFullYear();
+    var sems=getSemanasDoMes(anoSem,filtro.mes);
     var s=sems[filtro.sem];
     if(s&&(dateISO<s.inicio||dateISO>s.fim))return false;
   }
-  if(filtro.dia&&dateISO!==filtro.dia)return false;
+  if(filtro.dia!==null&&dateISO!==filtro.dia)return false;
   return true;
 }
 
@@ -656,47 +657,49 @@ function renderAll(){
 
 // ── Resumo Cards ─────────────────────────────────────────────────────────────
 function renderResumo(){
-  // calcular totais de contas dos fornecedores no período
   var totMO=0,totMat=0,totAlg=0,totCred=0,totPago=0,totPend=0;
+  // legacy mo/mat arrays (migrated from old app)
+  (db.mo||[]).forEach(function(i){
+    if(!isNoFiltro(i.date))return;
+    totMO+=i.val||0;
+  });
+  (db.mat||[]).forEach(function(i){
+    if(!isNoFiltro(i.date))return;
+    totMat+=i.val||0;
+  });
+  (db.des||[]).forEach(function(i){
+    if(!isNoFiltro(i.date))return;
+    totMat+=i.val||0;
+  });
+  // fornecedores
   db.fornecedores.forEach(function(f){
     (f.contas||[]).forEach(function(c){
       if(!isNoFiltro(c.date))return;
-      if(f.tipo==='servico')totMO+=c.val;
-      else if(f.tipo==='material')totMat+=c.val;
-      if(c.pago)totPago+=c.val;else totPend+=c.val;
+      if(f.tipo==='servico')totMO+=c.val||0;
+      else if(f.tipo==='material')totMat+=c.val||0;
+      if(c.pago)totPago+=c.val||0;else totPend+=c.val||0;
     });
     (f.creditos||[]).forEach(function(c){
       if(!isNoFiltro(c.date))return;
-      totCred+=c.val;
+      totCred+=c.val||0;
     });
-    // locações
     (f.locacoes||[]).forEach(function(l){
       if(!isNoFiltro(l.dataInicio))return;
-      var tdAlg=calcTotalAluguel(f,l);
-      totAlg+=tdAlg;
-      if(l.pago)totPago+=tdAlg;else totPend+=tdAlg;
+      var t=calcTotalAluguel(f,l);
+      totAlg+=t;
+      if(l.pago)totPago+=t;else totPend+=t;
     });
   });
-  // também antigos mo/mat
-  (db.mo||[]).forEach(function(i){if(isNoFiltro(i.date))totMO+=i.val});
-  (db.mat||[]).forEach(function(i){if(isNoFiltro(i.date))totMat+=i.val});
-
   var total=totMO+totMat+totAlg;
   var html=
     '<div class="rc"><div class="rl">Mão de Obra</div><div class="rv">'+fmt(totMO)+'</div></div>'+
     '<div class="rc"><div class="rl">Materiais</div><div class="rv">'+fmt(totMat)+'</div></div>'+
     '<div class="rc"><div class="rl">Locações</div><div class="rv">'+fmt(totAlg)+'</div></div>'+
     '<div class="rc"><div class="rl">Créditos / Sobras</div><div class="rv verde">'+fmt(totCred)+'</div></div>'+
-    '<div class="rc full"><div class="rl">Total do período</div><div class="rv">'+fmt(total)+'</div><div class="rs">Pago: '+fmt(totPago)+' · Pendente: '+fmt(totPend)+'</div></div>';
+    '<div class="rc full"><div class="rl">Total do período</div><div class="rv">'+fmt(total)+'</div>'+
+    '<div class="rs">Pago: '+fmt(totPago)+' · Pendente: '+fmt(totPend)+'</div></div>';
   document.getElementById('resumo-cards').innerHTML=html;
 }
-
-function calcTotalAluguel(f,loc){
-  if(!f.pecas||!f.pecas.length)return 0;
-  var diasDia=f.pecas.reduce(function(a,p){return a+(p.qtd*p.valDia)},0);
-  return diasDia*(loc.dias||1);
-}
-
 // ── Lançamentos do Dia ───────────────────────────────────────────────────────
 function renderLancamentosDia(){
   var hoje=todayISO();
