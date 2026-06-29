@@ -565,13 +565,23 @@ updateBRT();setInterval(updateBRT,30000);
 var SEED={"config": {"nome": "Obra — Pintura Montgomery", "empreiteiro": "Adson", "equipe": "Mateus e Sinval", "local": "Basement", "dataIni": "2026-06-22", "dataFim": ""}, "mo": [], "mat": [], "des": [], "notas": {"comprar": [], "orcar": []}, "hist": [], "fornecedores": [{"id": "adson001", "nome": "Adson", "tel": "", "cat": "Pintor", "tipo": "servico", "contas": [{"id": "a1", "desc": "MO Pintura — Basement", "val": 900.0, "date": "2026-06-26", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "a2", "desc": "3 Tintas Rusterit 3L + Eucatex Diego Ma. Foresgreen", "val": 420.0, "date": "2026-06-26", "obs": "MD Tintas via Adson", "pago": false, "forma": "dinheiro"}], "checklist": [], "creditos": [], "pecas": [], "locacoes": [], "recibos": []}, {"id": "varandao001", "nome": "Varandão", "tel": "", "cat": "Material", "tipo": "material", "contas": [{"id": "v1", "desc": "2 Fitas crepe", "val": 25.0, "date": "2026-06-22", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "v2", "desc": "Lona 8.20m", "val": 53.0, "date": "2026-06-22", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "v3", "desc": "Lona 8.00m", "val": 52.0, "date": "2026-06-23", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "v4", "desc": "1 Fita crepe", "val": 12.5, "date": "2026-06-23", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "v5", "desc": "Spray branco fosco", "val": 18.0, "date": "2026-06-23", "obs": "", "pago": false, "forma": "dinheiro"}], "checklist": [], "creditos": [], "pecas": [], "locacoes": [], "recibos": []}, {"id": "mdtintas001", "nome": "MD Tintas", "tel": "", "cat": "Material", "tipo": "material", "contas": [{"id": "m1", "desc": "Tinta Desempenho Fosco Eucatex Rendimento Extra Ultra", "val": 285.0, "date": "2026-06-22", "obs": "", "pago": false, "forma": "dinheiro"}, {"id": "m2", "desc": "Tinta Desempenho Fosco Eucatex Rendimento Extra Ultra", "val": 285.0, "date": "2026-06-22", "obs": "", "pago": false, "forma": "dinheiro"}], "checklist": [], "creditos": [], "pecas": [], "locacoes": [], "recibos": []}, {"id": "pedrao001", "nome": "Pedrão da Carroça", "tel": "33999572038", "cat": "Locação Equipamentos", "tipo": "aluguel", "contas": [], "checklist": [], "creditos": [], "pecas": [{"id": "p1", "nome": "Andaime 1×1", "qtd": 10, "valDia": 3.0}, {"id": "p2", "nome": "Tábuas", "qtd": 4, "valDia": 3.0}, {"id": "p3", "nome": "Roda", "qtd": 4, "valDia": 3.0}], "locacoes": [{"id": "l1", "dataInicio": "2026-06-29", "dias": 1, "pago": false, "encerrada": false}], "recibos": []}], "listas": {"todo": [{"id": "td1", "text": "Tinta prata", "done": true}], "pendencias": [], "compras": [], "sobras": []}};
 var db;
 try{db=JSON.parse(localStorage.getItem(KEY))}catch(e){db=null}
-if(!db||(!db.mo&&!db.mat&&!db.fornecedores)){
+if(!db){
   db=SEED;localStorage.setItem(KEY,JSON.stringify(db));
 }
 // ensure fields
 if(!db.fornecedores)db.fornecedores=[];
 if(!db.listas)db.listas={todo:[],pendencias:[],compras:[],sobras:[]};
 ['todo','pendencias','compras','sobras'].forEach(function(k){if(!db.listas[k])db.listas[k]=[];});
+// If fornecedores empty but SEED has them, merge SEED fornecedores in
+if(!db.fornecedores.length&&SEED.fornecedores&&SEED.fornecedores.length){
+  db.fornecedores=SEED.fornecedores;
+  save();
+}
+// Migrate legacy listas from notas
+if(!db.listas.todo.length&&db.notas&&db.notas.comprar&&db.notas.comprar.length){
+  db.listas.compras=db.notas.comprar.map(function(i){return {id:i.id||uid(),text:i.item||i.text||'',obs:i.obs||'',done:i.done||false};});
+  save();
+}
 if(!db.notas)db.notas={comprar:[],orcar:[]};
 if(!db.mo)db.mo=[];if(!db.mat)db.mat=[];if(!db.des)db.des=[];
 db.fornecedores.forEach(function(f){
