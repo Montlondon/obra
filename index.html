@@ -1363,51 +1363,109 @@ function toggleBuscaBar(){
   }
 }
 
+function highlight(text, q){
+  if(!q)return esc(text);
+  var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  return esc(text).replace(re,'<mark style="background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px">$1</mark>');
+}
+
 function renderBuscaGlobal(){
   var q=(document.getElementById('busca-global-input').value||'').toLowerCase().trim();
   var el=document.getElementById('busca-global-res');
-  if(!q){el.innerHTML='';return;}
-  var res=[];
+  if(q.length<1){el.innerHTML='';return;}
+
+  var secForn=[],secLanc=[],secListas=[];
+
   // Fornecedores
   db.fornecedores.forEach(function(f){
     var fMatch=f.nome.toLowerCase().includes(q)||(f.cat||'').toLowerCase().includes(q)||(f.tel||'').includes(q);
     if(fMatch){
-      res.push('<div class="lrow" style="background:#fff;cursor:pointer" onclick="goPage('forn',document.querySelector('.bn:nth-child(2)'));toggleBuscaBar()">'+
-        '<div class="lr-esq"><div class="ln">👤 '+esc(f.nome)+'</div><div class="ld">'+esc(f.cat||f.tipo)+(f.tel?' · '+esc(f.tel):'')+'</div></div>'+
-        '<div class="lr-dir"><div class="lr-val">'+fmt((f.contas||[]).reduce(function(a,c){return a+c.val},0))+'</div></div></div>');
+      var totPend=(f.contas||[]).filter(function(c){return !c.pago}).reduce(function(a,c){return a+c.val},0);
+      var totAlg=(f.locacoes||[]).filter(function(l){return !l.encerrada&&!l.pago}).reduce(function(a,l){return a+calcTotalAluguel(f,l)},0);
+      var pend=totPend+totAlg;
+      secForn.push(
+        '<div onclick="goPage('forn',document.querySelectorAll('.tab-btn')[1]);toggleBuscaBar();setTimeout(function(){var el=document.getElementById('fc-'+f.id+'');if(el){el.scrollIntoView({behavior:'smooth'});document.getElementById('fcb-'+f.id+'').classList.add('on');}},300)" '+
+        'style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff">'+
+          '<div style="width:36px;height:36px;border-radius:50%;background:#1B3A5C;color:#C9A84C;display:flex;align-items:center;justify-content:center;font-family:Lora,serif;font-size:13px;font-weight:600;flex-shrink:0">'+esc(initials(f.nome))+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:13px;font-weight:600;color:#1B3A5C">'+highlight(f.nome,q)+'</div>'+
+            '<div style="font-size:10px;color:#8A9BAC">'+highlight(f.cat||f.tipo,q)+(f.tel?' · '+highlight(f.tel,q):'')+'</div>'+
+          '</div>'+
+          (pend?'<div style="text-align:right"><div style="font-size:10px;color:#8A9BAC">pendente</div><div style="font-size:13px;font-weight:700;font-family:Lora,serif;color:#E65100">'+fmt(pend)+'</div></div>':'')+
+        '</div>'
+      );
     }
-    // Lançamentos
-    (f.contas||[]).forEach(function(c){
-      if((c.desc||'').toLowerCase().includes(q)||(c.obs||'').toLowerCase().includes(q)||f.nome.toLowerCase().includes(q)){
-        res.push('<div class="lrow" style="background:#fff">'+
-          '<div class="lr-esq"><div class="ln">'+esc(c.desc)+'</div>'+
-          '<div class="ld">'+esc(f.nome)+' · '+isoToBR(c.date)+'</div></div>'+
-          '<div class="lr-dir"><div class="lr-val">'+fmt(c.val)+'</div>'+
-          '<span class="sbg '+(c.pago?'pg':'pd')+'">'+(c.pago?'pago':'pendente')+'</span></div></div>');
+
+    // Lançamentos deste fornecedor
+    (f.contas||[]).forEach(function(ct){
+      if((ct.desc||'').toLowerCase().includes(q)||(ct.obs||'').toLowerCase().includes(q)){
+        secLanc.push(
+          '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff" '+
+          'onclick="goPage('forn',document.querySelectorAll('.tab-btn')[1]);toggleBuscaBar();setTimeout(function(){var el=document.getElementById('fc-'+f.id+'');if(el){el.scrollIntoView({behavior:'smooth'});document.getElementById('fcb-'+f.id+'').classList.add('on');}},300)">'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:12px;font-weight:600;color:#1A1918">'+highlight(ct.desc,q)+'</div>'+
+              '<div style="font-size:10px;color:#8A9BAC">'+esc(f.nome)+' · '+isoToBR(ct.date)+(ct.obs?' · '+highlight(ct.obs,q):'')+'</div>'+
+            '</div>'+
+            '<div style="text-align:right;flex-shrink:0">'+
+              '<div style="font-size:13px;font-weight:600;font-family:Lora,serif;color:#1B3A5C">'+fmt(ct.val)+'</div>'+
+              '<span class="sbg '+(ct.pago?'pg':'pd')+'">'+(ct.pago?'pago':'pendente')+'</span>'+
+            '</div>'+
+          '</div>'
+        );
       }
     });
   });
+
   // Listas
+  var listaNomes={todo:'To Do',pendencias:'Pendências',compras:'Compras',sobras:'Sobras'};
   ['todo','pendencias','compras','sobras'].forEach(function(tipo){
     (db.listas[tipo]||[]).forEach(function(it){
-      if((it.text||'').toLowerCase().includes(q)){
-        res.push('<div class="lrow" style="background:#fff"><div class="lr-esq">'+
-          '<div class="ln">📋 '+esc(it.text)+'</div><div class="ld">Lista: '+tipo+'</div></div></div>');
+      if((it.text||'').toLowerCase().includes(q)||(it.obs||'').toLowerCase().includes(q)){
+        secListas.push(
+          '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff" '+
+          'onclick="listaAtual=''+tipo+'';goPage('listas',document.querySelectorAll('.tab-btn')[2]);toggleBuscaBar()">'+
+            '<div style="width:28px;height:28px;border-radius:7px;background:#EAE7E0;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+(it.done?'✅':'⬜')+'</div>'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:12px;font-weight:600;color:#1A1918'+(it.done?';text-decoration:line-through;color:#8A9BAC':'')+'">'+highlight(it.text,q)+'</div>'+
+              '<div style="font-size:10px;color:#8A9BAC">Lista: '+listaNomes[tipo]+(it.obs?' · '+highlight(it.obs,q):'')+'</div>'+
+            '</div>'+
+          '</div>'
+        );
       }
     });
   });
+
   // MO/MAT legados
-  (db.mo||[]).forEach(function(i){
-    if((i.desc||i.obs||'').toLowerCase().includes(q))
-      res.push('<div class="lrow" style="background:#fff"><div class="lr-esq"><div class="ln">'+esc(i.desc||i.obs)+'</div><div class="ld">MO · '+isoToBR(i.date)+'</div></div><div class="lr-dir"><div class="lr-val">'+fmt(i.val)+'</div></div></div>');
+  (db.mo||[]).concat(db.mat||[]).forEach(function(i){
+    var desc=i.desc||i.obs||'';
+    if(desc.toLowerCase().includes(q)){
+      secLanc.push(
+        '<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:#fff;border-bottom:1px solid #EAE7E0">'+
+          '<div style="flex:1"><div style="font-size:12px;font-weight:600">'+highlight(desc,q)+'</div>'+
+          '<div style="font-size:10px;color:#8A9BAC">'+isoToBR(i.date)+'</div></div>'+
+          '<div style="font-size:13px;font-weight:600;font-family:Lora,serif;color:#1B3A5C">'+fmt(i.val)+'</div>'+
+        '</div>'
+      );
+    }
   });
-  (db.mat||[]).forEach(function(i){
-    if((i.desc||i.obs||'').toLowerCase().includes(q))
-      res.push('<div class="lrow" style="background:#fff"><div class="lr-esq"><div class="ln">'+esc(i.desc||i.obs)+'</div><div class="ld">Material · '+isoToBR(i.date)+'</div></div><div class="lr-dir"><div class="lr-val">'+fmt(i.val)+'</div></div></div>');
-  });
-  if(!res.length){el.innerHTML='<div style="background:#fff;padding:14px;text-align:center;font-size:13px;color:#8A9BAC;border-radius:10px">Nenhum resultado para "'+esc(q)+'"</div>';return;}
-  el.innerHTML='<div style="background:#fff;border-radius:10px;overflow:hidden">'+res.join('')+'</div>';
+
+  if(!secForn.length&&!secLanc.length&&!secListas.length){
+    el.innerHTML='<div style="background:#fff;border-radius:10px;padding:14px;text-align:center;font-size:13px;color:#8A9BAC">Nenhum resultado para "<strong>'+esc(q)+'</strong>"</div>';
+    return;
+  }
+
+  var html='';
+  function sec(titulo,icone,items){
+    if(!items.length)return;
+    html+='<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.6);padding:5px 14px 3px">'+icone+' '+titulo+'</div>'+
+      '<div style="border-radius:10px;overflow:hidden;margin-bottom:6px">'+items.join('')+'</div>';
+  }
+  sec('Fornecedores','👤',secForn);
+  sec('Lançamentos','💰',secLanc);
+  sec('Listas','📋',secListas);
+  el.innerHTML=html;
 }
+
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 buildNavTemp();
