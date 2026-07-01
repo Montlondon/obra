@@ -1632,22 +1632,33 @@ function renderUrg(){
   var list=db.urgencias||[];
   var el=document.getElementById('urg-list');
   if(!el)return;
-  if(!list.length){el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Nenhuma urgencia</div>';return;}
+  if(!list.length){
+    el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Nenhuma urgencia registrada</div>';
+    return;
+  }
   var pColors={alta:'#c0392b',media:'#C9A84C',baixa:'#2d7a4f'};
+  var pLabels={alta:'ALTA',media:'MEDIA',baixa:'BAIXA'};
   el.innerHTML=list.slice().reverse().map(function(u){
-    return '<div class="lc"><div class="lc-inner" style="border-left:3px solid '+pColors[u.prioridade||\'media\']+\'">'+
-      (u.foto?'<img src="'+u.foto+'" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px">':'')+
-      '<div class="lc-top">'+
-      '<span class="lc-date">'+br(u.date)+'</span>'+
-      '<span class="badge '+(u.status==='resolvida'?'badge-pago':'badge-pend')+'">'+(u.status==='resolvida'?'RESOLVIDA':'PENDENTE')+'</span>'+
-      '</div>'+
-      '<div class="lc-name" style="color:'+(pColors[u.prioridade||\'media\'])+'">'+
-      '\u26a0\ufe0f '+(u.prioridade||\'media\').toUpperCase()+'</div>'+
-      '<div class="lc-desc">'+esc(u.desc)+'</div>'+
-      '<div class="lc-bot">'+
-      '<button onclick="tgUrg(\''+u.id+'\')" class="abt">'+(u.status==='resolvida'?'Reabrir':'Resolver')+'</button>'+
-      '<button onclick="delUrg(\''+u.id+'\')" class="abt del">Excluir</button>'+
-      '</div></div></div>';
+    var pr=u.prioridade||'media';
+    var bc=pColors[pr]||'#C9A84C';
+    var pl=pLabels[pr]||'MEDIA';
+    var resolved=u.status==='resolvida';
+    return [
+      '<div class="lc">',
+      '<div class="lc-inner" style="border-left:3px solid '+bc+'">',
+      u.foto?'<img src="'+u.foto+'" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px">':'',
+      '<div class="lc-top">',
+      '<span class="lc-date">'+br(u.date)+'</span>',
+      '<span class="badge '+(resolved?'badge-pago':'badge-pend')+'">'+(resolved?'RESOLVIDA':'PENDENTE')+'</span>',
+      '</div>',
+      '<div class="lc-name" style="color:'+bc+'">&#9888; '+pl+'</div>',
+      '<div class="lc-desc">'+esc(u.desc)+'</div>',
+      '<div class="lc-bot" style="margin-top:8px;padding-top:7px;border-top:.5px solid #f0ede8;display:flex;gap:6px">',
+      '<button onclick="tgUrg(&quot;'+u.id+'&quot;)" class="abt">'+(resolved?'Reabrir':'Resolver')+'</button>',
+      '<button onclick="delUrg(&quot;'+u.id+'&quot;)" class="abt del">Excluir</button>',
+      '</div>',
+      '</div></div>'
+    ].join('');
   }).join('');
 }
 function abrirUrg(){
