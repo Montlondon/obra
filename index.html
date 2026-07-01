@@ -194,6 +194,20 @@ header{background:#1B3A5C;padding:11px 16px;position:sticky;top:0;z-index:50;bor
 .bn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .bn span{font-size:7px;font-weight:700;letter-spacing:.3px;text-align:center}
 .bntv{background:#EAE7E0;color:#2C5282;border-radius:8px;padding:0 4px;font-size:8px;font-weight:700;margin-top:1px;display:inline-block}
+.cshape{background:#fff;border:.5px solid #ddd;border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.cshape svg{color:#1B3A5C}
+.cshape span{font-size:10px;color:#aaa;font-weight:500}
+.cshape.on{border-color:#1B3A5C;background:#f0f4f8}
+.cshape.on svg{color:#C9A84C}
+.cshape.on span{color:#1B3A5C}
+.ccard{background:#fff;border-radius:12px;border:.5px solid #ddd;padding:13px;margin-bottom:10px}
+.ctabs2{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}
+.ctabs2::-webkit-scrollbar{display:none}
+.ctab2{background:#fff;border:.5px solid #ddd;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;color:#aaa;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
+.ctab2.on{background:#1B3A5C;color:#C9A84C;border-color:#1B3A5C}
+.ccard label{display:block;font-size:10px;font-weight:600;color:#aaa;letter-spacing:.5px;margin-bottom:4px}
+.ccard input,.ccard select{width:100%;background:#F5F3EE;border:.5px solid #ddd;border-radius:8px;padding:9px 11px;font-size:14px;color:#1A1918;font-family:'Inter',sans-serif;outline:none;margin-bottom:2px}
+.ccard input:focus{border-color:#1B3A5C}
 .bn.on .bntv{background:#C9A84C;color:#1B3A5C}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;align-items:flex-end;justify-content:center}
 .modal.on{display:flex}
@@ -296,9 +310,10 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <input type="file" id="fi-foto-obra" accept="image/*" style="display:none" onchange="obraFoto(event)">
   <div class="lang-sect">
     <div class="dnlv" style="padding:0 0 8px">IDIOMA / LANGUE</div>
-    <div class="lang-row">
+    <div class="lang-row" style="grid-template-columns:1fr 1fr 1fr">
       <button class="lbtn on" id="btnPt" onclick="setLang('pt')">&#127463;&#127479; Portugues</button>
       <button class="lbtn" id="btnFr" onclick="setLang('fr')">&#127467;&#127479; Francais</button>
+      <button class="lbtn" id="btnEn" onclick="setLang('en')">&#127482;&#127480; English</button>
     </div>
   </div>
 </div>
@@ -386,50 +401,131 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 </div>
 
 <div class="pg" id="pg-calc">
-  <div class="ctabs">
-    <button class="ctab on" onclick="goCalc('tinta',this)">Tinta</button>
-    <button class="ctab" onclick="goCalc('telha',this)">Telha</button>
-    <button class="ctab" onclick="goCalc('tijolo',this)">Tijolo</button>
-    <button class="ctab" onclick="goCalc('argamassa',this)">Argamassa</button>
-    <button class="ctab" onclick="goCalc('ceramica',this)">Ceramica</button>
-    <button class="ctab" onclick="goCalc('conv',this)">Conversoes</button>
+<div class="ctabs" id="calc-cats">
+  <button class="ctab on" onclick="calcCat(0,this)">Geometria</button>
+  <button class="ctab" onclick="calcCat(1,this)">Materiais</button>
+  <button class="ctab" onclick="calcCat(2,this)">Volumes</button>
+  <button class="ctab" onclick="calcCat(3,this)">Estruturas</button>
+  <button class="ctab" onclick="calcCat(4,this)">Orcamento</button>
+  <button class="ctab" onclick="calcCat(5,this)">Conversoes</button>
+</div>
+
+<!-- GEOMETRIA -->
+<div class="cpanel on" id="ccp0">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+    <div class="cshape on" id="csh0" onclick="calcShape(0)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="1"/></svg><span>Retangulo</span></div>
+    <div class="cshape" id="csh1" onclick="calcShape(1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,3 22,21 2,21"/></svg><span>Triangulo</span></div>
+    <div class="cshape" id="csh2" onclick="calcShape(2)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/></svg><span>Circulo</span></div>
+    <div class="cshape" id="csh3" onclick="calcShape(3)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="4,19 8,5 20,5 16,19"/></svg><span>Trapezio</span></div>
+    <div class="cshape" id="csh4" onclick="calcShape(4)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12,3 22,12 12,21 2,12"/></svg><span>Losango</span></div>
+    <div class="cshape" id="csh5" onclick="calcShape(5)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg><span>Elipse</span></div>
   </div>
-  <div class="cpanel on" id="cp-tinta">
-    <div class="r2"><div><label>Largura (m)</label><input id="tl" type="number" oninput="cTinta()"></div><div><label>Altura (m)</label><input id="ta" type="number" oninput="cTinta()"></div></div>
-    <div class="r3"><div><label>Janelas m2</label><input id="tj" type="number" value="0" oninput="cTinta()"></div><div><label>Portas m2</label><input id="tp" type="number" value="0" oninput="cTinta()"></div><div><label>Demaos</label><input id="td" type="number" value="2" oninput="cTinta()"></div></div>
-    <div><label>Rendimento (m2/L)</label><input id="tr" type="number" value="10" oninput="cTinta()"></div>
-    <div id="rt" class="cres" style="display:none"></div>
+  <div class="cpanel on" id="geo0">
+    <div class="ccard"><label>Largura (m)</label><input id="g_rl" type="number" value="4" oninput="cRect()"><label style="margin-top:8px">Altura (m)</label><input id="g_ra" type="number" value="3" oninput="cRect()"><label style="margin-top:8px">Descontos m² (janelas/portas)</label><input id="g_rd" type="number" value="0" oninput="cRect()">
+    <div class="cres" id="g_rr" style="display:none"></div></div>
   </div>
-  <div class="cpanel" id="cp-telha">
-    <div class="r2"><div><label>Comprimento (m)</label><input id="tlc" type="number" oninput="cTelha()"></div><div><label>Largura (m)</label><input id="tll" type="number" oninput="cTelha()"></div></div>
-    <div class="r2"><div><label>Telhas/m2</label><input id="tlpm" type="number" value="16" oninput="cTelha()"></div><div><label>Quebra %</label><input id="tlq" type="number" value="10" oninput="cTelha()"></div></div>
-    <div id="rth" class="cres" style="display:none"></div>
+  <div class="cpanel" id="geo1">
+    <div class="ccard"><label>Lado A (m)</label><input id="g_ta" type="number" value="5" oninput="cTri()"><label style="margin-top:8px">Lado B (m)</label><input id="g_tb" type="number" value="4" oninput="cTri()"><label style="margin-top:8px">Lado C (m)</label><input id="g_tc" type="number" value="3" oninput="cTri()">
+    <div class="cres" id="g_tr" style="display:none"></div></div>
   </div>
-  <div class="cpanel" id="cp-tijolo">
-    <div class="r2"><div><label>Comprimento (m)</label><input id="tjc" type="number" oninput="cTijolo()"></div><div><label>Altura (m)</label><input id="tja" type="number" oninput="cTijolo()"></div></div>
-    <div class="r2"><div><label>Desc m2</label><input id="tjd" type="number" value="0" oninput="cTijolo()"></div><div><label>Tijolos/m2</label><input id="tjpm" type="number" value="25" oninput="cTijolo()"></div></div>
-    <div><label>Quebra %</label><input id="tjq" type="number" value="10" oninput="cTijolo()"></div>
-    <div id="rtj" class="cres" style="display:none"></div>
+  <div class="cpanel" id="geo2">
+    <div class="ccard"><label>Raio (m)</label><input id="g_cr" type="number" value="1.5" oninput="cCirc()"><label style="margin-top:8px">ou Diametro (m)</label><input id="g_cd" type="number" oninput="cCircD()">
+    <div class="cres" id="g_cc" style="display:none"></div></div>
   </div>
-  <div class="cpanel" id="cp-argamassa">
-    <div class="r2"><div><label>Area m2</label><input id="aga" type="number" oninput="cArg()"></div><div><label>Espessura mm</label><input id="age" type="number" value="20" oninput="cArg()"></div></div>
-    <div id="rag" class="cres" style="display:none"></div>
+  <div class="cpanel" id="geo3">
+    <div class="ccard"><label>Base maior (m)</label><input id="g_tB" type="number" value="6" oninput="cTrap()"><label style="margin-top:8px">Base menor (m)</label><input id="g_tb2" type="number" value="4" oninput="cTrap()"><label style="margin-top:8px">Altura (m)</label><input id="g_tH" type="number" value="3" oninput="cTrap()">
+    <div class="cres" id="g_tp" style="display:none"></div></div>
   </div>
-  <div class="cpanel" id="cp-ceramica">
-    <div class="r2"><div><label>Area m2</label><input id="cea" type="number" oninput="cCer()"></div><div><label>Peca cm</label><input id="cet" type="number" value="60" oninput="cCer()"></div></div>
-    <div><label>Quebra %</label><input id="ceq" type="number" value="10" oninput="cCer()"></div>
-    <div id="rce" class="cres" style="display:none"></div>
+  <div class="cpanel" id="geo4">
+    <div class="ccard"><label>Diagonal maior (m)</label><input id="g_lD" type="number" value="6" oninput="cLos()"><label style="margin-top:8px">Diagonal menor (m)</label><input id="g_ld" type="number" value="4" oninput="cLos()">
+    <div class="cres" id="g_lo" style="display:none"></div></div>
   </div>
-  <div class="cpanel" id="cp-conv">
-    <div class="r2"><div><label>Metros2</label><input id="cm2" type="number" oninput="cConv('m2')"></div><div><label>Alqueires MG</label><input id="cal" type="number" oninput="cConv('al')"></div></div>
-    <div class="r2"><div><label>Hectares</label><input id="cha" type="number" oninput="cConv('ha')"></div><div><label>Pes2</label><input id="cft2" type="number" oninput="cConv('ft2')"></div></div>
-    <hr style="margin:12px 0;border:none;border-top:1px solid #EAE7E0">
-    <div class="r2"><div><label>Metros</label><input id="cm" type="number" oninput="cConv('m')"></div><div><label>Polegadas</label><input id="cin" type="number" oninput="cConv('in')"></div></div>
-    <div class="r2"><div><label>Pes</label><input id="cft" type="number" oninput="cConv('ft')"></div><div><label>Centimetros</label><input id="ccm" type="number" oninput="cConv('cm')"></div></div>
-    <hr style="margin:12px 0;border:none;border-top:1px solid #EAE7E0">
-    <div class="r2"><div><label>Kg</label><input id="ckg" type="number" oninput="cConv('kg')"></div><div><label>Libras</label><input id="clb" type="number" oninput="cConv('lb')"></div></div>
-    <div class="r2"><div><label>Arrobas</label><input id="car" type="number" oninput="cConv('ar')"></div><div><label>Gramas</label><input id="cgr" type="number" oninput="cConv('gr')"></div></div>
+  <div class="cpanel" id="geo5">
+    <div class="ccard"><label>Semi-eixo A (m)</label><input id="g_eA" type="number" value="5" oninput="cEl()"><label style="margin-top:8px">Semi-eixo B (m)</label><input id="g_eB" type="number" value="3" oninput="cEl()">
+    <div class="cres" id="g_el" style="display:none"></div></div>
   </div>
+</div>
+
+<!-- MATERIAIS -->
+<div class="cpanel" id="ccp1">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcMat(0,this)">Tinta</button><button class="ctab2" onclick="calcMat(1,this)">Ceramica</button><button class="ctab2" onclick="calcMat(2,this)">Tijolo</button><button class="ctab2" onclick="calcMat(3,this)">Argamassa</button><button class="ctab2" onclick="calcMat(4,this)">Telha</button></div>
+  <div class="ccard" id="mat0"><label>Area m²</label><input id="m_a" type="number" value="40" oninput="cMat()"><label style="margin-top:8px">Demaos</label><input id="m_d" type="number" value="2" oninput="cMat()"><label style="margin-top:8px">Rendimento m²/L</label><input id="m_r" type="number" value="10" oninput="cMat()"><label style="margin-top:8px">Descontos m² (janelas/portas)</label><input id="m_dc" type="number" value="4" oninput="cMat()"><label style="margin-top:8px">Preco/lata 18L (R$)</label><input id="m_p" type="number" value="350" oninput="cMat()"><div class="cres" id="m_r0" style="display:none"></div></div>
+  <div class="ccard" id="mat1" style="display:none"><label>Area m²</label><input id="ce_a" type="number" value="20" oninput="cCer()"><label style="margin-top:8px">Peca cm×cm</label><input id="ce_t" type="number" value="60" oninput="cCer()"><label style="margin-top:8px">Quebra %</label><input id="ce_q" type="number" value="10" oninput="cCer()"><label style="margin-top:8px">Preco/m² R$</label><input id="ce_p" type="number" value="85" oninput="cCer()"><div class="cres" id="ce_r0" style="display:none"></div></div>
+  <div class="ccard" id="mat2" style="display:none"><label>Area m²</label><input id="tj_a" type="number" value="30" oninput="cTj()"><label style="margin-top:8px">Tijolos/m²</label><input id="tj_n" type="number" value="25" oninput="cTj()"><label style="margin-top:8px">Quebra %</label><input id="tj_q" type="number" value="5" oninput="cTj()"><label style="margin-top:8px">Preco unitario R$</label><input id="tj_p" type="number" value="1.50" oninput="cTj()"><div class="cres" id="tj_r0" style="display:none"></div></div>
+  <div class="ccard" id="mat3" style="display:none"><label>Area m²</label><input id="ag_a" type="number" value="20" oninput="cArg2()"><label style="margin-top:8px">Espessura mm</label><input id="ag_e" type="number" value="20" oninput="cArg2()"><div class="cres" id="ag_r0" style="display:none"></div></div>
+  <div class="ccard" id="mat4" style="display:none"><label>Comprimento (m)</label><input id="te_c" type="number" value="10" oninput="cTel2()"><label style="margin-top:8px">Largura (m)</label><input id="te_l" type="number" value="6" oninput="cTel2()"><label style="margin-top:8px">Inclinacao %</label><input id="te_i" type="number" value="30" oninput="cTel2()"><label style="margin-top:8px">Telhas/m²</label><input id="te_t" type="number" value="16" oninput="cTel2()"><label style="margin-top:8px">Quebra %</label><input id="te_q" type="number" value="10" oninput="cTel2()"><div class="cres" id="te_r0" style="display:none"></div></div>
+</div>
+
+<!-- VOLUMES -->
+<div class="cpanel" id="ccp2">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcVol(0,this)">Cuboide</button><button class="ctab2" onclick="calcVol(1,this)">Cilindro</button><button class="ctab2" onclick="calcVol(2,this)">Cone</button><button class="ctab2" onclick="calcVol(3,this)">Piramide</button><button class="ctab2" onclick="calcVol(4,this)">Esfera</button></div>
+  <div class="ccard" id="vol0"><label>Comp. (m)</label><input id="vl" type="number" value="5" oninput="cVol()"><label style="margin-top:8px">Largura (m)</label><input id="vw" type="number" value="4" oninput="cVol()"><label style="margin-top:8px">Altura (m)</label><input id="vh" type="number" value="3" oninput="cVol()"><div class="cres" id="v_r0" style="display:none"></div></div>
+  <div class="ccard" id="vol1" style="display:none"><label>Diametro (m)</label><input id="cil_d" type="number" value="1.5" oninput="cCil()"><label style="margin-top:8px">Altura (m)</label><input id="cil_h" type="number" value="2" oninput="cCil()"><div class="cres" id="cil_r" style="display:none"></div></div>
+  <div class="ccard" id="vol2" style="display:none"><label>Raio base (m)</label><input id="cn_r" type="number" value="2" oninput="cCone()"><label style="margin-top:8px">Altura (m)</label><input id="cn_h" type="number" value="4" oninput="cCone()"><div class="cres" id="cn_r0" style="display:none"></div></div>
+  <div class="ccard" id="vol3" style="display:none"><label>Base (m)</label><input id="pir_b" type="number" value="4" oninput="cPir()"><label style="margin-top:8px">Altura (m)</label><input id="pir_h" type="number" value="3" oninput="cPir()"><div class="cres" id="pir_r" style="display:none"></div></div>
+  <div class="ccard" id="vol4" style="display:none"><label>Raio (m)</label><input id="esf_r" type="number" value="1" oninput="cEsf()"><div class="cres" id="esf_r0" style="display:none"></div></div>
+</div>
+
+<!-- ESTRUTURAS -->
+<div class="cpanel" id="ccp3">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcEst(0,this)">Concreto</button><button class="ctab2" onclick="calcEst(1,this)">Escada</button><button class="ctab2" onclick="calcEst(2,this)">Pitagoras</button></div>
+  <div class="ccard" id="est0">
+    <label>Elemento</label>
+    <select id="cc_el" onchange="cConc()"><option>Laje</option><option>Pilar</option><option>Viga</option><option>Sapata</option></select>
+    <label style="margin-top:8px">Dim 1 (m)</label><input id="cc_a" type="number" value="5" oninput="cConc()">
+    <label style="margin-top:8px">Dim 2 (m)</label><input id="cc_b" type="number" value="4" oninput="cConc()">
+    <label style="margin-top:8px">Dim 3 (m)</label><input id="cc_c" type="number" value="0.12" oninput="cConc()">
+    <label style="margin-top:8px">Traco</label>
+    <select id="cc_tr" onchange="cConc()"><option value="1:2:3">1:2:3 (estrutural)</option><option value="1:3:4">1:3:4 (moderado)</option><option value="1:4:5">1:4:5 (simples)</option></select>
+    <div class="cres" id="cc_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="est1" style="display:none">
+    <label>Desnivel total (m)</label><input id="esc_h" type="number" value="3" oninput="cEsc()">
+    <label style="margin-top:8px">Altura do espelho (cm)</label><input id="esc_e" type="number" value="18" oninput="cEsc()">
+    <label style="margin-top:8px">Profundidade da pisada (cm)</label><input id="esc_p" type="number" value="28" oninput="cEsc()">
+    <div class="cres" id="esc_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="est2" style="display:none">
+    <label>Cateto A (m)</label><input id="pit_a" type="number" value="3" oninput="cPit()">
+    <label style="margin-top:8px">Cateto B (m)</label><input id="pit_b" type="number" value="4" oninput="cPit()">
+    <label style="margin-top:8px">ou Hipotenusa (m)</label><input id="pit_h" type="number" oninput="cPitH()">
+    <div class="cres" id="pit_r" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ORCAMENTO -->
+<div class="cpanel" id="ccp4">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcOrcT(0,this)">Custo/m2</button><button class="ctab2" onclick="calcOrcT(1,this)">Mao de obra</button><button class="ctab2" onclick="calcOrcT(2,this)">Locacao</button></div>
+  <div class="ccard" id="orc0">
+    <label>Area (m²)</label><input id="o_a" type="number" value="80" oninput="cOrc()">
+    <label style="margin-top:8px">Custo/m² R$</label><input id="o_c" type="number" value="2500" oninput="cOrc()">
+    <label style="margin-top:8px">Material % do total</label><input id="o_m" type="number" value="60" oninput="cOrc()">
+    <label style="margin-top:8px">Imprevistos %</label><input id="o_i" type="number" value="15" oninput="cOrc()">
+    <div class="cres" id="o_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="orc1" style="display:none">
+    <label>Diarias</label><input id="mo_d" type="number" value="20" oninput="cMO()">
+    <label style="margin-top:8px">Operarios</label><input id="mo_op" type="number" value="2" oninput="cMO()">
+    <label style="margin-top:8px">Valor por diaria R$</label><input id="mo_v" type="number" value="200" oninput="cMO()">
+    <div class="cres" id="mo_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="orc2" style="display:none">
+    <label>Diarias</label><input id="loc_d" type="number" value="10" oninput="cLoc()">
+    <label style="margin-top:8px">Pecas</label>
+    <div id="loc_pecas"></div>
+    <div class="cres" id="loc_r" style="display:none"></div>
+  </div>
+</div>
+
+<!-- CONVERSOES -->
+<div class="cpanel" id="ccp5">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcConvT(0,this)">Area</button><button class="ctab2" onclick="calcConvT(1,this)">Comprimento</button><button class="ctab2" onclick="calcConvT(2,this)">Peso</button><button class="ctab2" onclick="calcConvT(3,this)">Volume</button></div>
+  <div class="ccard" id="conv0"><label>m²</label><input id="ca_m2" type="number" oninput="convA('m2')"><label style="margin-top:8px">Hectares</label><input id="ca_ha" type="number" oninput="convA('ha')"><label style="margin-top:8px">Alqueires MG</label><input id="ca_al" type="number" oninput="convA('al')"><label style="margin-top:8px">ft²</label><input id="ca_ft" type="number" oninput="convA('ft')"></div>
+  <div class="ccard" id="conv1" style="display:none"><label>Metros</label><input id="cl_m" type="number" oninput="convL('m')"><label style="margin-top:8px">Centimetros</label><input id="cl_cm" type="number" oninput="convL('cm')"><label style="margin-top:8px">Polegadas</label><input id="cl_in" type="number" oninput="convL('in')"><label style="margin-top:8px">Pes (ft)</label><input id="cl_ft" type="number" oninput="convL('ft')"></div>
+  <div class="ccard" id="conv2" style="display:none"><label>Kg</label><input id="cp_kg" type="number" oninput="convP('kg')"><label style="margin-top:8px">Libras (lb)</label><input id="cp_lb" type="number" oninput="convP('lb')"><label style="margin-top:8px">Arrobas (@)</label><input id="cp_ar" type="number" oninput="convP('ar')"><label style="margin-top:8px">Toneladas</label><input id="cp_t" type="number" oninput="convP('t')"></div>
+  <div class="ccard" id="conv3" style="display:none"><label>Litros</label><input id="cv_l" type="number" oninput="convV('l')"><label style="margin-top:8px">m³</label><input id="cv_m3" type="number" oninput="convV('m3')"><label style="margin-top:8px">Galoes US</label><input id="cv_gl" type="number" oninput="convV('gl')"></div>
+</div>
+
 </div>
 
 <div class="pg" id="pg-rel">
@@ -620,14 +716,25 @@ fr:{obra:'Chantier',fin:'Finances',forn:'Fournisseurs',listas:'Listes',
     verLanc:'VOIR TRANSACTIONS',saldomsg:'SOLDE GENERAL',back:'Retour',
     duplicar:'Duplique comme brouillon!',compartilhado:'Partage!',
     todos:'Tous',gestao:'GESTION',dados:'DONNEES',busca:'Recherche',
-    exportar:'Exporter JSON',importar:'Importer JSON',cfgObra:'Config. Chantier'}
+    exportar:'Exporter JSON',importar:'Importer JSON',cfgObra:'Config. Chantier'},
+en:{obra:'Project',fin:'Financial',forn:'Suppliers',listas:'Lists',
+    calc:'Calculator',rel:'Report',pago:'Paid',pendente:'Pending',
+    sobra:'Surplus',aluguel:'Rental',saldo:'Balance',
+    emAndamento:'In Progress',inicio:'Start',previsao:'Est. Finish',
+    hoje:'TODAY',resumo:'PERIOD SUMMARY',porForn:'BY SUPPLIER',
+    nenhum:'No transactions',nenhumForn:'No suppliers',
+    verLanc:'VIEW TRANSACTIONS',saldomsg:'TOTAL BALANCE',back:'Back',
+    duplicar:'Duplicated as draft!',compartilhado:'Shared!',
+    todos:'All',gestao:'MANAGEMENT',dados:'DATA',busca:'Global Search',
+    exportar:'Export JSON',importar:'Import JSON',cfgObra:'Project Config'}
 };
 function t(k){return (LANG[lang]||LANG.pt)[k]||k;}
 function setLang(l){
   lang=l;
-  document.getElementById('btnPt').classList.toggle('on',l==='pt');
-  document.getElementById('btnFr').classList.toggle('on',l==='fr');
-  document.documentElement.lang=l==='fr'?'fr':'pt-BR';
+  ['btnPt','btnFr','btnEn'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('on');});
+  var btn=document.getElementById(l==='pt'?'btnPt':l==='fr'?'btnFr':'btnEn');
+  if(btn)btn.classList.add('on');
+  document.documentElement.lang=l==='fr'?'fr':l==='en'?'en':'pt-BR';
   applyLang();renderAll();renderFin();
   var pg=document.querySelector('.pg.on');
   if(pg&&pg.id==='pg-forn')renderForn();
@@ -850,14 +957,25 @@ fr:{obra:'Chantier',fin:'Finances',forn:'Fournisseurs',listas:'Listes',
     verLanc:'VOIR TRANSACTIONS',saldomsg:'SOLDE GENERAL',back:'Retour',
     duplicar:'Duplique comme brouillon!',compartilhado:'Partage!',
     todos:'Tous',gestao:'GESTION',dados:'DONNEES',busca:'Recherche',
-    exportar:'Exporter JSON',importar:'Importer JSON',cfgObra:'Config. Chantier'}
+    exportar:'Exporter JSON',importar:'Importer JSON',cfgObra:'Config. Chantier'},
+en:{obra:'Project',fin:'Financial',forn:'Suppliers',listas:'Lists',
+    calc:'Calculator',rel:'Report',pago:'Paid',pendente:'Pending',
+    sobra:'Surplus',aluguel:'Rental',saldo:'Balance',
+    emAndamento:'In Progress',inicio:'Start',previsao:'Est. Finish',
+    hoje:'TODAY',resumo:'PERIOD SUMMARY',porForn:'BY SUPPLIER',
+    nenhum:'No transactions',nenhumForn:'No suppliers',
+    verLanc:'VIEW TRANSACTIONS',saldomsg:'TOTAL BALANCE',back:'Back',
+    duplicar:'Duplicated as draft!',compartilhado:'Shared!',
+    todos:'All',gestao:'MANAGEMENT',dados:'DATA',busca:'Global Search',
+    exportar:'Export JSON',importar:'Import JSON',cfgObra:'Project Config'}
 };
 function t(k){return (LANG[lang]||LANG.pt)[k]||k;}
 function setLang(l){
   lang=l;
-  document.getElementById('btnPt').classList.toggle('on',l==='pt');
-  document.getElementById('btnFr').classList.toggle('on',l==='fr');
-  document.documentElement.lang=l==='fr'?'fr':'pt-BR';
+  ['btnPt','btnFr','btnEn'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('on');});
+  var btn=document.getElementById(l==='pt'?'btnPt':l==='fr'?'btnFr':'btnEn');
+  if(btn)btn.classList.add('on');
+  document.documentElement.lang=l==='fr'?'fr':l==='en'?'en':'pt-BR';
   applyLang();renderAll();renderFin();
   var pg=document.querySelector('.pg.on');
   if(pg&&pg.id==='pg-forn')renderForn();
@@ -1451,6 +1569,73 @@ function doGB(){var q=(document.getElementById('gbi').value||'').toLowerCase().t
 })();
 
 
+// ─── CALC PRO ──────────────────────────────────────────────────────────────
+var PI=Math.PI;
+function R(v,d){return Math.round(v*(d=Math.pow(10,d||2)))/d;}
+function BRL(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR');}
+function cres(id,rows){var el=document.getElementById(id);if(!el)return;el.innerHTML=rows.map(function(r){return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:10px;color:#C9A84C;font-weight:600;letter-spacing:.5px">'+r[0]+'</span><span style="font-family:Lora,serif;font-size:15px;color:#fff;font-weight:500">'+r[1]+'</span></div>';}).join('');el.style.display='block';}
+function g(id){return parseFloat(document.getElementById(id).value)||0;}
+
+function calcCat(i,btn){
+  document.querySelectorAll('#ccp0,#ccp1,#ccp2,#ccp3,#ccp4,#ccp5').forEach(function(p,j){p.classList.toggle('on',j===i);});
+  document.querySelectorAll('#calc-cats .ctab').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+}
+var geoAt=0;
+function calcShape(i){
+  geoAt=i;
+  document.querySelectorAll('.cshape').forEach(function(s,j){s.classList.toggle('on',j===i);});
+  for(var k=0;k<6;k++){var p=document.getElementById('geo'+k);if(p)p.style.display=k===i?'block':'none';}
+  [cRect,cTri,cCirc,cTrap,cLos,cEl][i]();
+}
+function cRect(){var l=g('g_rl'),a=g('g_ra'),d=g('g_rd'),tot=l*a,net=Math.max(0,tot-d);cres('g_rr',[['AREA TOTAL',R(tot)+' m²'],['AREA LIQUIDA',R(net)+' m²'],['PERIMETRO',R(2*(l+a))+' m']]);}
+function cTri(){var a=g('g_ta'),b=g('g_tb'),c=g('g_tc'),s=(a+b+c)/2,area=Math.sqrt(Math.max(0,s*(s-a)*(s-b)*(s-c)));cres('g_tr',[['AREA (Heron)',R(area)+' m²'],['PERIMETRO',R(a+b+c)+' m'],['HIPOTENUSA (a,b)',R(Math.sqrt(a*a+b*b))+' m']]);}
+function cCirc(){var r=g('g_cr');cres('g_cc',[['AREA',R(PI*r*r)+' m²'],['CIRCUNFERENCIA',R(2*PI*r)+' m'],['DIAMETRO',R(r*2)+' m']]);}
+function cCircD(){var d=g('g_cd');if(d){document.getElementById('g_cr').value=d/2;cCirc();}}
+function cTrap(){cres('g_tp',[['AREA',R((g('g_tB')+g('g_tb2'))*g('g_tH')/2)+' m²']]);}
+function cLos(){cres('g_lo',[['AREA',R(g('g_lD')*g('g_ld')/2)+' m²']]);}
+function cEl(){cres('g_el',[['AREA',R(PI*g('g_eA')*g('g_eB'))+' m²']]);}
+
+var matAt=0;
+function calcMat(i,btn){matAt=i;['mat0','mat1','mat2','mat3','mat4'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp1 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');[cMat,cCer,cTj,cArg2,cTel2][i]();}
+function cMat(){var a=g('m_a'),d=g('m_d'),r=g('m_r')||10,dc=g('m_dc'),p=g('m_p');var net=Math.max(0,a-dc),L=R(net*d/r),latas=Math.ceil(L/18),c=latas*p;cres('m_r0',[['LITROS',L+' L'],['LATAS 18L',latas+' lata'+(latas>1?'s':'')],['CUSTO EST.',BRL(c)]]);}
+function cCer(){var a=g('ce_a'),t=g('ce_t')/100||0.6,q=g('ce_q'),p=g('ce_p');var n=Math.ceil(a/(t*t)*(1+q/100)),c=a*p*(1+q/100);cres('ce_r0',[['PECAS',n+' pcs'],['CUSTO',BRL(c)]]);}
+function cTj(){var a=g('tj_a'),pm=g('tj_n'),q=g('tj_q'),p=g('tj_p');var n=Math.ceil(a*pm*(1+q/100)),c=n*p;cres('tj_r0',[['TIJOLOS',n+' unid'],['CUSTO',BRL(c)]]);}
+function cArg2(){var a=g('ag_a'),e=g('ag_e')||20;var vol=a*(e/1000)*1.6;cres('ag_r0',[['ARGAMASSA',R(vol)+' kg'],['SACOS 50kg',Math.ceil(vol/50)+' sacos']]);}
+function cTel2(){var comp=g('te_c'),larg=g('te_l'),inc=g('te_i'),tpm=g('te_t'),q=g('te_q');var area=comp*larg/Math.cos(Math.atan(inc/100)),n=Math.ceil(area*tpm*(1+q/100));cres('te_r0',[['AREA REAL',R(area)+' m²'],['TELHAS',n.toLocaleString('pt-BR')+' unid']]);}
+
+var volAt=0;
+function calcVol(i,btn){volAt=i;['vol0','vol1','vol2','vol3','vol4'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp2 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');}
+function cVol(){var l=g('vl'),w=g('vw'),h=g('vh');cres('v_r0',[['VOLUME',R(l*w*h)+' m³'],['AREA TOTAL',R(2*(l*w+l*h+w*h))+' m²']]);}
+function cCil(){var r=g('cil_d')/2,h=g('cil_h');var v=PI*r*r*h;cres('cil_r',[['VOLUME',R(v)+' m³'],['CAPACIDADE',Math.round(v*1000)+' litros']]);}
+function cCone(){var r=g('cn_r'),h=g('cn_h');cres('cn_r0',[['VOLUME',R(PI*r*r*h/3)+' m³'],['AREA LATERAL',R(PI*r*Math.sqrt(r*r+h*h))+' m²']]);}
+function cPir(){var b=g('pir_b'),h=g('pir_h');cres('pir_r',[['VOLUME',R(b*b*h/3)+' m³']]);}
+function cEsf(){var r=g('esf_r');cres('esf_r0',[['VOLUME',R(4/3*PI*r*r*r)+' m³'],['AREA SUPERFICIE',R(4*PI*r*r)+' m²']]);}
+
+var estAt=0;
+function calcEst(i,btn){estAt=i;['est0','est1','est2'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp3 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');}
+function cConc(){var a=g('cc_a'),b=g('cc_b'),c=g('cc_c'),v=a*b*c;var tr=document.getElementById('cc_tr').value;var p=[1,2,3];if(tr==='1:3:4')p=[1,3,4];if(tr==='1:4:5')p=[1,4,5];var tot=p[0]+p[1]+p[2];cres('cc_r',[['VOLUME CONCRETO',R(v)+' m³'],['CIMENTO (sacos 50kg)',Math.ceil(v*p[0]/tot/0.034)+' sacos'],['AREIA',R(v*p[1]/tot)+' m³'],['BRITA',R(v*p[2]/tot)+' m³']]);}
+function cEsc(){var h=g('esc_h'),e=g('esc_e')/100,p=g('esc_p')/100;var n=Math.ceil(h/e);cres('esc_r',[['No DEGRAUS',n],['COMPRIMENTO',R(n*p)+' m'],['ANGULO',R(Math.atan(e/p)*180/PI)+'°']]);}
+function cPit(){var a=g('pit_a'),b=g('pit_b');cres('pit_r',[['HIPOTENUSA (c)',R(Math.sqrt(a*a+b*b))+' m'],['AREA',R(a*b/2)+' m²']]);}
+function cPitH(){var h=g('pit_h'),a=g('pit_a');if(h>a)cres('pit_r',[['CATETO B',R(Math.sqrt(h*h-a*a))+' m']]);}
+
+var orcAt=0;
+function calcOrcT(i,btn){orcAt=i;['orc0','orc1','orc2'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp4 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');}
+function cOrc(){var a=g('o_a'),c=g('o_c'),m=g('o_m'),imp=g('o_i');var base=a*c,mat=base*m/100,mo=base*(100-m)/100,total=base*(1+imp/100);cres('o_r',[['CUSTO BASE',BRL(base)],['MATERIAL '+m+'%',BRL(mat)],['MAO OBRA '+(100-m)+'%',BRL(mo)],['IMPREVISTOS '+imp+'%',BRL(base*imp/100)],['TOTAL ESTIMADO',BRL(total)]]);}
+function cMO(){var d=g('mo_d'),op=g('mo_op'),v=g('mo_v');cres('mo_r',[['TOTAL',BRL(d*op*v)],['POR DIA',BRL(op*v)]]);}
+function cLoc(){cres('loc_r',[['Total locacoes','Ver fornecedores']]);}
+
+var convAt=0;
+function calcConvT(i,btn){convAt=i;['conv0','conv1','conv2','conv3'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp5 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');}
+function sv(id,v,f){if(f!==id){var e=document.getElementById(id);if(e)e.value=v>0?R(v,4):''}}
+function convA(f){var m2=f==='m2'?g('ca_m2'):f==='ha'?g('ca_ha')*1e4:f==='al'?g('ca_al')*48400:g('ca_ft')*0.0929;sv('ca_m2',m2,f);sv('ca_ha',m2/1e4,f);sv('ca_al',m2/48400,f);sv('ca_ft',m2/0.0929,f);}
+function convL(f){var m=f==='m'?g('cl_m'):f==='cm'?g('cl_cm')/100:f==='in'?g('cl_in')*0.0254:g('cl_ft')*0.3048;sv('cl_m',m,f);sv('cl_cm',m*100,f);sv('cl_in',m/0.0254,f);sv('cl_ft',m/0.3048,f);}
+function convP(f){var kg=f==='kg'?g('cp_kg'):f==='lb'?g('cp_lb')*0.4536:f==='ar'?g('cp_ar')*14.69:g('cp_t')*1000;sv('cp_kg',kg,f);sv('cp_lb',kg/0.4536,f);sv('cp_ar',kg/14.69,f);sv('cp_t',kg/1000,f);}
+function convV(f){var l=f==='l'?g('cv_l'):f==='m3'?g('cv_m3')*1000:g('cv_gl')*3.785;sv('cv_l',l,f);sv('cv_m3',l/1000,f);sv('cv_gl',l/3.785,f);}
+
+// init calc
+(function(){try{cRect();cMat();cVol();cConc();}catch(e){}})();
+
 // ─── ORÇAMENTOS ───────────────────────────────────────────────────────────
 var orcNum = 1000;
 function nextOrcNum(){
@@ -1819,7 +2004,7 @@ function obraFoto(e){
 }
 
 // Globe quick toggle
-function toggleLangQuick(){setLang(lang==='pt'?'fr':'pt');toast(lang==='pt'?'Portugues':'Francais');}
+function toggleLangQuick(){var order=['pt','fr','en'],i=order.indexOf(lang);setLang(order[(i+1)%3]);var n={pt:'Portugues',fr:'Francais',en:'English'};toast(n[lang]||'');}
 // Re-render after all modules loaded
 (function(){
   try{
