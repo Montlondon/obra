@@ -1435,12 +1435,20 @@ function hl(t,q){if(!q)return esc(t);var re=new RegExp('('+q.replace(/[.*+?^${}(
 function doGB(){var q=(document.getElementById('gbi').value||'').toLowerCase().trim();var el=document.getElementById('gbr');if(!q){el.innerHTML='';return;}var res=[];db.fornecedores.forEach(function(f){if(f.nome.toLowerCase().includes(q)||(f.cat||'').toLowerCase().includes(q)){var pd=(f.contas||[]).filter(function(c){return !c.pago;}).reduce(function(a,c){return a+c.val;},0);res.push('<div onclick="goPg(\'forn\',document.querySelectorAll(\'.tb\')[1]);tgGB();setTimeout(function(){var e=document.getElementById(\'fcb-'+f.id+'\');if(e)e.classList.add(\'on\');var ec=document.getElementById(\'fc-'+f.id+'\');if(ec)ec.scrollIntoView({behavior:\'smooth\'});},300)" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff"><div style="width:34px;height:34px;border-radius:50%;background:#1B3A5C;color:#C9A84C;display:flex;align-items:center;justify-content:center;font-family:Lora,serif;font-size:13px;font-weight:600;flex-shrink:0">'+esc(ini(f.nome))+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1B3A5C">'+hl(f.nome,q)+'</div><div style="font-size:10px;color:#8A9BAC">'+hl(f.cat||f.tipo,q)+(f.tel?' / '+esc(f.tel):'')+'</div></div>'+(pd?'<div style="text-align:right"><div style="font-size:10px;color:#8A9BAC">pendente</div><div style="font-size:13px;font-weight:700;font-family:Lora,serif;color:#E65100">'+fmt(pd)+'</div></div>':'')+'</div>');} (f.contas||[]).forEach(function(c){if((c.desc||'').toLowerCase().includes(q)||(c.obs||'').toLowerCase().includes(q)){res.push('<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff" onclick="goPg(\'forn\',document.querySelectorAll(\'.tb\')[1]);tgGB()"><div style="flex:1"><div style="font-size:12px;font-weight:600;color:#1A1918">'+hl(c.desc,q)+'</div><div style="font-size:10px;color:#8A9BAC">'+esc(f.nome)+' / '+br(c.date)+'</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:600;font-family:Lora,serif;color:#1B3A5C">'+fmt(c.val)+'</div><span class="sbg '+(c.pago?'pg':'pd')+'">'+(c.pago?'pago':'pendente')+'</span></div></div>');}});});['todo','pendencias','compras','sobras'].forEach(function(t){(db.listas[t]||[]).forEach(function(it){if((it.text||'').toLowerCase().includes(q)){res.push('<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid #EAE7E0;background:#fff" onclick="listaAt=\''+t+'\';goPg(\'listas\',document.querySelectorAll(\'.tb\')[2]);tgGB()"><div style="width:20px;height:20px;border-radius:5px;background:#EAE7E0;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">'+(it.done?'v':'o')+'</div><div style="flex:1"><div style="font-size:12px;font-weight:600">'+hl(it.text,q)+'</div><div style="font-size:10px;color:#8A9BAC">Lista: '+t+'</div></div></div>');} });});el.innerHTML=res.length?'<div style="background:#fff;border-radius:10px;overflow:hidden">'+res.join('')+'</div>':'<div style="background:#fff;border-radius:10px;padding:14px;text-align:center;font-size:13px;color:#8A9BAC">Nenhum resultado</div>';}
 
 // INIT
-applyLang();
-buildNav();
-renderAll();
-renderFin();
-document.getElementById('tvf').textContent=db.fornecedores.length;
-document.getElementById('tvf2').textContent=db.fornecedores.length;
+// ─── INIT ─────────────────────────────────────────────────────────────
+(function mmInit(){
+  try {
+    // Apply saved hero photo
+    if(db.config&&db.config.foto){var hp=document.getElementById('hero-photo-el');if(hp)hp.style.backgroundImage='url('+db.config.foto+')';}
+    applyLang();
+    buildNav();
+    renderAll();
+    renderFin();
+    var tf=document.getElementById('tvf');if(tf)tf.textContent=db.fornecedores.length;
+    var tf2=document.getElementById('tvf2');if(tf2)tf2.textContent=db.fornecedores.length;
+    var to=document.getElementById('tvOrc');if(to)to.textContent=(db.orcamentos||[]).length;
+  } catch(e) { console.error('MMObras init error:', e); }
+})();
 
 
 // ─── ORÇAMENTOS ───────────────────────────────────────────────────────────
@@ -1801,17 +1809,17 @@ function obraFoto(e){
 
 // Globe quick toggle
 function toggleLangQuick(){setLang(lang==='pt'?'fr':'pt');toast(lang==='pt'?'Portugues':'Francais');}
-// Render orcamentos on init and when tvOrc changes
-if(typeof db!=='undefined'){
-  var eo=document.getElementById('tvOrc');
-  if(eo)eo.textContent=(db.orcamentos||[]).length;
-}
-// Apply hero photo if saved
+// Re-render after all modules loaded
 (function(){
-  if(db&&db.config&&db.config.foto){
-    var hp=document.getElementById('hero-photo-el');
-    if(hp)hp.style.backgroundImage='url('+db.config.foto+')';
-  }
+  try{
+    var to=document.getElementById('tvOrc');if(to)to.textContent=(db.orcamentos||[]).length;
+    // re-render dash with foto
+    if(db&&db.config&&db.config.foto){var hp=document.getElementById('hero-photo-el');if(hp)hp.style.backgroundImage='url('+db.config.foto+')';}
+    // refresh main page rendering
+    renderAll();
+    renderFin();
+    applyLang();
+  }catch(e){console.error('Post-init error:',e);}
 })();
 </script>
 </body>
