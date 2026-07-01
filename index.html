@@ -2385,6 +2385,7 @@ function pinOK(){
   }
 }
 function unlockApp(){
+  sessionStorage.setItem('mmPinOK','1');
   var gate=document.getElementById('pin-gate');
   var app=document.getElementById('main-app');
   if(gate)gate.style.display='none';
@@ -2392,6 +2393,8 @@ function unlockApp(){
   pinBuffer='';
 }
 function checkPINGate(){
+  // Already unlocked in this browser session — don't ask again
+  if(sessionStorage.getItem('mmPinOK')==='1')return;
   if(db&&db.perfil&&db.perfil.pin){
     var gate=document.getElementById('pin-gate');
     var app=document.getElementById('main-app');
