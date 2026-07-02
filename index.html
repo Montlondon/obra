@@ -623,7 +623,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 <!-- CONVERSOES -->
 <div class="cpanel" id="ccp5">
   <div class="ctabs2"><button class="ctab2 on" onclick="calcConvT(0,this)">Area</button><button class="ctab2" onclick="calcConvT(1,this)">Comprimento</button><button class="ctab2" onclick="calcConvT(2,this)">Peso</button><button class="ctab2" onclick="calcConvT(3,this)">Volume</button></div>
-  <div class="ccard" id="conv0"><label>m²</label><input id="ca_m2" type="number" oninput="convA('m2')"><label style="margin-top:8px">Hectares</label><input id="ca_ha" type="number" oninput="convA('ha')"><label style="margin-top:8px">Alqueires MG</label><input id="ca_al" type="number" oninput="convA('al')"><label style="margin-top:8px">ft²</label><input id="ca_ft" type="number" oninput="convA('ft')"></div>
+  <div class="ccard" id="conv0"><label>m²</label><input id="ca_m2" type="number" oninput="convA('m2')"><label style="margin-top:8px">Hectares (ha)</label><input id="ca_ha" type="number" oninput="convA('ha')"><label style="margin-top:8px">Are (100 m²)</label><input id="ca_are" type="number" oninput="convA('are')"><label style="margin-top:8px">Acre</label><input id="ca_ac" type="number" oninput="convA('ac')"><label style="margin-top:8px">Alqueire MG (48.400 m²)</label><input id="ca_al" type="number" oninput="convA('al')"><label style="margin-top:8px">Alqueire SP (24.200 m²)</label><input id="ca_alsp" type="number" oninput="convA('alsp')"><label style="margin-top:8px">Alqueire BA (9.680 m²)</label><input id="ca_alba" type="number" oninput="convA('alba')"><label style="margin-top:8px">ft²</label><input id="ca_ft" type="number" oninput="convA('ft')"></div>
   <div class="ccard" id="conv1" style="display:none"><label>Metros</label><input id="cl_m" type="number" oninput="convL('m')"><label style="margin-top:8px">Centimetros</label><input id="cl_cm" type="number" oninput="convL('cm')"><label style="margin-top:8px">Polegadas</label><input id="cl_in" type="number" oninput="convL('in')"><label style="margin-top:8px">Pes (ft)</label><input id="cl_ft" type="number" oninput="convL('ft')"></div>
   <div class="ccard" id="conv2" style="display:none"><label>Kg</label><input id="cp_kg" type="number" oninput="convP('kg')"><label style="margin-top:8px">Libras (lb)</label><input id="cp_lb" type="number" oninput="convP('lb')"><label style="margin-top:8px">Arrobas (@)</label><input id="cp_ar" type="number" oninput="convP('ar')"><label style="margin-top:8px">Toneladas</label><input id="cp_t" type="number" oninput="convP('t')"></div>
   <div class="ccard" id="conv3" style="display:none"><label>Litros</label><input id="cv_l" type="number" oninput="convV('l')"><label style="margin-top:8px">m³</label><input id="cv_m3" type="number" oninput="convV('m3')"><label style="margin-top:8px">Galoes US</label><input id="cv_gl" type="number" oninput="convV('gl')"></div>
@@ -815,11 +815,11 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 </div>
 
 <nav class="bnav">
-  <button class="bn on" id="bn-dash" onclick="alert('JS OK - OBRA');goPg('dash')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span id="bn-dash-lbl">OBRA</span></button>
-  <button class="bn" id="bn-fin" onclick="alert('JS OK - FIN');goPg('fin')"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span id="bn-fin-lbl">FINANCEIRO</span></button>
-  <button class="bn" id="bn-orc" onclick="alert('JS OK - ORC');goPg('orc')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>ORC.<div class="bntv" id="tvOrc">0</div></span></button>
-  <button class="bn" id="bn-listas" onclick="alert('JS OK - LISTAS');goPg('listas')"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="bn-list-lbl">LISTAS</span></button>
-  <button class="bn" id="bn-calc" onclick="alert('JS OK - CALC');goPg('calc')"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg><span id="bn-calc-lbl">CALC</span></button>
+  <button class="bn on" id="bn-dash" onclick="goPg('dash')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span id="bn-dash-lbl">OBRA</span></button>
+  <button class="bn" id="bn-fin" onclick="goPg('fin')"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span id="bn-fin-lbl">FINANCEIRO</span></button>
+  <button class="bn" id="bn-orc" onclick="goPg('orc')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>ORC.<div class="bntv" id="tvOrc">0</div></span></button>
+  <button class="bn" id="bn-listas" onclick="goPg('listas')"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="bn-list-lbl">LISTAS</span></button>
+  <button class="bn" id="bn-calc" onclick="goPg('calc')"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg><span id="bn-calc-lbl">CALC</span></button>
 </nav>
 
 <!-- MODAIS -->
@@ -1690,7 +1690,8 @@ function renderFC(f){
   body+='<div class="fcac"><button class="fac" onclick="abrirLancF(\''+f.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Lancar</button>'+
     '<button class="fac" onclick="abrirCF(\''+f.id+'\')"><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>Sobra</button>'+
     '<button class="fac" onclick="editF(\''+f.id+'\')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'+
-    '<button class="fac wpp" onclick="envWpp(\''+f.id+'\')"><svg viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.6 5.6 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.99.582 3.844 1.591 5.4L2.055 22l4.715-1.517A9.952 9.952 0 0 0 12 22c5.523 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WhatsApp</button></div>';
+    '<button class="fac wpp" onclick="envWpp(\''+f.id+'\')"><svg viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.6 5.6 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.99.582 3.844 1.591 5.4L2.055 22l4.715-1.517A9.952 9.952 0 0 0 12 22c5.523 0 10-4.477 10-10S17.522 2 12 2z"/></svg>WhatsApp</button>'+
+    '<button class="fac" style="background:#1B3A5C;color:#C9A84C" onclick="relForn(\''+f.id+'\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Relatorio</button></div>';
   var tagsH='';
   if((f.tiposTags||[]).length||(f.catsTags||[]).length){
     tagsH='<div class="fctags">'+(f.tiposTags||[]).map(function(t){return '<span class="fctag">'+esc(t)+'</span>';}).join('')+(f.catsTags||[]).map(function(t){return '<span class="fctag cat">'+esc(t)+'</span>';}).join('')+'</div>';
@@ -1839,11 +1840,7 @@ function renderLista(){
       '<button class="abt del" onclick="event.stopPropagation();delLI3('+i+')" style="font-size:9px;padding:2px 7px">Del</button>'+
       '</div>'+
       '</div>';
-    }).join('')+
-    '<div style="display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;font-size:14px;font-weight:600;color:#c0392b" onclick="closeSheet();delOrc(\''+id+'\')">Excluir</div>'+
-    '<div style="display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;font-size:14px;color:#999;border-top:.5px solid #eee" onclick="closeSheet()">Cancelar</div>'+
-    '</div>';
-  sheet.style.display='block';
+    }).join('');
 }
 function closeSheet(){var s=document.getElementById('bottom-sheet');if(s)s.style.display='none';}
 function abrirOrc(){
@@ -2768,6 +2765,47 @@ function compartilharRel(){
   else{var w=window.open('','_blank');if(w){w.document.write('<pre>'+txt+'</pre>');w.document.close();}}
 }
 
+// RELATORIO POR FORNECEDOR
+function relForn(fid){
+  var f=db.fornecedores.find(function(x){return x.id===fid;});
+  if(!f)return;
+  var pg=0,pd=0;
+  var linhas=['=== RELATORIO: '+f.nome.toUpperCase()+' ===','Obra: '+(db.config.nome||''),'Data: '+br(today()),''];
+  (f.contas||[]).slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');}).forEach(function(c){
+    var stat=c.pago?'[PAGO]   ':'[PEND.]  ';
+    linhas.push(stat+br(c.date)+' - '+c.desc+' - '+fmt(c.val)+(c.obs?' ('+c.obs+')':''));
+    if(c.pago)pg+=c.val||0;else pd+=c.val||0;
+  });
+  if((f.locacoes||[]).length){
+    linhas.push('--- Locacoes ---');
+    (f.locacoes||[]).forEach(function(l){
+      var tv=calcAlg(f,l);
+      var stat=l.pago?'[PAGO]   ':'[PEND.]  ';
+      linhas.push(stat+br(l.dataInicio)+' - '+l.dias+' dia(s) - '+fmt(tv));
+      if(l.pago)pg+=tv;else pd+=tv;
+    });
+  }
+  if((f.creditos||[]).length){
+    var cr=0;
+    linhas.push('--- Sobras/Creditos ---');
+    (f.creditos||[]).forEach(function(c){linhas.push(br(c.date)+' - '+c.desc+' - '+fmt(c.val));cr+=c.val||0;});
+    linhas.push('Total creditos: '+fmt(cr));
+  }
+  linhas.push('');
+  linhas.push('TOTAL PAGO:     '+fmt(pg));
+  linhas.push('TOTAL PENDENTE: '+fmt(pd));
+  linhas.push('TOTAL GERAL:    '+fmt(pg+pd));
+  linhas.push('');linhas.push('Gerado por MMObras');
+  var txt=linhas.join('\n');
+  if(navigator.share){
+    navigator.share({title:'Relatorio - '+f.nome,text:txt}).then(function(){toast('Relatorio compartilhado!');}).catch(function(){
+      var w=window.open('','_blank');if(w){w.document.write('<pre style="padding:20px;font-family:monospace;white-space:pre-wrap">'+txt+'</pre>');w.document.close();}
+    });
+  } else {
+    var w=window.open('','_blank');if(w){w.document.write('<pre style="padding:20px;font-family:monospace;white-space:pre-wrap">'+txt+'</pre>');w.document.close();}
+  }
+}
+
 // WHATSAPP (envWpp)
 function envWpp(fid){
   var f=db.fornecedores.find(function(x){return x.id===fid;});
@@ -3082,7 +3120,7 @@ function cOrc(){var a=_g('o_a'),c=_g('o_c'),m=_g('o_m'),imp=_g('o_i');var base=a
 function cMO(){cres('mo_r',[['TOTAL',_BRL(_g('mo_d')*_g('mo_op')*_g('mo_v'))],['POR DIA',_BRL(_g('mo_op')*_g('mo_v'))]]);}
 function calcConvT(i,btn){['conv0','conv1','conv2','conv3'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});document.querySelectorAll('#ccp5 .ctab2').forEach(function(b){b.classList.remove('on');});if(btn)btn.classList.add('on');}
 function _sv(id,v,f){if(f!==id){var e=document.getElementById(id);if(e)e.value=v>0?Math.round(v*10000)/10000:'';}}
-function convA(f){var m2=f==='m2'?_g('ca_m2'):f==='ha'?_g('ca_ha')*1e4:f==='al'?_g('ca_al')*48400:_g('ca_ft')*0.0929;_sv('ca_m2',m2,f);_sv('ca_ha',m2/1e4,f);_sv('ca_al',m2/48400,f);_sv('ca_ft',m2/0.0929,f);}
+function convA(f){var m2=f==='m2'?_g('ca_m2'):f==='ha'?_g('ca_ha')*1e4:f==='are'?_g('ca_are')*100:f==='ac'?_g('ca_ac')*4046.86:f==='al'?_g('ca_al')*48400:f==='alsp'?_g('ca_alsp')*24200:f==='alba'?_g('ca_alba')*9680:_g('ca_ft')*0.0929;_sv('ca_m2',m2,f);_sv('ca_ha',m2/1e4,f);_sv('ca_are',m2/100,f);_sv('ca_ac',m2/4046.86,f);_sv('ca_al',m2/48400,f);_sv('ca_alsp',m2/24200,f);_sv('ca_alba',m2/9680,f);_sv('ca_ft',m2/0.0929,f);}
 function convL(f){var m=f==='m'?_g('cl_m'):f==='cm'?_g('cl_cm')/100:f==='in'?_g('cl_in')*0.0254:_g('cl_ft')*0.3048;_sv('cl_m',m,f);_sv('cl_cm',m*100,f);_sv('cl_in',m/0.0254,f);_sv('cl_ft',m/0.3048,f);}
 function convP(f){var kg=f==='kg'?_g('cp_kg'):f==='lb'?_g('cp_lb')*0.4536:f==='ar'?_g('cp_ar')*14.69:_g('cp_t')*1000;_sv('cp_kg',kg,f);_sv('cp_lb',kg/0.4536,f);_sv('cp_ar',kg/14.69,f);_sv('cp_t',kg/1000,f);}
 function convV(f){var l=f==='l'?_g('cv_l'):f==='m3'?_g('cv_m3')*1000:_g('cv_gl')*3.785;_sv('cv_l',l,f);_sv('cv_m3',l/1000,f);_sv('cv_gl',l/3.785,f);}
