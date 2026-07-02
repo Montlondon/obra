@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="MMObras">
 <meta name="theme-color" content="#1B3A5C">
-<title>MMObras v7</title>
+<title>MMObras v8</title>
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -3114,6 +3114,7 @@ setTimeout(function(){
   try{cElet();}catch(e){}
   try{cHidRes();}catch(e){}
 },400);
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/obra/sw.js?v=8').then(function(r){r.update();});}
 </script>
 </div><!-- /main-app -->
 </body>
