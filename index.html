@@ -3098,6 +3098,16 @@ function salvarPinHoras(){
   save();
   toast('Configurado: lembrar por '+sel.value+'h');
 }
+
+setTimeout(function(){
+  try{cRect();}catch(e){}
+  try{cMat();}catch(e){}
+  try{cVol();}catch(e){}
+  try{cConc();}catch(e){}
+  try{cFibA();}catch(e){}
+  try{cElet();}catch(e){}
+  try{cHidRes();}catch(e){}
+},300);
 </script>
 </div><!-- /main-app -->
 </body>
