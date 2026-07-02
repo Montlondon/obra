@@ -15,7 +15,7 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body{font-family:'Inter',sans-serif;background:#F5F3EE;color:#1A1918;font-size:15px;padding-bottom:76px;min-height:100vh}
 header{background:#1B3A5C;padding:11px 16px;position:sticky;top:0;z-index:50;border-bottom:2px solid #C9A84C}
 .hrow{display:flex;align-items:center;justify-content:space-between}
@@ -942,16 +942,6 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <button class="btnp" onclick="salvarCfg()">Salvar</button>
 </div></div>
 
-<div class="modal" id="m-cfg"><div class="mbox">
-  <button class="mcl" onclick="cM('m-cfg')">x</button>
-  <div class="mtit">Configurar Obra</div>
-  <label>Nome da Obra</label><input id="cfg-nome">
-  <label>Local</label><input id="cfg-local">
-  <label>Data de Inicio</label><input id="cfg-ini" type="date">
-  <label>Previsao de Fim</label><input id="cfg-fim" type="date">
-  <button class="btnp" onclick="salvarCfg()">Salvar</button>
-</div></div>
-
 <div class="modal" id="m-orc"><div class="mbox">
   <button class="mcl" onclick="cM('m-orc')">x</button>
   <div class="mtit" id="m-orc-tit">Novo Orcamento</div>
@@ -1076,7 +1066,8 @@ function oDr(){document.getElementById('drawer').classList.add('on');document.ge
 function cDr(){document.getElementById('drawer').classList.remove('on');document.getElementById('dov').classList.remove('on');}
 
 // ─── TOAST ────────────────────────────────────────────────────────────
-function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
+function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},3000);}
+window.onerror=function(msg,src,line){toast('ERRO JS: '+String(msg).slice(0,80)+' L'+line);return false;};
 
 // ─── CFG OBRA ─────────────────────────────────────────────────────────
 function abrirCfg(){
@@ -1333,7 +1324,8 @@ function oDr(){document.getElementById('drawer').classList.add('on');document.ge
 function cDr(){document.getElementById('drawer').classList.remove('on');document.getElementById('dov').classList.remove('on');}
 
 // ─── TOAST ────────────────────────────────────────────────────────────
-function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},2500);}
+function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},3000);}
+window.onerror=function(msg,src,line){toast('ERRO JS: '+String(msg).slice(0,80)+' L'+line);return false;};
 
 // ─── CFG OBRA ─────────────────────────────────────────────────────────
 function abrirCfg(){
@@ -2310,17 +2302,6 @@ function renderRecibos(){
       '<button class="abt del" onclick="delReciboId(&quot;'+r.id+'&quot;)">Excluir</button>'+
       '</div></div>';
   }).join('');
-}
-function abrirRecibo(){
-  recFotoData=null;
-  document.getElementById('mrec-id').value='';
-  ['mrec-forn','mrec-desc','mrec-num'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('mrec-val').value='';
-  document.getElementById('mrec-date').value=today();
-  var p=document.getElementById('mrec-foto-prev');p.style.display='none';
-  document.getElementById('mrec-del').style.display='none';
-  document.getElementById('m-rec-tit').textContent='Novo Recibo / NF';
-  oM('m-rec');
 }
 function editRecibo(id){
   var r=(db.recibos||[]).find(function(x){return x.id===id;});if(!r)return;
