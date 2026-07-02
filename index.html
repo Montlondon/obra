@@ -505,6 +505,9 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <button class="ctab" onclick="calcCat(3,this)">Estruturas</button>
   <button class="ctab" onclick="calcCat(4,this)">Orcamento</button>
   <button class="ctab" onclick="calcCat(5,this)">Conversoes</button>
+  <button class="ctab" onclick="calcCat(6,this)" style="color:#C9A84C">✦ Fibonacci</button>
+  <button class="ctab" onclick="calcCat(7,this)">Eletrica</button>
+  <button class="ctab" onclick="calcCat(8,this)">Hidraulica</button>
 </div>
 
 <!-- GEOMETRIA -->
@@ -621,6 +624,79 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <div class="ccard" id="conv1" style="display:none"><label>Metros</label><input id="cl_m" type="number" oninput="convL('m')"><label style="margin-top:8px">Centimetros</label><input id="cl_cm" type="number" oninput="convL('cm')"><label style="margin-top:8px">Polegadas</label><input id="cl_in" type="number" oninput="convL('in')"><label style="margin-top:8px">Pes (ft)</label><input id="cl_ft" type="number" oninput="convL('ft')"></div>
   <div class="ccard" id="conv2" style="display:none"><label>Kg</label><input id="cp_kg" type="number" oninput="convP('kg')"><label style="margin-top:8px">Libras (lb)</label><input id="cp_lb" type="number" oninput="convP('lb')"><label style="margin-top:8px">Arrobas (@)</label><input id="cp_ar" type="number" oninput="convP('ar')"><label style="margin-top:8px">Toneladas</label><input id="cp_t" type="number" oninput="convP('t')"></div>
   <div class="ccard" id="conv3" style="display:none"><label>Litros</label><input id="cv_l" type="number" oninput="convV('l')"><label style="margin-top:8px">m³</label><input id="cv_m3" type="number" oninput="convV('m3')"><label style="margin-top:8px">Galoes US</label><input id="cv_gl" type="number" oninput="convV('gl')"></div>
+</div>
+
+
+<!-- FIBONACCI -->
+<div class="cpanel" id="ccp6">
+  <div style="background:linear-gradient(135deg,#1B3A5C,#0d1b2a);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center">
+    <div style="font-family:'Lora',serif;color:#C9A84C;font-size:16px;font-weight:700">φ = 1,618033...</div>
+    <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px">Proporção Áurea — a linguagem do cosmos</div>
+  </div>
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcFib(0,this)">Proporção Áurea</button><button class="ctab2" onclick="calcFib(1,this)">Retângulo Áureo</button><button class="ctab2" onclick="calcFib(2,this)">Divisão Áurea</button><button class="ctab2" onclick="calcFib(3,this)">Sequência</button></div>
+
+  <div class="ccard" id="fib0">
+    <label>Medida menor (m)</label><input id="fa_a" type="number" value="1" step="0.01" oninput="cFibA()">
+    <div class="cres" id="fa_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="fib1" style="display:none">
+    <label>Largura do cômodo (m)</label><input id="fb_l" type="number" value="3" step="0.01" oninput="cFibB()">
+    <div class="cres" id="fb_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="fib2" style="display:none">
+    <label>Comprimento total (m)</label><input id="fc_t" type="number" value="5" step="0.01" oninput="cFibC()">
+    <div class="cres" id="fc_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="fib3" style="display:none">
+    <label>Medida base (cm)</label><input id="fd_b" type="number" value="10" step="1" oninput="cFibD()">
+    <div class="cres" id="fd_r" style="display:none"></div>
+    <div id="fd_seq" style="margin-top:10px;background:#F5F3EE;border-radius:8px;padding:10px;font-size:12px;color:#1B3A5C;line-height:2"></div>
+  </div>
+</div>
+
+<!-- ELETRICA -->
+<div class="cpanel" id="ccp7">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcElet(0,this)">Bitola de Fio</button><button class="ctab2" onclick="calcElet(1,this)">Disjuntor</button><button class="ctab2" onclick="calcElet(2,this)">Carga Total</button></div>
+  <div class="ccard" id="elet0">
+    <label>Potência (W)</label><input id="el_p" type="number" value="2000" oninput="cElet()">
+    <label style="margin-top:8px">Tensão</label>
+    <select id="el_v" onchange="cElet()"><option value="127">127V (monofásico)</option><option value="220" selected>220V (monofásico)</option><option value="380">380V (trifásico)</option></select>
+    <label style="margin-top:8px">Comprimento do trecho (m)</label><input id="el_c" type="number" value="15" oninput="cElet()">
+    <div class="cres" id="el_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="elet1" style="display:none">
+    <label>Corrente (A)</label><input id="dj_i" type="number" value="20" oninput="cDisj()">
+    <div class="cres" id="dj_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="elet2" style="display:none">
+    <label style="margin-bottom:6px">Equipamentos</label>
+    <div id="carga_list"></div>
+    <button onclick="addCarga()" style="width:100%;margin-top:8px;padding:8px;background:#F5F3EE;border:.5px solid #ddd;border-radius:8px;font-size:13px;color:#1B3A5C;cursor:pointer">+ Adicionar equipamento</button>
+    <div class="cres" id="carga_r" style="display:none"></div>
+  </div>
+</div>
+
+<!-- HIDRAULICA -->
+<div class="cpanel" id="ccp8">
+  <div class="ctabs2"><button class="ctab2 on" onclick="calcHid(0,this)">Reservatório</button><button class="ctab2" onclick="calcHid(1,this)">Tubulação</button><button class="ctab2" onclick="calcHid(2,this)">Esgoto</button></div>
+  <div class="ccard" id="hid0">
+    <label>Área construída (m²)</label><input id="hd_a" type="number" value="120" oninput="cHidRes()">
+    <label style="margin-top:8px">Nº de moradores</label><input id="hd_m" type="number" value="4" oninput="cHidRes()">
+    <label style="margin-top:8px">Dias de reserva</label><input id="hd_d" type="number" value="2" oninput="cHidRes()">
+    <div class="cres" id="hd_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="hid1" style="display:none">
+    <label>Vazão desejada (L/min)</label><input id="tb_q" type="number" value="30" oninput="cHidTub()">
+    <label style="margin-top:8px">Comprimento do trecho (m)</label><input id="tb_c" type="number" value="20" oninput="cHidTub()">
+    <label style="margin-top:8px">Pressão disponível (mca)</label><input id="tb_p" type="number" value="10" oninput="cHidTub()">
+    <div class="cres" id="tb_r" style="display:none"></div>
+  </div>
+  <div class="ccard" id="hid2" style="display:none">
+    <label>Nº de banheiros</label><input id="es_b" type="number" value="2" oninput="cHidEsg()">
+    <label style="margin-top:8px">Nº de moradores</label><input id="es_m" type="number" value="4" oninput="cHidEsg()">
+    <label style="margin-top:8px">Área construída (m²)</label><input id="es_a" type="number" value="120" oninput="cHidEsg()">
+    <div class="cres" id="es_r" style="display:none"></div>
+  </div>
 </div>
 
 </div>
@@ -2848,9 +2924,117 @@ function cres(id,rows){
   }).join('');
 }
 function calcCat(i,btn){
-  for(var k=0;k<6;k++){var p=document.getElementById('ccp'+k);if(p)p.classList.toggle('on',k===i);}
+  for(var k=0;k<9;k++){var p=document.getElementById('ccp'+k);if(p)p.classList.toggle('on',k===i);}
   document.querySelectorAll('#calc-cats .ctab').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
+  if(i===6){cFibA();} if(i===7){cElet();cDisj();initCarga();} if(i===8){cHidRes();}
+}
+
+/* ===== FIBONACCI & PROPORÇÃO ÁUREA ===== */
+var PHI=1.6180339887;
+function calcFib(i,btn){
+  ['fib0','fib1','fib2','fib3'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});
+  document.querySelectorAll('#ccp6 .ctab2').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  [cFibA,cFibB,cFibC,cFibD][i]();
+}
+function cFibA(){
+  var a=_g('fa_a')||1;
+  var b=_R(a*PHI,3); var tot=_R(a+b,3);
+  cres('fa_r',[['MEDIDA MENOR (A)',a+' m'],['MEDIDA MAIOR (B = A × φ)',b+' m'],['TOTAL (A + B)',tot+' m'],['PROPORÇÃO A/B','1 : '+_R(PHI,4)],['DIAGONAL RETÂNGULO ÁUREO',_R(Math.sqrt(a*a+b*b),3)+' m']]);
+}
+function cFibB(){
+  var l=_g('fb_l')||3;
+  var alt=_R(l/PHI,3); var diag=_R(Math.sqrt(l*l+alt*alt),3);
+  var area=_R(l*alt,3); var per=_R(2*(l+alt),3);
+  cres('fb_r',[['LARGURA',l+' m'],['ALTURA ÁUREA (L ÷ φ)',alt+' m'],['ÁREA',area+' m²'],['PERÍMETRO',per+' m'],['DIAGONAL',diag+' m'],['PROPORÇÃO','1 : '+_R(PHI,4)]]);
+}
+function cFibC(){
+  var t=_g('fc_t')||5;
+  var a=_R(t/PHI,3); var b=_R(t-a,3);
+  cres('fc_r',[['COMPRIMENTO TOTAL',t+' m'],['SEGMENTO MAIOR (A)',a+' m'],['SEGMENTO MENOR (B)',b+' m'],['PONTO ÁUREO A partir do início',a+' m'],['VERIFICAÇÃO B/A','1 : '+_R(PHI,4)]]);
+}
+function cFibD(){
+  var base=_g('fd_b')||10;
+  var seq=[1,1,2,3,5,8,13,21,34,55,89,144];
+  var scaled=seq.map(function(n){return _R(n*base/10,1);});
+  document.getElementById('fd_r')&&cres('fd_r',[['BASE',base+' cm'],['× φ',_R(base*PHI,1)+' cm'],['÷ φ',_R(base/PHI,1)+' cm']]);
+  var el=document.getElementById('fd_seq');
+  if(el)el.innerHTML='<strong style="color:#1B3A5C">Sequência proporcional (cm):</strong><br>'+scaled.join(' · ');
+}
+
+/* ===== ELÉTRICA ===== */
+var _cargaItems=[];
+function initCarga(){if(!_cargaItems.length){_cargaItems=[{n:'Tomadas (10A)',p:1000,q:1},{n:'Ar condicionado 9000BTU',p:900,q:1}];renderCarga();}}
+function addCarga(){_cargaItems.push({n:'Equipamento',p:500,q:1});renderCarga();}
+function renderCarga(){
+  var el=document.getElementById('carga_list');if(!el)return;
+  el.innerHTML=_cargaItems.map(function(it,i){
+    return '<div style="display:grid;grid-template-columns:1fr 80px 50px auto;gap:4px;margin-bottom:6px;align-items:center">'+
+      '<input style="background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:12px;width:100%" value="'+it.n+'" oninput="_cargaItems['+i+'].n=this.value">'+
+      '<input style="background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:12px;width:100%" type="number" value="'+it.p+'" placeholder="W" oninput="_cargaItems['+i+'].p=+this.value;cCargaTotal()">'+
+      '<input style="background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:12px;width:100%" type="number" value="'+it.q+'" placeholder="Qtd" oninput="_cargaItems['+i+'].q=+this.value;cCargaTotal()">'+
+      '<button onclick="_cargaItems.splice('+i+',1);renderCarga();cCargaTotal()" style="background:none;border:none;color:#c0392b;font-size:16px;cursor:pointer;padding:0 4px">×</button>'+
+      '</div>';
+  }).join('');
+  cCargaTotal();
+}
+function cCargaTotal(){
+  var total=_cargaItems.reduce(function(s,it){return s+(it.p||0)*(it.q||1);},0);
+  var v=220; var i=_R(total/v,1); var bi=i<=10?'1,5mm²':i<=16?'2,5mm²':i<=25?'4mm²':i<=32?'6mm²':'10mm²';
+  var dj=i<=10?10:i<=16?16:i<=20?20:i<=25?25:i<=32?32:40;
+  cres('carga_r',[['POTÊNCIA TOTAL',total+' W'],['CORRENTE (220V)',i+' A'],['BITOLA RECOMENDADA',bi],['DISJUNTOR GERAL',dj+' A'],['CONSUMO/MÊS (est.)',_R(total*0.008,1)+' kWh']]);
+}
+function cElet(){
+  var p=_g('el_p')||2000; var v=parseFloat(document.getElementById('el_v')?document.getElementById('el_v').value:220)||220; var c=_g('el_c')||15;
+  var i=_R(p/v,2); var bi=i<=10?'1,5mm²':i<=16?'2,5mm²':i<=25?'4mm²':i<=32?'6mm²':'10mm²';
+  var dj=i<=10?10:i<=16?16:i<=20?20:i<=25?25:i<=32?32:40;
+  var quedaTen=_R((2*i*c*0.0175)/(i<=10?1.5:i<=16?2.5:i<=25?4:i<=32?6:10),2);
+  cres('el_r',[['POTÊNCIA',p+' W'],['TENSÃO',v+' V'],['CORRENTE',i+' A'],['BITOLA RECOMENDADA',bi],['DISJUNTOR',dj+' A'],['QUEDA DE TENSÃO (est.)',quedaTen+' V ('+_R(quedaTen/v*100,1)+'%)']]);
+}
+function cDisj(){
+  var i=_g('dj_i')||20;
+  var dj=i<=10?10:i<=16?16:i<=20?20:i<=25?25:i<=32?32:i<=40?40:i<=50?50:i<=63?63:80;
+  var bi=dj<=10?'1,5mm²':dj<=16?'2,5mm²':dj<=20?'4mm²':dj<=25?'6mm²':'10mm²';
+  cres('dj_r',[['CORRENTE',i+' A'],['DISJUNTOR RECOMENDADO',dj+' A'],['BITOLA MÍNIMA DE FIO',bi],['PRÓXIMO PADRÃO NBR',(dj<=10?'DIN 10A':dj<=16?'DIN 16A':dj<=20?'DIN 20A':dj<=25?'DIN 25A':dj<=32?'DIN 32A':'DIN 40A+')]]);
+}
+function calcElet(i,btn){
+  ['elet0','elet1','elet2'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});
+  document.querySelectorAll('#ccp7 .ctab2').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  if(i===2)initCarga();
+}
+
+/* ===== HIDRÁULICA ===== */
+function calcHid(i,btn){
+  ['hid0','hid1','hid2'].forEach(function(id,j){var e=document.getElementById(id);if(e)e.style.display=j===i?'block':'none';});
+  document.querySelectorAll('#ccp8 .ctab2').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  [cHidRes,cHidTub,cHidEsg][i]();
+}
+function cHidRes(){
+  var a=_g('hd_a')||120; var m=_g('hd_m')||4; var d=_g('hd_d')||2;
+  var consumo=m*200; var reserva=consumo*d;
+  var incendio=a>500?(_R(a*0.5,0)):0;
+  var total=reserva+incendio;
+  var caixas=Math.ceil(total/1000);
+  cres('hd_r',[['CONSUMO DIÁRIO',consumo+' L/dia'],['RESERVA ('+d+' dias)',reserva+' L'],['COMBATE A INCÊNDIO',incendio>0?incendio+' L':'Não exigido'],['VOLUME MÍNIMO TOTAL',total+' L ('+_R(total/1000,1)+' m³)'],['CAIXAS D\'ÁGUA (1000L)',caixas+'x 1.000L ou equivalente']]);
+}
+function cHidTub(){
+  var q=_g('tb_q')||30; var c=_g('tb_c')||20; var p=_g('tb_p')||10;
+  var qm3=q/60000;
+  var d_mm=_R(Math.pow((128*qm3*c*1.12)/(Math.PI*p*9.81),0.25)*1000,1)||20;
+  var diam=d_mm<=20?'20mm (3/4")':d_mm<=25?'25mm (1")':d_mm<=32?'32mm (1 1/4")':d_mm<=40?'40mm (1 1/2")':d_mm<=50?'50mm (2")':'60mm (2 1/2")';
+  var vel=_R(q/(60*Math.PI*Math.pow(d_mm/2000,2)),2);
+  cres('tb_r',[['VAZÃO',q+' L/min'],['DIÂMETRO CALCULADO',_R(d_mm,0)+' mm'],['TUBO RECOMENDADO',diam],['VELOCIDADE EST.',vel+' m/s'],['PERDA DE CARGA EST.',_R(c*0.02,2)+' mca']]);
+}
+function cHidEsg(){
+  var b=_g('es_b')||2; var m=_g('es_m')||4; var a=_g('es_a')||120;
+  var contrib=m*150;
+  var colPrin=contrib<=1500?100:contrib<=3000?150:200;
+  var cxGord=a>100?1:0;
+  var fossSep=contrib<=5000?'1.500 L':'3.000 L';
+  cres('es_r',[['CONTRIBUIÇÃO DIÁRIA',contrib+' L/dia'],['COLETOR PRINCIPAL',colPrin+' mm'],['RAMAL BANHEIRO','75mm (chuveiro/pia) · 100mm (vaso)'],['CAIXA DE GORDURA',cxGord?'Obrigatória (cozinha)':'Verificar'],['FOSSA SÉPTICA',fossSep],['SUMIDOURO','Área mín. '+_R(contrib*0.004,1)+' m²']]);
 }
 function calcShape(i){
   document.querySelectorAll('.cshape').forEach(function(s,j){s.classList.toggle('on',j===i);});
