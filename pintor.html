@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pintor Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:#F5F3EE;color:#1B3A5C;min-height:100vh}
+#loginOverlay{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#0d1b2a,#1a2e4a);display:flex;align-items:center;justify-content:center;padding:20px}
+#loginBox{background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:40px 28px;width:100%;max-width:340px;text-align:center}
+#loginBox h2{font-family:Lora,serif;color:#C9A84C;font-size:1.3rem;margin-bottom:4px}
+#loginBox p{color:rgba(255,255,255,0.4);font-size:.78rem;margin-bottom:28px}
+.bg{width:100%;padding:14px;border-radius:12px;border:none;background:#fff;color:#333;font-size:.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+#lmsg{color:#C9A84C;font-size:.75rem;margin-top:10px;min-height:16px}
+header{background:#1B3A5C;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+header h1{font-family:Lora,serif;color:#C9A84C;font-size:1.1rem}
+header span{color:rgba(255,255,255,.5);font-size:.72rem}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e8e4dc;overflow-x:auto;scrollbar-width:none;position:sticky;top:52px;z-index:9}
+.tab{flex:none;padding:12px 16px;font-size:.78rem;font-weight:600;color:#aaa;border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.tab.on{color:#1B3A5C;border-bottom-color:#C9A84C}
+.pg{display:none;padding:16px}.pg.on{display:block}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:.5px solid #e8e4dc}
+.ct{font-family:Lora,serif;font-size:1rem;color:#1B3A5C;margin-bottom:14px}
+label{display:block;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.6px;margin-bottom:4px;margin-top:12px}
+label:first-child{margin-top:0}
+input,select{width:100%;background:#F5F3EE;border:.5px solid #ddd;border-radius:8px;padding:10px 12px;font-size:15px;color:#1B3A5C;font-family:Inter,sans-serif;outline:none}
+input:focus,select:focus{border-color:#1B3A5C}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.res{background:#1B3A5C;border-radius:10px;padding:14px;margin-top:12px;display:none}
+.rr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.rr:last-child{border-top:1px solid rgba(201,168,76,.3);margin-top:6px;padding-top:6px;margin-bottom:0}
+.rl{font-size:10px;color:#C9A84C;font-weight:700;letter-spacing:.5px}
+.rv{font-family:Lora,serif;font-size:15px;color:#fff;font-weight:600}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;background:#C9A84C;color:#1B3A5C;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:10px}
+.bto{background:transparent;border:1px solid #C9A84C;color:#1B3A5C}
+.stabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.stab{padding:5px 12px;border-radius:20px;border:.5px solid #ddd;font-size:11px;font-weight:600;color:#aaa;background:#fff;cursor:pointer}
+.stab.on{background:#1B3A5C;color:#C9A84C;border-color:#1B3A5C}
+.obox{background:linear-gradient(135deg,#1B3A5C,#0d1b2a);border-radius:14px;padding:18px;text-align:center;margin-top:12px;display:none}
+.ol{color:#C9A84C;font-size:11px;font-weight:700;letter-spacing:.8px}
+.ov{font-family:Lora,serif;color:#fff;font-size:2rem;margin-top:4px}
+.os{color:rgba(255,255,255,.4);font-size:11px;margin-top:4px}
+.fpar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.fsl{aspect-ratio:1;border-radius:10px;border:2px dashed #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fff}
+.fsl img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none}
+</style>
+</head>
+<body>
+<div id="loginOverlay">
+  <div id="loginBox">
+    <h2>Pintor Pro</h2>
+    <p>Acesso autorizado por Montgomery</p>
+    <button class="bg" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Entrar com Google
+    </button>
+    <div id="lmsg"></div>
+  </div>
+</div>
+<div id="app" style="display:none">
+  <header><h1>Pintor Pro</h1><span id="ulbl"></span></header>
+  <div class="tabs">
+    <button class="tab on" onclick="goTab(0,this)">Tinta</button>
+    <button class="tab" onclick="goTab(1,this)">Massa</button>
+    <button class="tab" onclick="goTab(2,this)">Materiais</button>
+    <button class="tab" onclick="goTab(3,this)">Orcamento</button>
+    <button class="tab" onclick="goTab(4,this)">Fotos</button>
+  </div>
+  <div class="pg on" id="pg0">
+    <div class="card"><div class="ct">Calculadora de Tinta</div>
+    <div class="stabs"><button class="stab on" onclick="st(0,this)">Parede interna</button><button class="stab" onclick="st(1,this)">Parede externa</button><button class="stab" onclick="st(2,this)">Teto</button><button class="stab" onclick="st(3,this)">Madeira</button></div>
+    <label>Largura (m)</label><input id="tl" type="number" value="4" step="0.1" oninput="cT()">
+    <label>Altura (m)</label><input id="ta" type="number" value="3" step="0.1" oninput="cT()">
+    <div class="r2"><div><label>Descontos m2</label><input id="td" type="number" value="3" step="0.1" oninput="cT()"></div><div><label>Demaos</label><input id="tdm" type="number" value="2" oninput="cT()"></div></div>
+    <label>Tipo de tinta</label>
+    <select id="tsel" onchange="cT()"><option value="10">PVA 10m2/L</option><option value="12" selected>Acrilica 12m2/L</option><option value="8">Premium 8m2/L</option><option value="6">Esmalte 6m2/L</option></select>
+    <label>Preco por lata 18L (R$)</label><input id="tp" type="number" value="350" step="10" oninput="cT()">
+    <div class="res" id="tr"></div></div>
+    <div class="card"><div class="ct">Varios Comodos</div>
+    <div id="cms"></div>
+    <button class="btn bto" onclick="addC()">+ Adicionar comodo</button>
+    <div class="res" id="cr"></div></div>
+  </div>
+  <div class="pg" id="pg1">
+    <div class="card"><div class="ct">Massa, Textura e Selador</div>
+    <div class="stabs"><button class="stab on" onclick="sm(0,this)">Massa PVA</button><button class="stab" onclick="sm(1,this)">Massa acrilica</button><button class="stab" onclick="sm(2,this)">Textura</button><button class="stab" onclick="sm(3,this)">Grafiato</button><button class="stab" onclick="sm(4,this)">Selador</button></div>
+    <label>Area total (m2)</label><input id="ma" type="number" value="40" oninput="cM()">
+    <label>Demaos</label><select id="mdm" onchange="cM()"><option value="1">1 demao</option><option value="2" selected>2 demaos</option><option value="3">3 demaos</option></select>
+    <label>Preco por balde 25kg (R$)</label><input id="mp" type="number" value="120" step="5" oninput="cM()">
+    <div class="res" id="mr"></div></div>
+    <div class="card"><div class="ct">Resumo rapido</div>
+    <label>Area (m2)</label><input id="rm2" type="number" value="50" oninput="cRm()">
+    <div id="rmtxt" style="margin-top:12px;background:#F5F3EE;border-radius:10px;padding:12px;font-size:12px;color:#1B3A5C;line-height:2.2"></div>
+    </div>
+  </div>
+  <div class="pg" id="pg2">
+    <div class="card"><div class="ct">Lista de Materiais</div>
+    <div id="mli"></div>
+    <button class="btn bto" onclick="addM()" style="margin-top:10px">+ Adicionar</button>
+    <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:.5px solid #F5F3EE"><span style="font-size:12px;font-weight:700;color:#1B3A5C">TOTAL</span><span style="font-family:Lora,serif;font-size:16px;font-weight:700;color:#C9A84C" id="mtot">R$ 0</span></div>
+    <button class="btn" onclick="wLista()">Enviar lista por WhatsApp</button>
+    </div>
+  </div>
+  <div class="pg" id="pg3">
+    <div class="card"><div class="ct">Orcamento Rapido</div>
+    <label>Cliente</label><input id="ocli" type="text" placeholder="Nome do cliente">
+    <label>Area total (m2)</label><input id="oa" type="number" value="80" oninput="cO()">
+    <div class="r2"><div><label>Mao de obra R$/m2</label><input id="omo" type="number" value="25" oninput="cO()"></div><div><label>Material (R$)</label><input id="omat" type="number" value="800" oninput="cO()"></div></div>
+    <label>Lucro</label><select id="oluc" onchange="cO()"><option value="10">10%</option><option value="15">15%</option><option value="20" selected>20%</option><option value="25">25%</option><option value="30">30%</option></select>
+    <label>Prazo (dias)</label><input id="opz" type="number" value="5">
+    <div class="obox" id="ob"><div class="ol">TOTAL DO SERVICO</div><div class="ov" id="ov">R$ 0</div><div class="os" id="os2"></div></div>
+    <div class="res" id="or"></div>
+    <button class="btn" onclick="wOrc()" style="margin-top:10px">Enviar por WhatsApp</button>
+    </div>
+  </div>
+  <div class="pg" id="pg4">
+    <div class="card"><div class="ct">Registro do Servico</div>
+    <label>Comodo / Local</label><input id="fcom" type="text" placeholder="Ex: Sala, quarto, fachada...">
+    <div class="fpar">
+      <div><div style="font-size:10px;font-weight:700;color:#aaa;margin-bottom:6px">ANTES</div>
+        <label for="fan" class="fsl"><img id="fan_i"><div id="fan_p" style="text-align:center;padding:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 0 2-2l2-2h8l2 2h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><div style="font-size:10px;color:#ccc;margin-top:4px">foto antes</div></div></label>
+        <input type="file" id="fan" accept="image/*" capture="environment" style="display:none" onchange="pf(this,'fan')">
+      </div>
+      <div><div style="font-size:10px;font-weight:700;color:#aaa;margin-bottom:6px">DEPOIS</div>
+        <label for="fdp" class="fsl"><img id="fdp_i"><div id="fdp_p" style="text-align:center;padding:8px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 0 2-2l2-2h8l2 2h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><div style="font-size:10px;color:#ccc;margin-top:4px">foto depois</div></div></label>
+        <input type="file" id="fdp" accept="image/*" capture="environment" style="display:none" onchange="pf(this,'fdp')">
+      </div>
+    </div>
+    <button class="btn" onclick="sReg()" style="margin-top:12px">Salvar registro</button>
+    </div>
+    <div id="regs"></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SU="https://eltjhrhrtuymejojxyhe.supabase.co";
+var SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdGpocmhydHV5bWVqb2p4eWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1NDI5NzcsImV4cCI6MjA2NjExODk3N30.7Bm7Kv1vMlG3AHBS17z9s8xNM3c14MXvt_I83Z3gJXI";
+var AL=["montlondon@gmail.com","salavioleta@gmail.com","adsonpoprock@hotmail.com"];
+var _sb=null;
+async function initAuth(){_sb=supabase.createClient(SU,SK);var s=(await _sb.auth.getSession()).data.session;if(s&&AL.includes(s.user.email)){entrar(s.user.email);return;}_sb.auth.onAuthStateChange(function(_,s2){if(s2&&AL.includes(s2.user.email))entrar(s2.user.email);else if(s2){document.getElementById("lmsg").textContent="Email nao autorizado";_sb.auth.signOut();}});}
+async function loginGoogle(){document.getElementById("lmsg").textContent="Aguarde...";await _sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href.split("#")[0]}});}
+function entrar(e){document.getElementById("loginOverlay").style.display="none";document.getElementById("app").style.display="block";document.getElementById("ulbl").textContent=e.split("@")[0];init();}
+function goTab(i,b){document.querySelectorAll(".pg").forEach(function(p,j){p.classList.toggle("on",j===i);});document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on");});b.classList.add("on");}
+var _tm=0,_mm=0;
+var _cms=[{n:"Sala",l:5,a:3,d:4}];
+var _mts=[{n:"Tinta Acrilica 18L",q:2,u:"lata",p:350},{n:"Massa corrida 25kg",q:3,u:"balde",p:95},{n:"Selador 18L",q:1,u:"lata",p:180},{n:"Rolo la 23cm",q:3,u:"un",p:18},{n:"Lixa 120",q:10,u:"un",p:3}];
+var _rgs=[];
+function init(){rCms();rMts();cT();cM();cO();cRm();}
+function g(id){var e=document.getElementById(id);return e?parseFloat(e.value)||0:0;}
+function brl(v){return "R$ "+Math.round(v).toLocaleString("pt-BR");}
+function R(v,d){return Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0);}
+function sRes(id,rows){var el=document.getElementById(id);if(!el)return;el.style.display="block";el.innerHTML=rows.map(function(r,i){var l=i===rows.length-1;return "<div class=rr><span class=rl>"+r[0]+"</span><span class=rv style="+(l?"font-size:17px":"")+">"+r[1]+"</span></div>";}).join("");}
+function st(i,b){_tm=i;b.closest(".stabs").querySelectorAll(".stab").forEach(function(x){x.classList.remove("on");});b.classList.add("on");cT();}
+function sm(i,b){_mm=i;b.closest(".stabs").querySelectorAll(".stab").forEach(function(x){x.classList.remove("on");});b.classList.add("on");cM();}
+function cT(){var l=g("tl")||4,a=g("ta")||3,d=g("td")||0,dm=g("tdm")||2;var rd=parseFloat(document.getElementById("tsel").value)||12;var ar=Math.max(0,l*a-d);var li=R(ar*dm/rd,1);var la=Math.ceil(li/18);sRes("tr",[["AREA",R(ar,1)+" m2"],["LITROS",li+" L"],["LATAS 18L",la+" lata"+(la!==1?"s":"")],["CUSTO",brl(la*(g("tp")||350))]]);}
+function rCms(){var el=document.getElementById("cms");if(!el)return;el.innerHTML=_cms.map(function(c,i){return "<div style=background:#F5F3EE;border-radius:10px;padding:10px;margin-bottom:8px><input style=font-size:13px;font-weight:600;color:#1B3A5C;background:transparent;border:none;outline:none;width:calc(100% - 24px) value="+c.n+" oninput=_cms["+i+"].n=this.value><button onclick=_cms.splice("+i+",1);rCms();cCm() style=background:none;border:none;color:#c0392b;font-size:18px;cursor:pointer;float:right>x</button><div style=display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px><div><div style=font-size:9px;color:#aaa;font-weight:700;margin-bottom:3px>LARG</div><input style=background:#fff;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:14px;width:100% type=number value="+c.l+" oninput=_cms["+i+"].l=+this.value;cCm()></div><div><div style=font-size:9px;color:#aaa;font-weight:700;margin-bottom:3px>ALT</div><input style=background:#fff;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:14px;width:100% type=number value="+c.a+" oninput=_cms["+i+"].a=+this.value;cCm()></div><div><div style=font-size:9px;color:#aaa;font-weight:700;margin-bottom:3px>DESC m2</div><input style=background:#fff;border:.5px solid #ddd;border-radius:6px;padding:6px 8px;font-size:14px;width:100% type=number value="+c.d+" oninput=_cms["+i+"].d=+this.value;cCm()></div></div></div>";}).join("");cCm();}
+function addC(){_cms.push({n:"Comodo "+(_cms.length+1),l:4,a:3,d:2});rCms();}
+function cCm(){var t=_cms.reduce(function(s,c){return s+Math.max(0,(c.l||0)*(c.a||0)-(c.d||0));},0);var li=R(t*2/12,1);var la=Math.ceil(li/18);sRes("cr",[["AREA TOTAL",R(t,1)+" m2"],["LITROS (2 demaos)",li+" L"],["LATAS 18L",la+" lata"+(la!==1?"s":"")]]);}
+var _mR=[{r:30},{r:25},{r:2},{r:1.5},{r:50}];
+function cM(){var a=g("ma")||40,dm=g("mdm")||2,p=g("mp")||120;var b=Math.ceil(a*dm/(_mR[_mm]||_mR[0]).r);sRes("mr",[["AREA",a+" m2"],["QUANTIDADE",b+" balde"+(b!==1?"s":"")],["CUSTO",brl(b*p)]]);}
+function cRm(){var m=g("rm2")||50;var el=document.getElementById("rmtxt");if(!el)return;el.innerHTML="<b>"+m+" m2</b> precisa de:<br>Massa corrida: <b>"+Math.ceil(m*2/30)+"</b> baldes 25kg<br>Tinta acrilica: <b>"+Math.ceil(m*2/12/18)+"</b> latas 18L<br>Selador: <b>"+Math.ceil(m/50)+"</b> galao 18L<br>Lixa: <b>"+Math.ceil(m/5)+"</b> folhas<br>Tempo: <b>"+Math.ceil(m/15)+"</b> dias";}
+function rMts(){var el=document.getElementById("mli");if(!el)return;el.innerHTML=_mts.map(function(m,i){return "<div style=display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:.5px solid #F5F3EE><div style=flex:1><input style=font-size:13px;font-weight:600;color:#1B3A5C;background:transparent;border:none;outline:none;width:100% value="+m.n+" oninput=_mts["+i+"].n=this.value><div style=display:flex;gap:6px;margin-top:4px><input style=width:55px;background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:4px 6px;font-size:12px type=number value="+m.q+" oninput=_mts["+i+"].q=+this.value;cMt()><input style=width:50px;background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:4px 6px;font-size:12px value="+m.u+" oninput=_mts["+i+"].u=this.value></div></div><div style=text-align:right;margin-right:8px><input style=width:72px;background:#F5F3EE;border:.5px solid #ddd;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:700;color:#C9A84C;text-align:right type=number value="+m.p+" oninput=_mts["+i+"].p=+this.value;cMt()><div style=font-size:9px;color:#aaa>R$/un</div></div><button onclick=_mts.splice("+i+",1);rMts() style=background:none;border:none;color:#c0392b;font-size:18px;cursor:pointer>x</button></div>";}).join("");cMt();}
+function addM(){_mts.push({n:"Material",q:1,u:"un",p:0});rMts();}
+function cMt(){var t=_mts.reduce(function(s,m){return s+(m.q||0)*(m.p||0);},0);var e=document.getElementById("mtot");if(e)e.textContent=brl(t);}
+function wLista(){var t=_mts.reduce(function(s,m){return s+(m.q||0)*(m.p||0);},0);var txt="Lista de Materiais\n\n"+_mts.map(function(m){return "* "+m.n+" - "+m.q+" "+m.u+" - "+brl(m.p)+"/un";}).join("\n")+"\n\nTotal: "+brl(t);if(navigator.share)navigator.share({text:txt});else window.open("https://wa.me/?text="+encodeURIComponent(txt));}
+function cO(){var a=g("oa")||80,mo=g("omo")||25,mat=g("omat")||800;var luc=parseFloat(document.getElementById("oluc").value)||20;var mO=a*mo,sub=mO+mat,lV=sub*luc/100,tot=sub+lV;var b=document.getElementById("ob");if(b)b.style.display="block";var ev=document.getElementById("ov");if(ev)ev.textContent=brl(tot);var es=document.getElementById("os2");if(es)es.textContent="M.O: "+brl(mO)+" | Mat: "+brl(mat)+" | Lucro: "+brl(lV);sRes("or",[["MAO DE OBRA",brl(mO)],["MATERIAL",brl(mat)],["LUCRO ("+luc+"%)",brl(lV)],["TOTAL",brl(tot)]]);}
+function wOrc(){var cli=document.getElementById("ocli").value||"Cliente";var a=g("oa"),mo=g("omo"),mat=g("omat"),pz=g("opz");var luc=parseFloat(document.getElementById("oluc").value)||20;var tot=(a*mo+mat)*(1+luc/100);var txt="Orcamento de Pintura\n\nCliente: "+cli+"\nArea: "+a+" m2\nPrazo: "+pz+" dias\nMao de obra: "+brl(a*mo)+"\nMaterial: "+brl(mat)+"\n\nTOTAL: "+brl(tot)+"\n\nPintor Pro - Montgomery";if(navigator.share)navigator.share({text:txt});else window.open("https://wa.me/?text="+encodeURIComponent(txt));}
+function pf(inp,pfx){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var i=document.getElementById(pfx+"_i");var p=document.getElementById(pfx+"_p");if(i){i.src=e.target.result;i.style.display="block";}if(p)p.style.display="none";};r.readAsDataURL(inp.files[0]);}
+function sReg(){var ai=document.getElementById("fan_i");if(!ai||ai.style.display==="none"){alert("Adicione a foto ANTES");return;}var di=document.getElementById("fdp_i");var com=document.getElementById("fcom").value||"Sem nome";_rgs.push({c:com,a:ai.src,d:di&&di.style.display!=="none"?di.src:null,dt:new Date().toLocaleDateString("pt-BR")});ai.style.display="none";ai.src="";document.getElementById("fan_p").style.display="flex";if(di){di.style.display="none";di.src="";document.getElementById("fdp_p").style.display="flex";}document.getElementById("fcom").value="";rRgs();}
+function rRgs(){var el=document.getElementById("regs");if(!el)return;el.innerHTML=_rgs.slice().reverse().map(function(r){return "<div style=background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:.5px solid #e8e4dc><div style=font-size:13px;font-weight:700;color:#1B3A5C;margin-bottom:8px>"+r.c+" <span style=color:#aaa;font-weight:400;font-size:11px>"+r.dt+"</span></div><div style=display:grid;grid-template-columns:1fr 1fr;gap:8px><div><div style=font-size:9px;color:#aaa;margin-bottom:4px>ANTES</div><img src="+r.a+" style=width:100%;border-radius:8px;aspect-ratio:1;object-fit:cover></div>"+(r.d?"<div><div style=font-size:9px;color:#aaa;margin-bottom:4px>DEPOIS</div><img src="+r.d+" style=width:100%;border-radius:8px;aspect-ratio:1;object-fit:cover></div>":"<div style=background:#F5F3EE;border-radius:8px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;color:#ccc>sem foto depois</div>")+"</div></div>";}).join("");}
+window.addEventListener("DOMContentLoaded",function(){initAuth();});
+</script>
+</body>
+</html>
