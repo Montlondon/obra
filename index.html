@@ -2927,6 +2927,11 @@ function calcCat(i,btn){
   for(var k=0;k<9;k++){var p=document.getElementById('ccp'+k);if(p)p.classList.toggle('on',k===i);}
   document.querySelectorAll('#calc-cats .ctab').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
+  if(i===0){cRect();}
+  if(i===1){cMat();}
+  if(i===2){cVol();}
+  if(i===3){cConc();}
+  if(i===4){cOrcCalc&&cOrcCalc();}
   if(i===6){cFibA();} if(i===7){cElet();cDisj();initCarga();} if(i===8){cHidRes();}
 }
 
