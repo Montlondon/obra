@@ -354,7 +354,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.3 &middot; 02/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.4 &middot; 02/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1521,7 +1521,7 @@ function updBRT(){
 updBRT();setInterval(updBRT,30000);
 
 // DB
-var SEED={config:{nome:'Obra Montgomery',empreiteiro:'Adson',local:'Basement',dataIni:'2026-06-22',dataFim:''},mo:[],mat:[],des:[],notas:{comprar:[],orcar:[]},hist:[],listas:{todo:[{id:'td1',text:'Tinta prata',obs:'',done:true}],pendencias:[],compras:[],sobras:[]},fornecedores:[{id:'adson001',nome:'Adson',tel:'',cat:'Pintor',tipo:'servico',contas:[{id:'a1',desc:'MO Pintura Basement',val:900,date:'2026-06-26',obs:'',pago:false,forma:'dinheiro'},{id:'a2',desc:'3 Tintas Rusterit + Eucatex Foresgreen',val:420,date:'2026-06-26',obs:'',pago:false,forma:'dinheiro'}],checklist:[],creditos:[],pecas:[],locacoes:[],recibos:[]},{id:'varandao001',nome:'Varandao',tel:'',cat:'Material',tipo:'material',contas:[{id:'v1',desc:'2 Fitas crepe',val:25,date:'2026-06-22',obs:'',pago:false,forma:'dinheiro'},{id:'v2',desc:'Lona 8.20m',val:53,date:'2026-06-22',obs:'',pago:false,forma:'dinheiro'},{id:'v3',desc:'Lona 8.00m',val:52,date:'2026-06-23',obs:'',pago:false,forma:'dinheiro'},{id:'v4',desc:'1 Fita crepe',val:12.5,date:'2026-06-23',obs:'',pago:false,forma:'dinheiro'},{id:'v5',desc:'Spray branco fosco',val:18,date:'2026-06-23',obs:'',pago:false,forma:'dinheiro'}],checklist:[],creditos:[],pecas:[],locacoes:[],recibos:[]},{id:'mdtintas001',nome:'MD Tintas',tel:'',cat:'Material',tipo:'material',contas:[{id:'m1',desc:'Tinta Desempenho Fosco Eucatex Extra Ultra',val:285,date:'2026-06-22',obs:'',pago:false,forma:'dinheiro'},{id:'m2',desc:'Tinta Desempenho Fosco Eucatex Extra Ultra',val:285,date:'2026-06-22',obs:'',pago:false,forma:'dinheiro'}],checklist:[],creditos:[],pecas:[],locacoes:[],recibos:[]},{id:'pedrao001',nome:'Pedrao da Carroca',tel:'33999572038',cat:'Locacao Equipamentos',tipo:'aluguel',contas:[],checklist:[],creditos:[],pecas:[{id:'p1',nome:'Andaime 1x1',qtd:10,valDia:3},{id:'p2',nome:'Tabuas',qtd:4,valDia:3},{id:'p3',nome:'Roda',qtd:4,valDia:3}],locacoes:[{id:'l1',dataInicio:'2026-06-29',dias:1,pago:false,encerrada:false}],recibos:[]}],orcamentos:[],urgencias:[],clientes:[],equipe:[]};
+var SEED={config:{nome:'Minha Obra',empreiteiro:'',local:'',dataIni:'',dataFim:''},mo:[],mat:[],des:[],notas:{comprar:[],orcar:[]},hist:[],listas:{todo:[],pendencias:[],compras:[],sobras:[]},fornecedores:[],orcamentos:[],urgencias:[],clientes:[],equipe:[]};
 
 var db;
 try{db=JSON.parse(localStorage.getItem(KEY));}catch(e){db=null;}
