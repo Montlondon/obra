@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.0 &middot; 03/07 &middot; login</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.1 &middot; 03/07 &middot; login</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3298,15 +3298,18 @@ function carregarSupabase(){
   });
 }
 function loginMsg(m){var e=document.getElementById('loginMsg');if(e)e.textContent=m;}
+// Erros de JS aparecem na tela de login (o toast fica escondido atras do overlay)
+window.addEventListener('error',function(ev){
+  var o=document.getElementById('loginOverlay');
+  if(o&&o.style.display!=='none')loginMsg('ERRO: '+String(ev.message||'').slice(0,90));
+});
 function hideLogin(){var o=document.getElementById('loginOverlay');if(o)o.style.display='none';}
 
 function loginGoogle(){
-  loginMsg('Redirecionando para o Google...');
-  carregarSupabase().then(function(lib){
-    if(!_supa)_supa=lib.createClient(SUPA_URL,SUPA_ANON,{auth:{persistSession:true,autoRefreshToken:true}});
-    _supa.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}})
-      .then(function(r){if(r.error)loginMsg('Erro: '+r.error.message);});
-  }).catch(function(){loginMsg('Sem internet — nao foi possivel carregar o login.');});
+  loginMsg('Abrindo o Google...');
+  // Redirecionamento direto (nao depende do SDK carregar)
+  location.href=SUPA_URL+'/auth/v1/authorize?provider=google&redirect_to='+
+    encodeURIComponent(location.origin+location.pathname);
 }
 
 function entrarNoApp(user){
