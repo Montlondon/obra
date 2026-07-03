@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.3 &middot; 03/07 &middot; nuvem</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.4 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3341,6 +3341,10 @@ function entrarNoApp(user){
 function initAuthMM(){
   carregarSupabase().then(function(lib){
     _supa=lib.createClient(SUPA_URL,SUPA_ANON,{auth:{persistSession:true,autoRefreshToken:true}});
+    // Escuta o login em tempo real (cobre o processamento do token que chega na URL)
+    _supa.auth.onAuthStateChange(function(ev,session){
+      if(session&&session.user)entrarNoApp(session.user);
+    });
     _supa.auth.getSession().then(function(r){
       var sess=r.data?r.data.session:null;
       if(sess&&sess.user){entrarNoApp(sess.user);}
@@ -3356,6 +3360,10 @@ function initAuthMM(){
     else loginMsg('Sem internet. Conecte-se para o primeiro acesso.');
   });
 }
+// Celular restaura a pagina congelada ao voltar do Google (bfcache): forca recarregar
+window.addEventListener('pageshow',function(ev){
+  if(ev.persisted)location.reload();
+});
 
 // ── Backup na nuvem (tabela mmobras_backup) ──
 var _pushTimer=null;
