@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.2 &middot; 03/07 &middot; login</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.3 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -792,6 +792,8 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <div class="card" style="background:#fff;border-radius:12px;border:.5px solid #ddd;padding:14px;margin-bottom:12px">
     <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.8px;margin-bottom:10px">CONTA GOOGLE</div>
     <div id="pf-conta-email" style="font-size:13px;color:#1B3A5C;font-weight:600;margin-bottom:10px">—</div>
+    <button onclick="enviarNuvem()" style="width:100%;background:#1B3A5C;border:none;color:#C9A84C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">☁ Enviar este aparelho para a nuvem</button>
+    <button onclick="restaurarNuvem()" style="width:100%;background:none;border:.5px solid #1B3A5C;color:#1B3A5C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">⬇ Restaurar da nuvem (substitui este aparelho)</button>
     <button onclick="logoutMM()" style="width:100%;background:none;border:.5px solid #c0392b;color:#c0392b;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Sair da conta</button>
   </div>
 
@@ -3380,6 +3382,22 @@ function cloudPull(uid){
       cloudPush();
       toast('Backup na nuvem ativado!');
     }
+  });
+}
+function enviarNuvem(){
+  if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
+  _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
+    .then(function(r){toast(r.error?'Erro: '+r.error.message:'Enviado para a nuvem!');});
+}
+function restaurarNuvem(){
+  if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
+  if(!confirm('Substituir os dados DESTE aparelho pelos da nuvem? Esta acao nao pode ser desfeita.'))return;
+  _supa.from('mmobras_backup').select('data').eq('user_id',ACTIVE_UID).maybeSingle().then(function(r){
+    if(r.error||!r.data||!r.data.data){toast('Nuvem vazia ou erro ao buscar');return;}
+    db=r.data.data;
+    try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
+    toast('Restaurado da nuvem!');
+    setTimeout(function(){location.reload();},800);
   });
 }
 function logoutMM(){
