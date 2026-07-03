@@ -354,7 +354,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.4 &middot; 02/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.5 &middot; 03/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1547,7 +1547,37 @@ db.fornecedores.forEach(function(f){
 });
 save();
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia! O registro NAO foi salvo. Exporte um backup e exclua fotos antigas.');}}
+// Comprime foto para caber no localStorage (max 1280px, JPEG 72%)
+function compressImg(file,cb){
+  var r=new FileReader();
+  r.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var MAX=1280,w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',0.72));
+    };
+    img.onerror=function(){cb(ev.target.result);};
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+// Visualizador de foto em tela cheia
+function verFoto(src){
+  var ov=document.getElementById('foto-viewer');
+  if(!ov){
+    ov=document.createElement('div');ov.id='foto-viewer';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.onclick=function(){ov.style.display='none';};
+    ov.innerHTML='<img style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">';
+    document.body.appendChild(ov);
+  }
+  ov.querySelector('img').src=src;
+  ov.style.display='flex';
+}
 
 // Filtro temporal
 function getSems(ano,mes){
@@ -1973,7 +2003,7 @@ function renderUrg(){
     return [
       '<div class="lc">',
       '<div class="lc-inner" style="border-left:3px solid '+bc+'">',
-      u.foto?'<img src="'+u.foto+'" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px">':'',
+      u.foto?'<img src="'+u.foto+'" onclick="verFoto(this.src)" style="width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;cursor:zoom-in">':'',
       '<div class="lc-top">',
       '<span class="lc-date">'+br(u.date)+'</span>',
       '<span class="badge '+(resolved?'badge-pago':'badge-pend')+'">'+(resolved?'RESOLVIDA':'PENDENTE')+'</span>',
@@ -1998,11 +2028,11 @@ function abrirUrg(){
 var urgFotoData=null;
 function urgFoto(e){
   var f=e.target.files[0];if(!f)return;
-  var r=new FileReader();r.onload=function(ev){
-    urgFotoData=ev.target.result;
+  compressImg(f,function(data){
+    urgFotoData=data;
     var prev=document.getElementById('murg-foto-prev');
     prev.src=urgFotoData;prev.style.display='block';
-  };r.readAsDataURL(f);
+  });
 }
 function salvarUrg(){
   var desc=document.getElementById('murg-desc').value.trim();
@@ -2136,13 +2166,13 @@ function formatRelatorio(){
 // ─── FOTO DA OBRA ──────────────────────────────────────────────────────────
 function obraFoto(e){
   var f=e.target.files[0];if(!f)return;
-  var r=new FileReader();r.onload=function(ev){
-    db.config.foto=ev.target.result;
+  compressImg(f,function(data){
+    db.config.foto=data;
     save();
     var hp=document.getElementById('hero-photo-el');
-    if(hp)hp.style.backgroundImage='url('+ev.target.result+')';
+    if(hp)hp.style.backgroundImage='url('+data+')';
     toast('Foto da obra salva!');
-  };r.readAsDataURL(f);
+  });
 }
 
 // Globe quick toggle
@@ -2274,11 +2304,11 @@ function delLembId(id){
 var recFotoData=null;
 function recFoto(e){
   var f=e.target.files[0];if(!f)return;
-  var r=new FileReader();r.onload=function(ev){
-    recFotoData=ev.target.result;
+  compressImg(f,function(data){
+    recFotoData=data;
     var p=document.getElementById('mrec-foto-prev');
     p.src=recFotoData;p.style.display='block';
-  };r.readAsDataURL(f);
+  });
 }
 function renderRecibos(){
   var q=(document.getElementById('rec-search')||{value:''}).value.toLowerCase();
@@ -2288,8 +2318,9 @@ function renderRecibos(){
   });
   if(!list.length){el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Nenhum recibo</div>';return;}
   el.innerHTML=list.slice().reverse().map(function(r){
+    var fts=(r.fotos&&r.fotos.length?r.fotos:(r.foto?[r.foto]:[]));
     return '<div class="rec-card">'+
-      (r.foto?'<img src="'+r.foto+'" class="rec-img">':'')+
+      fts.map(function(src){return '<img src="'+src+'" class="rec-img" onclick="verFoto(this.src)" style="cursor:zoom-in">';}).join('')+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
       '<div><div style="font-weight:700;color:#1B3A5C;font-size:13px">'+esc(r.forn)+'</div>'+
       '<div style="font-size:11px;color:#aaa">'+esc(r.desc||'')+(r.num?' · NF '+esc(r.num):'')+'</div></div>'+
@@ -2515,12 +2546,10 @@ function recFotos(e){
   var files=Array.from(e.target.files);
   if(!files.length)return;
   files.forEach(function(f){
-    var r=new FileReader();
-    r.onload=function(ev){
-      recFotosArr.push(ev.target.result);
+    compressImg(f,function(data){
+      recFotosArr.push(data);
       renderFotosThumbs();
-    };
-    r.readAsDataURL(f);
+    });
   });
 }
 function renderFotosThumbs(){
@@ -2551,15 +2580,13 @@ function autoFillRecForn(){
 // ─── AVATAR / FOTO PERFIL ────────────────────────────────────────────────
 function salvarAvatar(e){
   var f=e.target.files[0];if(!f)return;
-  var r=new FileReader();
-  r.onload=function(ev){
+  compressImg(f,function(data){
     if(!db.perfil)db.perfil={};
-    db.perfil.avatar=ev.target.result;
+    db.perfil.avatar=data;
     save();
     aplicarAvatar();
     toast('Foto do perfil salva!');
-  };
-  r.readAsDataURL(f);
+  });
 }
 function aplicarAvatar(){
   var el=document.getElementById('pf-avatar');if(!el)return;
