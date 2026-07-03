@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.1 &middot; 03/07 &middot; login</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.2 &middot; 03/07 &middot; login</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3368,12 +3368,17 @@ function cloudPush(){
 function cloudPull(uid){
   if(!_supa)return;
   _supa.from('mmobras_backup').select('data,updated_at').eq('user_id',uid).maybeSingle().then(function(r){
-    if(r.error||!r.data)return;
-    var vazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
-    if(vazio&&r.data.data&&r.data.data.fornecedores!==undefined){
-      db=r.data.data;save();
+    var localVazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
+    var nuvem=(r&&!r.error&&r.data&&r.data.data)?r.data.data:null;
+    var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
+    if(localVazio&&nuvemTemDados){
+      db=nuvem;save();
       try{renderAll();renderFin();renderForn();}catch(e){}
       toast('Dados restaurados da nuvem!');
+    }else if(!localVazio){
+      // Local tem dados: garante que a nuvem receba tudo ja no login
+      cloudPush();
+      toast('Backup na nuvem ativado!');
     }
   });
 }
