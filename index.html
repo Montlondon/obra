@@ -354,7 +354,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.5 &middot; 03/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v8.6 &middot; 03/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -774,6 +774,20 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
       <input id="pf-end" style="width:100%;background:#F5F3EE;border:.5px solid #ddd;border-radius:8px;padding:9px 11px;font-size:14px;font-family:Inter,sans-serif;outline:none;margin-bottom:12px">
       <button onclick="salvarPerfil()" style="width:100%;background:#C9A84C;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;color:#1B3A5C;cursor:pointer;font-family:Inter,sans-serif">Salvar Perfil</button>
     </div>
+  </div>
+
+  <div class="card" style="background:#fff;border-radius:12px;border:.5px solid #ddd;padding:14px;margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.8px;margin-bottom:10px">LOGO DA EMPRESA (aparece nos relatórios)</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="pf-logo-prev" onclick="document.getElementById('fi-logo').click()" style="width:72px;height:72px;background:#F5F3EE;border:1px dashed #C9A84C;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:#888;line-height:1.5">Toque no quadro para enviar sua logo.<br>Ela substitui a logo padrão nos relatórios.</div>
+        <button id="pf-logo-rm" onclick="removerLogo()" style="display:none;margin-top:8px;background:none;border:.5px solid #c0392b;color:#c0392b;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;font-family:Inter,sans-serif">Remover logo</button>
+      </div>
+    </div>
+    <input type="file" id="fi-logo" accept="image/*" style="display:none" onchange="salvarLogo(event)">
   </div>
 
   <div class="card" style="background:#fff;border-radius:12px;border:.5px solid #ddd;padding:14px;margin-bottom:12px">
@@ -2588,6 +2602,35 @@ function salvarAvatar(e){
     toast('Foto do perfil salva!');
   });
 }
+// ─── LOGO DA EMPRESA (relatórios) ─────────────────────────────────────────
+function salvarLogo(e){
+  var f=e.target.files[0];if(!f)return;
+  compressImg(f,function(data){
+    if(!db.perfil)db.perfil={};
+    db.perfil.logo=data;
+    save();
+    aplicarLogo();
+    toast('Logo salva! Ela aparece nos relatorios.');
+  });
+}
+function removerLogo(){
+  if(db.perfil)delete db.perfil.logo;
+  save();
+  aplicarLogo();
+  toast('Logo removida - relatorios voltam a logo padrao.');
+}
+function aplicarLogo(){
+  var prev=document.getElementById('pf-logo-prev');
+  var rm=document.getElementById('pf-logo-rm');
+  if(!prev)return;
+  if(db.perfil&&db.perfil.logo){
+    prev.innerHTML='<img src="'+db.perfil.logo+'" style="width:100%;height:100%;object-fit:contain">';
+    if(rm)rm.style.display='inline-block';
+  }else{
+    prev.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    if(rm)rm.style.display='none';
+  }
+}
 function aplicarAvatar(){
   var el=document.getElementById('pf-avatar');if(!el)return;
   if(db.perfil&&db.perfil.avatar){
@@ -2697,6 +2740,7 @@ function editRecibo(id){
 (function initExtras(){
   try{
     aplicarAvatar();
+    aplicarLogo();
     checkPINGate();
   }catch(e){console.error('initExtras:',e);}
 })();
@@ -2850,14 +2894,14 @@ function relForn(fid){
     '.noprint{display:block;width:100%;margin-top:24px;background:#1B3A5C;color:#C9A84C;border:none;border-radius:12px;padding:14px;font-family:Inter,sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;cursor:pointer}'+
     '@media print{.noprint{display:none}body{padding:0}}'+
     '</style></head><body>'+
-    '<div class="hdr">'+MMLOGO+'<div><h1>Montgomery Magalh&atilde;es</h1><div class="sub">Obra: '+esc(db.config.nome||'')+(db.config.local?' &bull; '+esc(db.config.local):'')+'</div></div></div>'+
+    '<div class="hdr">'+((db.perfil&&db.perfil.logo)?'<img src="'+db.perfil.logo+'" style="width:88px;height:88px;object-fit:contain;border-radius:16px;flex-shrink:0">':MMLOGO)+'<div><h1>'+esc((db.perfil&&db.perfil.nome)||'Montgomery Magalhães')+'</h1><div class="sub">Obra: '+esc(db.config.nome||'')+(db.config.local?' &bull; '+esc(db.config.local):'')+'</div></div></div>'+
     '<div class="meta"><div><div class="lbl">FORNECEDOR</div><div class="big">'+esc(f.nome)+'</div>'+(f.cat?'<div class="rl-sub">'+esc(f.cat)+'</div>':'')+'</div><div style="text-align:right"><div class="lbl">DATA</div><div class="big" style="font-size:17px">'+br(today())+'</div></div></div>'+
     '<span class="pill">RELAT&Oacute;RIO DE SERVI&Ccedil;OS</span>'+
     '<div class="card">'+itensH+'</div>'+
     (credH?'<span class="pill gold">SOBRAS / CR&Eacute;DITOS</span><div class="card">'+credH+'<div class="rl-row"><div class="rl-desc" style="color:#856b1d">Total cr&eacute;ditos</div><div class="rl-val" style="color:#856b1d">'+fmt(cr)+'</div></div></div>':'')+
     '<div class="tots"><div class="tot pg"><div class="lbl">TOTAL PAGO</div><div class="v">'+fmt(pg)+'</div></div><div class="tot pd"><div class="lbl">PENDENTE</div><div class="v">'+fmt(pd)+'</div></div><div class="tot tt"><div class="lbl">TOTAL GERAL</div><div class="v">'+fmt(pg+pd)+'</div></div></div>'+
     '<div class="foot">Documento gerado em '+br(today())+' pelo MMObras.</div>'+
-    '<div class="sig"><div class="line"></div><div class="nm">Montgomery Magalh&atilde;es</div></div>'+
+    '<div class="sig"><div class="line"></div><div class="nm">'+esc((db.perfil&&db.perfil.nome)||'Montgomery Magalhães')+'</div></div>'+
     '<button class="noprint" onclick="window.print()">IMPRIMIR / SALVAR PDF</button>'+
     '</body></html>';
   var w=window.open('','_blank');
