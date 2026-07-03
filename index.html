@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.4 &middot; 03/07 &middot; nuvem</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.5 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3280,7 +3280,11 @@ setTimeout(function(){
   try{cElet();}catch(e){}
   try{cHidRes();}catch(e){}
 },400);
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/obra/sw.js?v=8').then(function(r){r.update();});}
+// Service worker removido (v9.5): desregistra qualquer zelador antigo e limpa caches
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});});
+}
+if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});});}
 
 // ═══ LOGIN GOOGLE (Supabase) + BACKUP NA NUVEM ═══════════════════════════
 var SUPA_URL='https://eltjhrhrtuymejojxyhe.supabase.co';
