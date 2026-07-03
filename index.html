@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.5 &middot; 03/07 &middot; nuvem</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.6 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1584,7 +1584,7 @@ db.fornecedores.forEach(function(f){
 });
 save();
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia! O registro NAO foi salvo. Exporte um backup e exclua fotos antigas.');}try{cloudPush();}catch(e2){}}
+function save(){db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia! O registro NAO foi salvo. Exporte um backup e exclua fotos antigas.');}try{cloudPush();}catch(e2){}}
 // Comprime foto para caber no localStorage (max 1280px, JPEG 72%)
 function compressImg(file,cb){
   var r=new FileReader();
@@ -3385,15 +3385,20 @@ function cloudPull(uid){
     var localVazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
     var nuvem=(r&&!r.error&&r.data&&r.data.data)?r.data.data:null;
     var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
-    if(localVazio&&nuvemTemDados){
-      db=nuvem;save();
+    var tsNuvem=(nuvem&&nuvem._ts)||0;
+    var tsLocal=db._ts||0;
+    if(nuvemTemDados&&(localVazio||tsNuvem>tsLocal)){
+      // Nuvem mais recente (ou este aparelho vazio): restaura
+      db=nuvem;
+      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
       try{renderAll();renderFin();renderForn();}catch(e){}
       toast('Dados restaurados da nuvem!');
-    }else if(!localVazio){
-      // Local tem dados: garante que a nuvem receba tudo ja no login
+    }else if(!localVazio&&tsLocal>tsNuvem){
+      // Este aparelho e mais recente: atualiza a nuvem
       cloudPush();
       toast('Backup na nuvem ativado!');
     }
+    // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
   });
 }
 function enviarNuvem(){
