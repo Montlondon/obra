@@ -311,6 +311,12 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 .lemb-icon svg{width:16px;height:16px;stroke:#C9A84C;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* ─── CHECKLIST IMPROVED ─── */
 .li-acts{display:flex;gap:4px;margin-top:4px}
+.cbt{background:#fff;border:.5px solid #ddd;border-radius:10px;padding:13px 0;font-size:16px;font-weight:600;color:#1B3A5C;cursor:pointer;font-family:Inter,sans-serif}
+.cbt:active{background:#eee}
+.cbt.co{background:#F5F3EE;color:#C9A84C;font-weight:700;font-size:18px}
+.cbt.cf{background:#F5F3EE;font-size:13px;color:#556}
+.cbt.cd{background:#fff0ee;color:#c0392b}
+.cbt.ceq{background:#1B3A5C;color:#C9A84C;font-size:20px}
 </style>
 </head>
 <body>
@@ -367,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.11 &middot; 04/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.12 &middot; 04/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -516,6 +522,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 
 <div class="pg" id="pg-calc">
 <div class="ctabs" id="calc-cats">
+  <button class="ctab" onclick="calcCat(9,this)" style="color:#C9A84C;font-weight:700">🧮 Calculadora</button>
   <button class="ctab on" onclick="calcCat(0,this)">Geometria</button>
   <button class="ctab" onclick="calcCat(1,this)">Materiais</button>
   <button class="ctab" onclick="calcCat(2,this)">Volumes</button>
@@ -643,6 +650,23 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   <div class="ccard" id="conv3" style="display:none"><label>Litros</label><input id="cv_l" type="number" oninput="convV('l')"><label style="margin-top:8px">m³</label><input id="cv_m3" type="number" oninput="convV('m3')"><label style="margin-top:8px">Galoes US</label><input id="cv_gl" type="number" oninput="convV('gl')"></div>
 </div>
 
+
+<!-- CALCULADORA BASICA/CIENTIFICA -->
+<div class="cpanel" id="ccp9">
+  <div class="ccard" style="max-width:420px;margin:0 auto">
+    <input id="calcDisp" readonly value="0" style="width:100%;background:#1B3A5C;color:#C9A84C;border:none;border-radius:10px;padding:16px 14px;font-size:26px;text-align:right;font-family:Inter,monospace;font-weight:700;margin-bottom:6px;outline:none">
+    <div id="calcRes" style="text-align:right;font-size:13px;color:#888;min-height:18px;margin-bottom:10px;font-family:Inter,sans-serif"></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+      <button class="cbt cf" onclick="cB('sin(')">sin</button><button class="cbt cf" onclick="cB('cos(')">cos</button><button class="cbt cf" onclick="cB('tan(')">tan</button><button class="cbt cf" onclick="cB('log(')">log</button><button class="cbt cf" onclick="cB('ln(')">ln</button>
+      <button class="cbt cf" onclick="cB('√(')">√</button><button class="cbt cf" onclick="cB('^')">xʸ</button><button class="cbt cf" onclick="cB('π')">π</button><button class="cbt cf" onclick="cB('e')">e</button><button class="cbt cf" onclick="cB('%')">%</button>
+      <button class="cbt cd" onclick="cCl()">C</button><button class="cbt cd" onclick="cBk()">⌫</button><button class="cbt cf" onclick="cB('(')">(</button><button class="cbt cf" onclick="cB(')')">)</button><button class="cbt co" onclick="cB('÷')">÷</button>
+      <button class="cbt" onclick="cB('7')">7</button><button class="cbt" onclick="cB('8')">8</button><button class="cbt" onclick="cB('9')">9</button><button class="cbt co" onclick="cB('×')">×</button><button class="cbt co" onclick="cB('-')">−</button>
+      <button class="cbt" onclick="cB('4')">4</button><button class="cbt" onclick="cB('5')">5</button><button class="cbt" onclick="cB('6')">6</button><button class="cbt co" onclick="cB('+')">+</button><button class="cbt ceq" onclick="cEq()" style="grid-row:span 3">=</button>
+      <button class="cbt" onclick="cB('1')">1</button><button class="cbt" onclick="cB('2')">2</button><button class="cbt" onclick="cB('3')">3</button><button class="cbt cf" onclick="cB('1/(')">1/x</button>
+      <button class="cbt" onclick="cB('0')" style="grid-column:span 2">0</button><button class="cbt" onclick="cB(',')">,</button><button class="cbt cf" onclick="cB('^2')">x²</button>
+    </div>
+  </div>
+</div>
 
 <!-- FIBONACCI -->
 <div class="cpanel" id="ccp6">
@@ -3149,10 +3173,36 @@ function cres(id,rows){
   }).join('');
 }
 function calcCat(i,btn){
-  for(var k=0;k<9;k++){var p=document.getElementById('ccp'+k);if(p)p.classList.toggle('on',k===i);}
+  for(var k=0;k<10;k++){var p=document.getElementById('ccp'+k);if(p)p.classList.toggle('on',k===i);}
   document.querySelectorAll('#calc-cats .ctab').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
   if(i===6){cFibA();} if(i===7){cElet();cDisj();initCarga();} if(i===8){cHidRes();}
+}
+
+/* ===== CALCULADORA BASICA/CIENTIFICA ===== */
+var cExpr='';
+function cUpd(){var d=document.getElementById('calcDisp');if(d)d.value=cExpr||'0';}
+function cB(v){cExpr+=v;cUpd();document.getElementById('calcRes').textContent='';}
+function cCl(){cExpr='';cUpd();document.getElementById('calcRes').textContent='';}
+function cBk(){cExpr=cExpr.slice(0,-1);cUpd();}
+function cEq(){
+  if(!cExpr)return;
+  try{
+    var e=cExpr
+      .replace(/×/g,'*').replace(/÷/g,'/').replace(/,/g,'.')
+      .replace(/\^/g,'**').replace(/π/g,'(Math.PI)')
+      .replace(/√\(/g,'Math.sqrt(')
+      .replace(/sin\(/g,'Math.sin(').replace(/cos\(/g,'Math.cos(').replace(/tan\(/g,'Math.tan(')
+      .replace(/log\(/g,'Math.log10(').replace(/ln\(/g,'Math.log(')
+      .replace(/(\d)e(\d|$)/g,'$1*(Math.E)$2').replace(/e/g,'(Math.E)')
+      .replace(/(\d+(?:\.\d+)?)%/g,'($1/100)');
+    var r=new Function('return ('+e+')')();
+    if(typeof r!=='number'||!isFinite(r))throw 0;
+    r=Math.round(r*1e10)/1e10;
+    document.getElementById('calcRes').textContent=cExpr+' =';
+    cExpr=String(r).replace('.',',');
+    cUpd();
+  }catch(err){document.getElementById('calcRes').textContent='Expressão inválida';}
 }
 
 /* ===== FIBONACCI & PROPORÇÃO ÁUREA ===== */
