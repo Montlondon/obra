@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.9 &middot; 04/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.10 &middot; 04/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1982,7 +1982,19 @@ function dupOrc(id){
 }
 function setOrcStatus(id,st){
   var o=(db.orcamentos||[]).find(function(x){return x.id===id;});
-  if(o){o.status=o.status===st?null:st;save();renderOrc();}
+  if(!o)return;
+  var antes=o.status;
+  o.status=o.status===st?null:st;
+  save();renderOrc();
+  // Aprovou? Oferece lançar no financeiro (uma vez só por orçamento)
+  if(st==='aprovado'&&o.status==='aprovado'&&antes!=='aprovado'&&!o.lancado){
+    if(confirm('Orçamento #'+o.num+' aprovado!\n\nLançar '+fmt(parseFloat(o.valor)||0)+' no financeiro de um fornecedor agora?')){
+      o.lancado=true;save();
+      abrirLanc();
+      var d=document.getElementById('ml-desc');if(d)d.value='Orçamento #'+o.num+(o.titulo?' — '+o.titulo:'');
+      var v=document.getElementById('ml-val');if(v)v.value=o.valor||'';
+    }
+  }
 }
 function verOrc(id){
   var o=(db.orcamentos||[]).find(function(x){return x.id===id;});
