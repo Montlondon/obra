@@ -373,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.15 &middot; 04/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.16 &middot; 04/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -2041,6 +2041,14 @@ function renderLista(){
     }).join('');
 }
 function closeSheet(){var s=document.getElementById('bottom-sheet');if(s)s.style.display='none';}
+function nextOrcNum(){
+  var max=0;
+  (db.orcamentos||[]).forEach(function(o){
+    var n=parseInt(o.num,10);
+    if(!isNaN(n)&&n>max)max=n;
+  });
+  return String(max+1).padStart(4,'0');
+}
 function abrirOrc(){
   var o={id:null,num:nextOrcNum(),cliente:'',titulo:'',escopo:'',obra:db.config.nome||'',valor:'',date:today(),validade:'',status:null,obs:''};
   openOrcForm(o,false);
