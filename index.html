@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.6 &middot; 03/07 &middot; nuvem</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.7 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -2252,6 +2252,19 @@ function toggleTheme(){
 })();
 
 // ─── CHECKLIST EDIT/DUP ────────────────────────────────────────────────
+function tgLI2(i){
+  var it=(db.listas[listaAt]||[])[i];
+  if(!it)return;
+  it.done=!it.done;
+  save();renderLista();
+}
+function delLI3(i){
+  var it=(db.listas[listaAt]||[])[i];
+  if(!it)return;
+  if(!confirm('Excluir "'+(it.text||'item')+'"?'))return;
+  db.listas[listaAt].splice(i,1);
+  save();renderLista();toast('Item excluido');
+}
 function editLI3(i){
   var it=(db.listas[listaAt]||[])[i];
   if(!it)return;
