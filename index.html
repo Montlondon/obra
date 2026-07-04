@@ -367,7 +367,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.7 &middot; 03/07 &middot; nuvem</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.8 &middot; 03/07 &middot; nuvem</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -2881,8 +2881,9 @@ function relForn(fid){
   var f=db.fornecedores.find(function(x){return x.id===fid;});
   if(!f)return;
   var pg=0,pd=0,cr=0;
+  var comValores=confirm('Incluir VALORES no relatorio?\n\nOK = com valores (prestacao de contas)\nCancelar = sem valores (comprovante de servicos)');
   function rowH(date,desc,val,pago,obs){
-    return '<div class="rl-row"><div class="rl-l"><div class="rl-desc">'+esc(desc)+'</div><div class="rl-sub">'+br(date)+(obs?' &middot; '+esc(obs):'')+'</div></div><div class="rl-r"><div class="rl-val" style="color:'+(pago?'#2d7a4f':'#c0392b')+'">'+fmt(val)+'</div><div class="rl-st" style="background:'+(pago?'#eef7f1;color:#2d7a4f':'#fff0ee;color:#c0392b')+'">'+(pago?'PAGO':'PENDENTE')+'</div></div></div>';
+    return '<div class="rl-row"><div class="rl-l"><div class="rl-desc">'+esc(desc)+'</div><div class="rl-sub">'+br(date)+(obs?' &middot; '+esc(obs):'')+'</div></div><div class="rl-r">'+(comValores?'<div class="rl-val" style="color:'+(pago?'#2d7a4f':'#c0392b')+'">'+fmt(val)+'</div>':'')+'<div class="rl-st" style="background:'+(pago?'#eef7f1;color:#2d7a4f':'#fff0ee;color:#c0392b')+'">'+(pago?(comValores?'PAGO':'CONCLUIDO'):'PENDENTE')+'</div></div></div>';
   }
   var itensH='';
   (f.contas||[]).slice().sort(function(a,b){return (a.date||'').localeCompare(b.date||'');}).forEach(function(c){
@@ -2936,8 +2937,8 @@ function relForn(fid){
     '<div class="meta"><div><div class="lbl">FORNECEDOR</div><div class="big">'+esc(f.nome)+'</div>'+(f.cat?'<div class="rl-sub">'+esc(f.cat)+'</div>':'')+'</div><div style="text-align:right"><div class="lbl">DATA</div><div class="big" style="font-size:17px">'+br(today())+'</div></div></div>'+
     '<span class="pill">RELAT&Oacute;RIO DE SERVI&Ccedil;OS</span>'+
     '<div class="card">'+itensH+'</div>'+
-    (credH?'<span class="pill gold">SOBRAS / CR&Eacute;DITOS</span><div class="card">'+credH+'<div class="rl-row"><div class="rl-desc" style="color:#856b1d">Total cr&eacute;ditos</div><div class="rl-val" style="color:#856b1d">'+fmt(cr)+'</div></div></div>':'')+
-    '<div class="tots"><div class="tot pg"><div class="lbl">TOTAL PAGO</div><div class="v">'+fmt(pg)+'</div></div><div class="tot pd"><div class="lbl">PENDENTE</div><div class="v">'+fmt(pd)+'</div></div><div class="tot tt"><div class="lbl">TOTAL GERAL</div><div class="v">'+fmt(pg+pd)+'</div></div></div>'+
+    ((comValores&&credH)?'<span class="pill gold">SOBRAS / CR&Eacute;DITOS</span><div class="card">'+credH+'<div class="rl-row"><div class="rl-desc" style="color:#856b1d">Total cr&eacute;ditos</div><div class="rl-val" style="color:#856b1d">'+fmt(cr)+'</div></div></div>':'')+
+    (comValores?'<div class="tots"><div class="tot pg"><div class="lbl">TOTAL PAGO</div><div class="v">'+fmt(pg)+'</div></div><div class="tot pd"><div class="lbl">PENDENTE</div><div class="v">'+fmt(pd)+'</div></div><div class="tot tt"><div class="lbl">TOTAL GERAL</div><div class="v">'+fmt(pg+pd)+'</div></div></div>':'')+
     '<div class="foot">Documento gerado em '+br(today())+' pelo MMObras.</div>'+
     '<div class="sig"><div class="line"></div><div class="nm">'+esc((db.perfil&&db.perfil.nome)||'Montgomery Magalhães')+'</div></div>'+
     '<button class="noprint" onclick="window.print()">IMPRIMIR / SALVAR PDF</button>'+
