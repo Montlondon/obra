@@ -373,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.18 &middot; 05/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.19 &middot; 09/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -515,7 +515,8 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 
 <div class="pg" id="pg-listas">
   <div class="ltabs" id="ltabs"></div>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+    <button class="fab" style="position:static;width:38px;height:38px;background:#2d7a4f" title="Compartilhar lista em texto" onclick="compartilharLista()"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg></button>
     <button class="fab" style="position:static;width:38px;height:38px" onclick="abrirLI()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
   </div>
   <div id="lista-body"></div>
@@ -2234,6 +2235,7 @@ function verOrc(id){
     }).join('')+
     '<div class="det-actions">'+
     '<button class="det-act" style="color:#2d7a4f" onclick="shareOrc(\''+o.id+'\')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>PDF</span></button>'+
+    '<button class="det-act" style="color:#C9A84C" onclick="jpgOrc(\''+o.id+'\')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>JPG</span></button>'+
     '<button class="det-act" style="color:#1B3A5C" onclick="xmlOrc(\''+o.id+'\')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>XML</span></button>'+
     '<button class="det-act" style="color:#C9A84C" onclick="editOrc(\''+o.id+'\')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>EDITAR</span></button>'+
     '<button class="det-act" style="color:#c0392b" onclick="delOrc(\''+o.id+'\')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span>EXCLUIR</span></button>'+
@@ -3108,8 +3110,127 @@ function renderRel(){
     '<div class="rc"><div><div class="rl">Sobras / Creditos</div><div class="rv vd">'+fmt(totCr)+'</div></div></div>'+
     '<div class="rc full"><div><div class="rl">TOTAL GERAL</div><div class="rv">'+fmt(total)+'</div></div>'+
     '<div class="rs">Pago: '+fmt(totPg)+' &nbsp;|&nbsp; Pendente: '+fmt(totPd)+'</div></div>'+
-    '<button class="btnp" style="margin-top:12px" onclick="compartilharRel()">Compartilhar Relatório</button>';
+    '<button class="btnp" style="margin-top:12px" onclick="compartilharRel()">Compartilhar Relatório</button>'+
+    '<button class="btnp" style="margin-top:8px;background:#2d7a4f" onclick="compartilharRelJpg()">Compartilhar em JPG</button>';
 }
+
+// ─── COMPARTILHAMENTO EM JPG/ARQUIVO (pedidos Montgomery 08/07) ──────────
+// Carrega html2canvas sob demanda (mesma CDN que o relatório impresso já usa)
+function mmH2C(){
+  return new Promise(function(res,rej){
+    if(window.html2canvas)return res(window.html2canvas);
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=function(){res(window.html2canvas);};
+    s.onerror=function(){rej(new Error('Precisa de internet para gerar a imagem.'));};
+    document.head.appendChild(s);
+  });
+}
+function mmShareBlob(bl,nome,tipo){
+  var file=new File([bl],nome,{type:tipo});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file]}).then(function(){toast('Compartilhado!');}).catch(function(){});
+  }else{
+    var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=nome;a.click();
+    toast('Arquivo baixado');
+  }
+}
+// Renderiza um HTML estilizado num palco invisível e compartilha como JPG
+function mmHtmlParaJpg(html,nomeArq){
+  var palco=document.createElement('div');
+  palco.style.cssText='position:fixed;left:-10000px;top:0;width:560px;background:#F5F3EE;padding:22px;font-family:Inter,Arial,sans-serif;color:#1A1918';
+  palco.innerHTML=html;
+  document.body.appendChild(palco);
+  mmH2C().then(function(h2c){return h2c(palco,{backgroundColor:'#F5F3EE',scale:2,useCORS:true});})
+  .then(function(cv){
+    document.body.removeChild(palco);
+    cv.toBlob(function(bl){if(bl)mmShareBlob(bl,nomeArq,'image/jpeg');else alert('Não consegui gerar a imagem');},'image/jpeg',0.95);
+  })
+  .catch(function(e){if(palco.parentNode)document.body.removeChild(palco);alert(e.message||'Erro ao gerar a imagem');});
+}
+function mmCabecalhoDoc(titulo){
+  return '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;border-bottom:2px solid #C9A84C;padding-bottom:12px">'+logoDoc()+
+    '<div><div style="font-family:Lora,Georgia,serif;font-size:19px;font-weight:700;color:#1B3A5C">'+titulo+'</div>'+
+    '<div style="font-size:11px;color:#8A9BAC">'+esc(db.config.nome||'MMObras')+' · '+br(today())+'</div></div></div>';
+}
+// Relatório geral como JPG (mesmos números do texto, agora com a cara da marca)
+function compartilharRelJpg(){
+  var linhas='',totPg=0,totPd=0;
+  db.fornecedores.forEach(function(f){
+    var pg=0,pd=0;
+    (f.contas||[]).forEach(function(c){if(c.pago)pg+=cNet(f,c);else pd+=cNet(f,c);});
+    totPg+=pg;totPd+=pd;
+    linhas+='<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid #ddd;font-size:13px">'+
+      '<span style="font-weight:600;color:#1B3A5C">'+esc(f.nome)+'</span>'+
+      '<span>Pago '+fmt(pg)+' · <span style="color:#c0392b">Pendente '+fmt(pd)+'</span></span></div>';
+  });
+  var html=mmCabecalhoDoc('Relatório da Obra')+linhas+
+    '<div style="display:flex;justify-content:space-between;padding:10px 0;margin-top:6px;font-size:14px;font-weight:700;color:#1B3A5C">'+
+    '<span>TOTAL</span><span>Pago '+fmt(totPg)+' · Pendente '+fmt(totPd)+'</span></div>'+
+    '<div style="font-size:10px;color:#aaa;margin-top:10px;text-align:center">Gerado por MMObras</div>';
+  mmHtmlParaJpg(html,'relatorio_'+today()+'.jpg');
+}
+// Orçamento como JPG (documento com marca)
+function jpgOrc(id){
+  var o=(db.orcamentos||[]).find(function(x){return x.id===id;});if(!o)return;
+  var campo=function(l,v){return '<div style="margin-bottom:8px"><div style="font-size:10px;letter-spacing:.06em;color:#8A9BAC">'+l+'</div><div style="font-size:13.5px;color:#1A1918;white-space:pre-wrap">'+esc(v||'-')+'</div></div>';};
+  var html=mmCabecalhoDoc('Orçamento nº '+o.num)+
+    campo('CLIENTE',o.cliente)+campo('TÍTULO',o.titulo)+campo('OBRA',o.obra)+
+    '<div style="font-family:Lora,Georgia,serif;font-size:22px;font-weight:700;color:#2d7a4f;margin:10px 0">'+fmt(o.valor||0)+'</div>'+
+    campo('DATA',br(o.date))+campo('ESCOPO',o.escopo)+ (o.obs?campo('OBSERVAÇÕES',o.obs):'')+
+    '<div style="font-size:10px;color:#aaa;margin-top:10px;text-align:center">Gerado por MMObras</div>';
+  mmHtmlParaJpg(html,'orcamento_'+o.num+'.jpg');
+}
+// Checklist da aba atual como texto compartilhável
+function compartilharLista(){
+  var lbls={todo:'To Do',pendencias:'Pendências',compras:'Compras',sobras:'Sobras'};
+  var its=(db.listas||{})[listaAt]||[];
+  if(!its.length){toast('Lista vazia');return;}
+  var txt='*Checklist MMObras — '+(lbls[listaAt]||listaAt)+'*\n'+(db.config.nome||'')+' · '+br(today())+'\n\n';
+  its.forEach(function(it){
+    txt+=(it.done?'[x] ':'[ ] ')+it.text+(it.obs?' — '+it.obs:'')+'\n';
+  });
+  txt+='\n_Gerado por MMObras_';
+  if(navigator.share)navigator.share({title:'Checklist',text:txt}).then(function(){toast('Compartilhado!');}).catch(function(){});
+  else window.open('https://wa.me/?text='+encodeURIComponent(txt));
+}
+// Comprovante: visualizar em tela cheia e compartilhar (fotos + dados)
+function verComprovante(id){
+  var c=(db.comprovantes||[]).find(function(x){return x.id===id;});if(!c)return;
+  var ov=document.createElement('div');
+  ov.id='comp-viewer';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(10,14,20,.95);z-index:99999;overflow-y:auto;padding:18px;text-align:center';
+  ov.innerHTML='<div style="color:#F5F3EE;font-family:Inter,Arial,sans-serif;font-size:13px;margin-bottom:10px">'+
+    esc(c.quem)+(c.conta?' · '+esc(c.conta):'')+' · '+fmt(c.valor||0)+' · '+br(c.date)+(c.ref?'<br><span style="color:#8A9BAC;font-size:11px">'+esc(c.ref)+'</span>':'')+'</div>'+
+    (c.fotos||[]).map(function(src){return '<img src="'+src+'" style="max-width:100%;border-radius:10px;margin-bottom:10px">';}).join('')+
+    '<div style="display:flex;gap:8px;justify-content:center;margin-top:6px">'+
+    '<button class="btnp" style="width:auto;padding:10px 18px" onclick="shareComprovante(\''+c.id+'\')">Compartilhar</button>'+
+    '<button class="btnp" style="width:auto;padding:10px 18px;background:#5a6a7a" onclick="document.getElementById(\'comp-viewer\').remove()">Fechar</button></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
+}
+function shareComprovante(id){
+  var c=(db.comprovantes||[]).find(function(x){return x.id===id;});if(!c)return;
+  var txt='Comprovante — '+(c.quem||'')+(c.conta?' ('+c.conta+')':'')+'\nValor: '+fmt(c.valor||0)+'\nData: '+br(c.date)+(c.ref?'\nRef: '+c.ref:'')+'\n\nMMObras';
+  var fotos=(c.fotos||[]);
+  if(fotos.length&&navigator.canShare){
+    try{
+      var files=fotos.map(function(src,i){
+        var partes=src.split(',');var bin=atob(partes[1]);var arr=new Uint8Array(bin.length);
+        for(var j=0;j<bin.length;j++)arr[j]=bin.charCodeAt(j);
+        var mime=(partes[0].match(/data:([^;]+)/)||[])[1]||'image/jpeg';
+        return new File([arr],'comprovante_'+(i+1)+'.jpg',{type:mime});
+      });
+      if(navigator.canShare({files:files})){
+        navigator.share({files:files,text:txt}).then(function(){toast('Compartilhado!');}).catch(function(){});
+        return;
+      }
+    }catch(e){console.warn('share fotos falhou:',e);}
+  }
+  if(navigator.share)navigator.share({title:'Comprovante',text:txt}).catch(function(){});
+  else window.open('https://wa.me/?text='+encodeURIComponent(txt));
+}
+
 function compartilharRel(){
   var txt='=== RELATÓRIO MMObras ===\n'+(db.config.nome||'')+'\n'+br(today())+'\n\n';
   db.fornecedores.forEach(function(f){
@@ -3833,7 +3954,7 @@ function renderComprovantes(){
     var fotos=(c.fotos||[]);
     return '<div class="rec-card">'+
       (fotos.length?'<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:8px;padding-bottom:4px">'+
-        fotos.map(function(src){return '<img src="'+src+'" style="height:110px;min-width:88px;object-fit:cover;border-radius:8px;flex-shrink:0;border:.5px solid #ddd">';}).join('')+'</div>':'')+
+        fotos.map(function(src){return '<img src="'+src+'" onclick="verComprovante(&quot;'+c.id+'&quot;)" style="height:110px;min-width:88px;object-fit:cover;border-radius:8px;flex-shrink:0;border:.5px solid #ddd;cursor:pointer">';}).join('')+'</div>':'')+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'+
       '<div>'+
       '<div style="font-weight:700;color:#1B3A5C;font-size:13px">'+esc(c.quem)+(c.conta?' <span style="font-weight:500;color:#8A9BAC">· '+esc(c.conta)+'</span>':'')+'</div>'+
@@ -3844,6 +3965,8 @@ function renderComprovantes(){
       '<div style="font-weight:700;color:#2d7a4f;font-size:14px">'+fmt(c.valor||0)+'</div>'+
       '</div></div>'+
       '<div style="display:flex;gap:5px">'+
+      '<button class="abt" onclick="verComprovante(&quot;'+c.id+'&quot;)">Ver</button>'+
+      '<button class="abt" style="color:#2d7a4f" onclick="shareComprovante(&quot;'+c.id+'&quot;)">Compartilhar</button>'+
       '<button class="abt" onclick="editComprovante(&quot;'+c.id+'&quot;)">Editar</button>'+
       '<button class="abt del" onclick="delComprovanteId(&quot;'+c.id+'&quot;)">Excluir</button>'+
       '</div></div>';
