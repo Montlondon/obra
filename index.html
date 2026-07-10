@@ -373,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.19 &middot; 09/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.20 &middot; 09/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3159,6 +3159,8 @@ function compartilharRelJpg(){
   db.fornecedores.forEach(function(f){
     var pg=0,pd=0;
     (f.contas||[]).forEach(function(c){if(c.pago)pg+=cNet(f,c);else pd+=cNet(f,c);});
+    // locações (ex.: Pedrão da Carroça) também contam — mesmo cálculo da tela
+    (f.locacoes||[]).forEach(function(l){var tv=calcAlg(f,l);if(l.pago)pg+=tv;else pd+=tv;});
     totPg+=pg;totPd+=pd;
     linhas+='<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid #ddd;font-size:13px">'+
       '<span style="font-weight:600;color:#1B3A5C">'+esc(f.nome)+'</span>'+
@@ -3236,6 +3238,8 @@ function compartilharRel(){
   db.fornecedores.forEach(function(f){
     var pg=0,pd=0;
     (f.contas||[]).forEach(function(c){if(c.pago)pg+=cNet(f,c);else pd+=cNet(f,c);});
+    // locações (ex.: Pedrão da Carroça) também contam — mesmo cálculo da tela
+    (f.locacoes||[]).forEach(function(l){var tv=calcAlg(f,l);if(l.pago)pg+=tv;else pd+=tv;});
     txt+=f.nome+': Pago '+fmt(pg)+' | Pendente '+fmt(pd)+'\n';
   });
   txt+='\nGerado por MMObras';
