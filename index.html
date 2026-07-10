@@ -373,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.20 &middot; 09/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.21 &middot; 09/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3290,7 +3290,8 @@ function relForn(fid){
     '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">'+
     '<style>'+
     '*{box-sizing:border-box;margin:0;padding:0}'+
-    'body{background:#F5F3EE;font-family:Inter,sans-serif;color:#1B3A5C;padding:24px 16px;max-width:640px;margin:0 auto}'+
+    'body{background:#F5F3EE;font-family:Inter,sans-serif;color:#1B3A5C}'+
+    '#relCard{max-width:640px;margin:0 auto;padding:24px 16px;background:#F5F3EE}'+
     '.hdr{display:flex;align-items:center;gap:16px;padding-bottom:18px;border-bottom:2px solid #e3ded4;margin-bottom:6px}'+
     '.hdr svg{border-radius:16px;flex-shrink:0}'+
     '.hdr h1{font-family:Lora,serif;font-size:26px;font-weight:700;line-height:1.15}'+
@@ -3320,6 +3321,7 @@ function relForn(fid){
     '.noprint{display:block;width:100%;margin-top:24px;background:#1B3A5C;color:#C9A84C;border:none;border-radius:12px;padding:14px;font-family:Inter,sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;cursor:pointer}'+
     '@media print{.noprint{display:none}body{padding:0}}'+
     '</style></head><body>'+
+    '<div id="relCard">'+
     '<div class="hdr">'+logoDoc()+'<div><h1>'+esc((db.perfil&&db.perfil.nome)||'Montgomery Magalhães')+'</h1><div class="sub">Obra: '+esc(db.config.nome||'')+(db.config.local?' &bull; '+esc(db.config.local):'')+'</div></div></div>'+
     '<div class="meta"><div><div class="lbl">FORNECEDOR</div><div class="big">'+esc(f.nome)+'</div>'+(f.cat?'<div class="rl-sub">'+esc(f.cat)+'</div>':'')+'</div><div style="text-align:right"><div class="lbl">DATA</div><div class="big" style="font-size:17px">'+br(today())+'</div></div></div>'+
     '<span class="pill">RELAT&Oacute;RIO DE SERVI&Ccedil;OS</span>'+
@@ -3328,10 +3330,11 @@ function relForn(fid){
     (comValores?'<div class="tots"><div class="tot pg"><div class="lbl">TOTAL PAGO</div><div class="v">'+fmt(pg)+'</div></div><div class="tot pd"><div class="lbl">PENDENTE</div><div class="v">'+fmt(pd)+'</div></div><div class="tot tt"><div class="lbl">TOTAL GERAL</div><div class="v">'+fmt(pg+pd)+'</div></div></div>':'')+
     '<div class="foot">Documento gerado em '+br(today())+' pelo MMObras.</div>'+
     '<div class="sig"><div class="line"></div><div class="nm">'+esc((db.perfil&&db.perfil.nome)||'Montgomery Magalhães')+'</div></div>'+
+    '</div>'+
     '<button class="noprint" onclick="window.print()">IMPRIMIR / SALVAR PDF</button>'+
     '<button class="noprint" style="background:#8a6d1f;margin-top:10px" onclick="salvarImg()">SALVAR / COMPARTILHAR COMO IMAGEM (JPG)</button>'+
     '<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></scr'+'ipt>'+
-    '<scr'+'ipt>function salvarImg(){var bs=document.querySelectorAll(".noprint");function show(v){bs.forEach(function(b){b.style.display=v?"block":"none";});}show(false);if(!window.html2canvas){show(true);alert("Precisa de internet para gerar a imagem. Use IMPRIMIR / SALVAR PDF.");return;}html2canvas(document.body,{backgroundColor:"#F5F3EE",scale:2,useCORS:true}).then(function(cv){show(true);cv.toBlob(function(bl){if(!bl){alert("Nao consegui gerar a imagem");return;}var nome="relatorio_'+esc((f.nome||'obra').replace(/[^a-z0-9]+/gi,'_'))+'_'+today()+'.jpg";var file=new File([bl],nome,{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:"Relatorio"}).catch(function(){});}else{var a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=nome;a.click();}},"image/jpeg",0.95);}).catch(function(){show(true);alert("Erro ao gerar a imagem");});}</scr'+'ipt>'+
+    '<scr'+'ipt>function salvarImg(){var bs=document.querySelectorAll(".noprint");function show(v){bs.forEach(function(b){b.style.display=v?"block":"none";});}show(false);if(!window.html2canvas){show(true);alert("Precisa de internet para gerar a imagem. Use IMPRIMIR / SALVAR PDF.");return;}html2canvas(document.getElementById("relCard"),{backgroundColor:"#F5F3EE",scale:2,useCORS:true}).then(function(cv){show(true);cv.toBlob(function(bl){if(!bl){alert("Nao consegui gerar a imagem");return;}var nome="relatorio_'+esc((f.nome||'obra').replace(/[^a-z0-9]+/gi,'_'))+'_'+today()+'.jpg";var file=new File([bl],nome,{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:"Relatorio"}).catch(function(){});}else{var a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=nome;a.click();}},"image/jpeg",0.95);}).catch(function(){show(true);alert("Erro ao gerar a imagem");});}</scr'+'ipt>'+
     '</body></html>';
   var w=window.open('','_blank');
   if(w){w.document.write(html);w.document.close();}
