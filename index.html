@@ -2552,6 +2552,8 @@ function renderLemb(){
       (l.dt?'<div style="font-size:11px;color:#aaa">'+l.dt.replace('T',' ').slice(0,16)+'</div>':'')+'</div>'+
       '<div style="display:flex;gap:5px;flex-shrink:0">'+
       '<button class="abt" onclick="editLemb(&quot;'+l.id+'&quot;)">Editar</button>'+
+      (l.dt?'<button class="abt" onclick="alarmeLemb(&quot;'+l.id+'&quot;)" title="Alarme no Google Agenda" style="padding:3px 6px;color:#2d7a4f">'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2d7a4f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l2.5 2"/><circle cx="12" cy="13" r="8"/><path d="M5 3 2 6M19 3l3 3"/></svg></button>':'')+
       '<button class="abt" onclick="encaminharLemb(&quot;'+l.id+'&quot;)" title="Encaminhar" style="padding:3px 6px">'+
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>'+
       '<button class="abt del" onclick="delLembId(&quot;'+l.id+'&quot;)">Del</button>'+
@@ -3687,6 +3689,22 @@ function convP(f){var kg=f==='kg'?_g('cp_kg'):f==='lb'?_g('cp_lb')*0.4536:f==='a
 function convV(f){var l=f==='l'?_g('cv_l'):f==='m3'?_g('cv_m3')*1000:_g('cv_gl')*3.785;_sv('cv_l',l,f);_sv('cv_m3',l/1000,f);_sv('cv_gl',l/3.785,f);}
 
 // LEMBRETE ICON (forward button placeholder)
+// Alarme de verdade: cria o lembrete no Google Agenda (quem toca é o Google —
+// página web não consegue tocar alarme com o app fechado, essa é a via nativa)
+function alarmeLemb(id){
+  var l=(db.lembretes||[]).find(function(x){return x.id===id;});
+  if(!l)return;
+  if(!l.dt){toast('Este lembrete não tem data/hora');return;}
+  var ini=l.dt.replace(/[-:]/g,'').slice(0,13)+'00';           // YYYYMMDDTHHMM00
+  var d=new Date(l.dt);d.setMinutes(d.getMinutes()+30);
+  var p2=function(n){return String(n).padStart(2,'0');};
+  var fim=''+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'T'+p2(d.getHours())+p2(d.getMinutes())+'00';
+  var url='https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent('Lembrete: '+l.texto)+
+    '&dates='+ini+'/'+fim+
+    '&details='+encodeURIComponent((l.prioridade&&l.prioridade!=='normal'?'Prioridade: '+l.prioridade+'\n':'')+'Criado no MMObras');
+  window.open(url,'_blank');
+}
 function encaminharLemb(id){
   var l=(db.lembretes||[]).find(function(x){return x.id===id;});
   if(!l)return;
