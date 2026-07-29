@@ -330,6 +330,9 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
       <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Entrar com Google
     </button>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 12px"><div style="flex:1;height:1px;background:rgba(255,255,255,.12)"></div><div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1px">OU</div><div style="flex:1;height:1px;background:rgba(255,255,255,.12)"></div></div>
+    <button onclick="entrarLocal()" style="width:100%;background:none;border:1px solid rgba(201,168,76,.5);border-radius:12px;padding:12px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#C9A84C;cursor:pointer">Usar só neste aparelho</button>
+    <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:8px;line-height:1.5">Sem conta e sem nuvem. Os dados ficam guardados neste celular — exporte de vez em quando para não perder.</div>
     <div id="loginMsg" style="font-size:12px;color:#C9A84C;margin-top:14px;min-height:16px"></div>
     <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:22px">Montgomery Magalhães · MMObras</div>
   </div>
@@ -373,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.22 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.23 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -825,11 +828,16 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
   </div>
 
   <div class="card" style="background:#fff;border-radius:12px;border:.5px solid #ddd;padding:14px;margin-bottom:12px">
-    <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.8px;margin-bottom:10px">CONTA GOOGLE</div>
+    <div id="pf-conta-titulo" style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.8px;margin-bottom:10px">CONTA GOOGLE</div>
     <div id="pf-conta-email" style="font-size:13px;color:#1B3A5C;font-weight:600;margin-bottom:10px">—</div>
-    <button onclick="enviarNuvem()" style="width:100%;background:#1B3A5C;border:none;color:#C9A84C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">☁ Enviar este aparelho para a nuvem</button>
-    <button onclick="restaurarNuvem()" style="width:100%;background:none;border:.5px solid #1B3A5C;color:#1B3A5C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">⬇ Restaurar da nuvem (substitui este aparelho)</button>
-    <button onclick="logoutMM()" style="width:100%;background:none;border:.5px solid #c0392b;color:#c0392b;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Sair da conta</button>
+    <button id="pf-btn-enviar" onclick="enviarNuvem()" style="width:100%;background:#1B3A5C;border:none;color:#C9A84C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">☁ Enviar este aparelho para a nuvem</button>
+    <button id="pf-btn-restaurar" onclick="restaurarNuvem()" style="width:100%;background:none;border:.5px solid #1B3A5C;color:#1B3A5C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">⬇ Restaurar da nuvem (substitui este aparelho)</button>
+    <button id="pf-btn-sair" onclick="logoutMM()" style="width:100%;background:none;border:.5px solid #c0392b;color:#c0392b;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Sair da conta</button>
+    <div id="pf-bloco-local" style="display:none">
+      <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:10px">Seus dados ficam guardados só neste aparelho. Sem cópia na nuvem e sem sincronismo com outro celular — o backup é a exportação.</div>
+      <button onclick="doBackup()" style="width:100%;background:#C9A84C;border:none;color:#1B3A5C;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">Exportar backup agora</button>
+      <button onclick="sairModoLocal()" style="width:100%;background:none;border:.5px solid #1B3A5C;color:#1B3A5C;border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">Voltar para a tela de entrada</button>
+    </div>
   </div>
 
   <div class="card" style="background:#fff;border-radius:12px;border:.5px solid #ddd;padding:14px;margin-bottom:12px">
@@ -1628,9 +1636,11 @@ function shareL(fid,cid){
   }
 }
 
+// Modo Pintor: convidado usa o app só neste aparelho, sem conta e sem nuvem
+var MODO_LOCAL=localStorage.getItem('mmobras_modo_local')==='1';
 // Cofre por usuário: se alguém já logou neste aparelho, usa o cofre dele
-var ACTIVE_UID=localStorage.getItem('mmobras_active_uid')||'';
-var KEY=ACTIVE_UID?('mmobras_v2_u_'+ACTIVE_UID):'mmobras_v2';
+var ACTIVE_UID=MODO_LOCAL?'':(localStorage.getItem('mmobras_active_uid')||'');
+var KEY=MODO_LOCAL?'mmobras_v2_local':(ACTIVE_UID?('mmobras_v2_u_'+ACTIVE_UID):'mmobras_v2');
 var fTipo='servico', fForma='dinheiro', pfList=[], listaAt='todo';
 var tiposTags=[], catsTags=[];
 var eFid=null, eFcid=null, eCfid=null, eCcid=null, eLitipo=null, eLiid=null;
@@ -3029,6 +3039,17 @@ function editRecibo(id){
     checkPINGate();
     var ce=document.getElementById('pf-conta-email');
     if(ce)ce.textContent=localStorage.getItem('mmobras_user_email')||'Não conectado';
+    if(MODO_LOCAL){
+      // Modo Pintor: a conta e a nuvem não existem aqui — o backup é a exportação
+      var tit=document.getElementById('pf-conta-titulo');
+      if(tit)tit.textContent='SÓ NESTE APARELHO';
+      if(ce)ce.textContent='Sem conta · sem nuvem';
+      ['pf-btn-enviar','pf-btn-restaurar','pf-btn-sair'].forEach(function(id){
+        var b=document.getElementById(id);if(b)b.style.display='none';
+      });
+      var bl=document.getElementById('pf-bloco-local');
+      if(bl)bl.style.display='block';
+    }
     var lt=(db.perfil&&db.perfil.logoTema)||'escura';
     document.querySelectorAll('.lt-btn').forEach(function(b){b.classList.toggle('on',b.dataset.t===lt);b.style.opacity=b.dataset.t===lt?'1':'0.45';});
   }catch(e){console.error('initExtras:',e);}
@@ -3740,9 +3761,11 @@ if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(functi
 // ═══ LOGIN GOOGLE (Supabase) + BACKUP NA NUVEM ═══════════════════════════
 var SUPA_URL='https://eltjhrhrtuymejojxyhe.supabase.co';
 var SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdGpocmhydHV5bWVqb2p4eWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDUxODcsImV4cCI6MjA5NjAyMTE4N30.cEgQrQ-Svr61s2O9JTLytqHEL8BpPYZWjS6ZCrAop58';
-// Lista de convidados — adicionar aqui o email do pintor quando for liberar
+// Quem tem sincronismo na nuvem (consome a cota do Supabase do Montgomery).
+// Quem NAO esta nesta lista nao fica de fora do app: cai no Modo Pintor,
+// que roda local, sem conta e sem tocar no banco.
 // (sempre em minusculas: a comparacao normaliza o email que vem do Google)
-var ALLOWED_EMAILS=['montlondon@gmail.com','adsonpoprock@hotmail.com'];
+var CLOUD_EMAILS=['montlondon@gmail.com','adsonpoprock@hotmail.com'];
 var _supa=null;
 
 function carregarSupabase(){
@@ -3770,11 +3793,26 @@ function loginGoogle(){
     encodeURIComponent(location.origin+location.pathname);
 }
 
+// Modo Pintor: entra sem conta, so neste aparelho
+function entrarLocal(){
+  localStorage.setItem('mmobras_modo_local','1');
+  localStorage.removeItem('mmobras_active_uid');
+  localStorage.removeItem('mmobras_user_email');
+  location.reload();
+}
+// Volta do Modo Pintor para a tela de entrada (os dados locais continuam guardados)
+function sairModoLocal(){
+  if(!confirm('Voltar para a tela de entrada? Os dados deste aparelho continuam guardados aqui.'))return;
+  localStorage.removeItem('mmobras_modo_local');
+  location.reload();
+}
+
 function entrarNoApp(user){
-  if(ALLOWED_EMAILS.indexOf(String(user.email||'').toLowerCase())<0){
-    loginMsg('E-mail nao autorizado: '+user.email+'. Solicite acesso ao Montgomery.');
+  if(CLOUD_EMAILS.indexOf(String(user.email||'').toLowerCase())<0){
+    // Sem nuvem para este e-mail: em vez de barrar, cai no Modo Pintor
+    loginMsg('Sem nuvem para '+user.email+'. Abrindo so neste aparelho...');
     if(_supa)_supa.auth.signOut();
-    localStorage.removeItem('mmobras_active_uid');
+    entrarLocal();
     return;
   }
   var uid=user.id;
@@ -3794,7 +3832,33 @@ function entrarNoApp(user){
   cloudPull(uid);
 }
 
+// Faixa de aviso do Modo Pintor: lembra de exportar (uma vez por dia)
+function avisoModoLocal(){
+  if(localStorage.getItem('mmobras_aviso_local')===today())return;
+  var d=document.createElement('div');
+  d.id='avisoLocal';
+  d.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:9997;background:#1B3A5C;border:1px solid #C9A84C;border-radius:12px;padding:14px 16px;font-family:Inter,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.3)';
+  d.innerHTML='<div style="font-size:12px;font-weight:700;color:#C9A84C;letter-spacing:.5px;margin-bottom:6px">MODO SÓ NESTE APARELHO</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:10px">Seus dados ficam guardados só aqui. Não há cópia na nuvem: se limpar o navegador sem ter exportado, tudo se perde. Exporte de vez em quando e guarde no Drive ou mande no WhatsApp.</div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<button onclick="doBackup()" style="flex:1;background:#C9A84C;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:#1B3A5C;cursor:pointer;font-family:Inter,sans-serif">Exportar agora</button>'+
+    '<button onclick="fecharAvisoLocal()" style="flex:1;background:none;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;font-family:Inter,sans-serif">Depois</button>'+
+    '</div>';
+  document.body.appendChild(d);
+}
+function fecharAvisoLocal(){
+  localStorage.setItem('mmobras_aviso_local',today());
+  var d=document.getElementById('avisoLocal');
+  if(d)d.remove();
+}
+
 function initAuthMM(){
+  if(MODO_LOCAL){
+    // Modo Pintor: nem carrega o Supabase — nada de rede, nada de cota
+    hideLogin();
+    avisoModoLocal();
+    return;
+  }
   carregarSupabase().then(function(lib){
     _supa=lib.createClient(SUPA_URL,SUPA_ANON,{auth:{persistSession:true,autoRefreshToken:true}});
     // Escuta o login em tempo real (cobre o processamento do token que chega na URL)
