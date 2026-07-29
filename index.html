@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.24 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.25 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1692,12 +1692,12 @@ save();
 
 function save(){db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia! O registro NAO foi salvo. Exporte um backup e exclua fotos antigas.');}try{cloudPush();}catch(e2){}}
 // Comprime foto para caber no localStorage (max 1280px, JPEG 72%)
-function compressImg(file,cb){
+function compressImg(file,cb,maxLado){
   var r=new FileReader();
   r.onload=function(ev){
     var img=new Image();
     img.onload=function(){
-      var MAX=1280,w=img.width,h=img.height;
+      var MAX=maxLado||1280,w=img.width,h=img.height;
       if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
       var c=document.createElement('canvas');c.width=w;c.height=h;
       c.getContext('2d').drawImage(img,0,0,w,h);
@@ -1709,10 +1709,10 @@ function compressImg(file,cb){
   r.readAsDataURL(file);
 }
 // Reduz uma foto que JA esta salva em base64 (mesma receita do compressImg)
-function recomprimeDataURL(dataUrl,cb){
+function recomprimeDataURL(dataUrl,cb,maxLado){
   var img=new Image();
   img.onload=function(){
-    var MAX=1280,w=img.width,h=img.height;
+    var MAX=maxLado||1280,w=img.width,h=img.height;
     if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
     var c=document.createElement('canvas');c.width=w;c.height=h;
     c.getContext('2d').drawImage(img,0,0,w,h);
@@ -1723,21 +1723,35 @@ function recomprimeDataURL(dataUrl,cb){
 }
 // Fotos antigas (de antes do compressImg) ficaram cruas, com EXIF, pesando megabytes —
 // e a nuvem baixa isso a cada busca. Uma vez so, o app enxuga o que achar gordo.
-var FOTO_LIMITE=500000; // ~500 kB de base64
+// Cada foto guardada tem um tamanho de tela: a da obra ocupa a largura toda, o avatar
+// aparece em 60px e o logo em 88px. Guardar mais pixel do que a tela mostra e peso puro.
+var FOTOS_GUARDADAS=[
+  {caminho:['config','foto'],nome:'Foto da obra',limite:500000,maxLado:1280},
+  {caminho:['perfil','avatar'],nome:'Sua foto de perfil',limite:60000,maxLado:512},
+  {caminho:['perfil','logo'],nome:'Seu logo',limite:60000,maxLado:512}
+];
 var _enxugou=false;
 function enxugarFotosAntigas(){
   if(_enxugou)return;
-  var f=db&&db.config&&db.config.foto;
-  if(!f||f.indexOf('data:image')!==0||f.length<=FOTO_LIMITE)return;
   _enxugou=true;
-  var antes=f.length;
-  recomprimeDataURL(f,function(nova){
-    if(!nova||nova.length>=antes)return;
-    db.config.foto=nova;
-    save();
-    var hp=document.getElementById('hero-photo-el');
-    if(hp)hp.style.backgroundImage='url('+nova+')';
-    toast('Foto da obra enxugada: '+Math.round(antes/1024)+' kB para '+Math.round(nova.length/1024)+' kB');
+  FOTOS_GUARDADAS.forEach(function(alvo){
+    var dono=db&&db[alvo.caminho[0]];
+    if(!dono)return;
+    var f=dono[alvo.caminho[1]];
+    if(!f||typeof f!=='string'||f.indexOf('data:image')!==0||f.length<=alvo.limite)return;
+    var antes=f.length;
+    recomprimeDataURL(f,function(nova){
+      if(!nova||nova.length>=antes)return;
+      dono[alvo.caminho[1]]=nova;
+      save();
+      try{
+        var hp=document.getElementById('hero-photo-el');
+        if(hp&&db.config&&db.config.foto)hp.style.backgroundImage='url('+db.config.foto+')';
+        if(typeof aplicarAvatar==='function')aplicarAvatar();
+        if(typeof aplicarLogo==='function')aplicarLogo();
+      }catch(e){}
+      toast(alvo.nome+' enxugada: '+Math.round(antes/1024)+' kB para '+Math.round(nova.length/1024)+' kB');
+    },alvo.maxLado);
   });
 }
 // Visualizador de foto em tela cheia
@@ -2926,7 +2940,7 @@ function salvarAvatar(e){
     save();
     aplicarAvatar();
     toast('Foto do perfil salva!');
-  });
+  },512); // aparece em 60px: 512 ja e retina com folga
 }
 // ─── LOGO DA EMPRESA (relatórios) ─────────────────────────────────────────
 function salvarLogo(e){
@@ -2937,7 +2951,7 @@ function salvarLogo(e){
     save();
     aplicarLogo();
     toast('Logo salva! Ela aparece nos relatorios.');
-  });
+  },512); // aparece em 88px nos relatorios
 }
 function removerLogo(){
   if(db.perfil)delete db.perfil.logo;
