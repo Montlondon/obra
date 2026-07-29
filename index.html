@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.23 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.24 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1707,6 +1707,38 @@ function compressImg(file,cb){
     img.src=ev.target.result;
   };
   r.readAsDataURL(file);
+}
+// Reduz uma foto que JA esta salva em base64 (mesma receita do compressImg)
+function recomprimeDataURL(dataUrl,cb){
+  var img=new Image();
+  img.onload=function(){
+    var MAX=1280,w=img.width,h=img.height;
+    if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+    var c=document.createElement('canvas');c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',0.72));
+  };
+  img.onerror=function(){cb(null);};
+  img.src=dataUrl;
+}
+// Fotos antigas (de antes do compressImg) ficaram cruas, com EXIF, pesando megabytes —
+// e a nuvem baixa isso a cada busca. Uma vez so, o app enxuga o que achar gordo.
+var FOTO_LIMITE=500000; // ~500 kB de base64
+var _enxugou=false;
+function enxugarFotosAntigas(){
+  if(_enxugou)return;
+  var f=db&&db.config&&db.config.foto;
+  if(!f||f.indexOf('data:image')!==0||f.length<=FOTO_LIMITE)return;
+  _enxugou=true;
+  var antes=f.length;
+  recomprimeDataURL(f,function(nova){
+    if(!nova||nova.length>=antes)return;
+    db.config.foto=nova;
+    save();
+    var hp=document.getElementById('hero-photo-el');
+    if(hp)hp.style.backgroundImage='url('+nova+')';
+    toast('Foto da obra enxugada: '+Math.round(antes/1024)+' kB para '+Math.round(nova.length/1024)+' kB');
+  });
 }
 // Visualizador de foto em tela cheia
 function verFoto(src){
@@ -3857,6 +3889,7 @@ function initAuthMM(){
     // Modo Pintor: nem carrega o Supabase — nada de rede, nada de cota
     hideLogin();
     avisoModoLocal();
+    try{enxugarFotosAntigas();}catch(e){}
     return;
   }
   carregarSupabase().then(function(lib){
@@ -3871,12 +3904,13 @@ function initAuthMM(){
       else if(ACTIVE_UID){
         // Ja logou antes neste aparelho mas a sessao expirou: entra offline no cofre local
         hideLogin();
+        try{enxugarFotosAntigas();}catch(e){}
       }
       // senao: overlay fica na tela esperando o login
     });
   }).catch(function(){
     // Sem internet: se ja logou antes, entra no cofre local
-    if(ACTIVE_UID)hideLogin();
+    if(ACTIVE_UID){hideLogin();try{enxugarFotosAntigas();}catch(e){}}
     else loginMsg('Sem internet. Conecte-se para o primeiro acesso.');
   });
 }
@@ -3915,6 +3949,7 @@ function cloudPull(uid){
       toast('Backup na nuvem ativado!');
     }
     // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
+    try{enxugarFotosAntigas();}catch(e){}
   });
 }
 function enviarNuvem(){
