@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.25 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.26 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3916,8 +3916,10 @@ function initAuthMM(){
       var sess=r.data?r.data.session:null;
       if(sess&&sess.user){entrarNoApp(sess.user);}
       else if(ACTIVE_UID){
-        // Ja logou antes neste aparelho mas a sessao expirou: entra offline no cofre local
+        // Ja logou antes neste aparelho mas a sessao expirou: entra offline no cofre local.
+        // E DIZ isso — foi ficar calado aqui que deixou dois dias de lancamentos so no aparelho.
         hideLogin();
+        avisarNuvemMuda('Sua entrada com o Google venceu. O app está funcionando <b>só neste aparelho</b>: nada sobe para a nuvem e nada vem dos outros aparelhos.',true);
         try{enxugarFotosAntigas();}catch(e){}
       }
       // senao: overlay fica na tela esperando o login
@@ -3934,42 +3936,95 @@ window.addEventListener('pageshow',function(ev){
 });
 
 // ── Backup na nuvem (tabela mmobras_backup) ──
+// Faixa fixa: a nuvem nao pode falhar calada. Um backup que falha em silencio e pior
+// que nao ter backup, porque a pessoa confia nele.
+function avisarNuvemMuda(motivo,pedirLogin){
+  var d=document.getElementById('avisoNuvem');
+  if(!d){
+    d=document.createElement('div');
+    d.id='avisoNuvem';
+    d.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:9998;background:#7a1f1f;border:1px solid #C9A84C;border-radius:12px;padding:12px 14px;font-family:Inter,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35)';
+    document.body.appendChild(d);
+  }
+  d.innerHTML='<div style="font-size:11px;font-weight:700;color:#C9A84C;letter-spacing:.5px;margin-bottom:5px">A NUVEM NÃO ESTÁ RECEBENDO</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.5;margin-bottom:'+(pedirLogin?'10px':'0')+'">'+motivo+'</div>'+
+    (pedirLogin?'<div style="display:flex;gap:8px">'+
+      '<button onclick="loginGoogle()" style="flex:1;background:#C9A84C;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;color:#1B3A5C;cursor:pointer;font-family:Inter,sans-serif">Entrar de novo</button>'+
+      '<button onclick="doBackup()" style="flex:1;background:none;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:9px;font-size:12px;font-weight:600;color:rgba(255,255,255,.8);cursor:pointer;font-family:Inter,sans-serif">Exportar</button>'+
+      '</div>':'');
+}
+function limparAvisoNuvem(){var d=document.getElementById('avisoNuvem');if(d)d.remove();}
+// A nuvem recusa a gravacao quando nao ha sessao valida: a regra do banco exige que
+// auth.uid() seja igual ao user_id. Sem sessao, o app grava como anonimo e leva 401.
+function nuvemSemSessao(err){
+  var m=((err&&err.message)||'')+' '+((err&&err.code)||'');
+  return /42501|row-level security|JWT|401|Unauthorized|not authenticated/i.test(m);
+}
 var _pushTimer=null;
 function cloudPush(){
   if(!_supa||!ACTIVE_UID)return;
   clearTimeout(_pushTimer);
   _pushTimer=setTimeout(function(){
     _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
-      .then(function(r){if(r.error)console.warn('cloudPush:',r.error.message);});
+      .then(function(r){
+        if(!r.error){
+          localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
+          limparAvisoNuvem();
+          return;
+        }
+        console.warn('cloudPush:',r.error.message);
+        if(nuvemSemSessao(r.error))
+          avisarNuvemMuda('Sua entrada com o Google venceu. Seus lançamentos estão salvos <b>só neste aparelho</b> e não sobem para a nuvem até você entrar de novo.',true);
+        else
+          avisarNuvemMuda('A nuvem recusou o envio: '+String(r.error.message).slice(0,120),false);
+      });
   },3000);
 }
 function cloudPull(uid){
   if(!_supa)return;
-  _supa.from('mmobras_backup').select('data,updated_at').eq('user_id',uid).maybeSingle().then(function(r){
-    var localVazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
-    var nuvem=(r&&!r.error&&r.data&&r.data.data)?r.data.data:null;
-    var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
-    var tsNuvem=(nuvem&&nuvem._ts)||0;
-    var tsLocal=db._ts||0;
-    if(nuvemTemDados&&(localVazio||tsNuvem>tsLocal)){
-      // Nuvem mais recente (ou este aparelho vazio): restaura
-      db=nuvem;
-      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
-      try{renderAll();renderFin();renderForn();}catch(e){}
-      toast('Dados restaurados da nuvem!');
-    }else if(!localVazio&&tsLocal>tsNuvem){
-      // Este aparelho e mais recente: atualiza a nuvem
-      cloudPush();
-      toast('Backup na nuvem ativado!');
+  var localVazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
+  var tsLocal=db._ts||0;
+  // Primeiro so a hora. Se este aparelho ja e o mais recente, nao baixa nada.
+  horaDaNuvem(function(tsNuvem,err){
+    if(tsNuvem===null){
+      avisarNuvemMuda('Não consegui falar com a nuvem: '+String((err&&err.message)||'sem resposta').slice(0,110),nuvemSemSessao(err));
+      try{enxugarFotosAntigas();}catch(e){}
+      return;
     }
-    // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
-    try{enxugarFotosAntigas();}catch(e){}
+    if(!(localVazio||tsNuvem>tsLocal)){
+      // Este aparelho e o mais recente: atualiza a nuvem, sem baixar 5 MB para descobrir
+      if(!localVazio&&tsLocal>tsNuvem){cloudPush();toast('Backup na nuvem ativado!');}
+      try{enxugarFotosAntigas();}catch(e){}
+      return;
+    }
+    baixarDaNuvem(function(nuvem){
+      var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
+      if(nuvemTemDados){
+        // Nuvem mais recente (ou este aparelho vazio): restaura
+        db=nuvem;
+        try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
+        try{renderAll();renderFin();renderForn();}catch(e){}
+        toast('Dados restaurados da nuvem!');
+      }
+      // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
+      try{enxugarFotosAntigas();}catch(e){}
+    });
   });
 }
 function enviarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
   _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
-    .then(function(r){toast(r.error?'Erro: '+r.error.message:'Enviado para a nuvem!');});
+    .then(function(r){
+      if(r.error){
+        toast('Erro: '+r.error.message);
+        if(nuvemSemSessao(r.error))
+          avisarNuvemMuda('Sua entrada com o Google venceu — por isso a nuvem recusou. Entre de novo e mande outra vez.',true);
+        return;
+      }
+      localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
+      limparAvisoNuvem();
+      toast('Enviado para a nuvem!');
+    });
 }
 function restaurarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
@@ -3982,19 +4037,36 @@ function restaurarNuvem(){
     setTimeout(function(){location.reload();},800);
   });
 }
+// Pergunta so a HORA da nuvem: uns bytes, em vez do backup inteiro.
+// Antes, cada aparelho aberto baixava a linha completa a cada 60 segundos — com foto e
+// tudo. Um aparelho aberto uma hora gastava centenas de MB de cota sem nenhuma novidade.
+function horaDaNuvem(cb){
+  if(!_supa||!ACTIVE_UID){cb(null);return;}
+  _supa.from('mmobras_backup').select('_ts:data->_ts').eq('user_id',ACTIVE_UID).maybeSingle()
+    .then(function(r){
+      if(r&&r.error){cb(null,r.error);return;}
+      cb((r&&r.data)?Number(r.data._ts||0):0);
+    });
+}
+// Baixa o backup inteiro — so quando a hora provou que vale a pena
+function baixarDaNuvem(cb){
+  _supa.from('mmobras_backup').select('data').eq('user_id',ACTIVE_UID).maybeSingle()
+    .then(function(r){cb((r&&!r.error&&r.data&&r.data.data)?r.data.data:null,r&&r.error);});
+}
 // Puxa da nuvem quando a janela volta ao foco (evita aba antiga sobrescrever valor novo)
 var _lastCk=0;
 function cloudCheck(){
   if(!_supa||!ACTIVE_UID)return;
   var now=Date.now();if(now-_lastCk<15000)return;_lastCk=now;
-  _supa.from('mmobras_backup').select('data').eq('user_id',ACTIVE_UID).maybeSingle().then(function(r){
-    var nuvem=(r&&!r.error&&r.data&&r.data.data)?r.data.data:null;
-    if(nuvem&&(nuvem._ts||0)>(db._ts||0)){
+  horaDaNuvem(function(tsNuvem){
+    if(tsNuvem===null||!(tsNuvem>(db._ts||0)))return; // nada novo: nao baixa nada
+    baixarDaNuvem(function(nuvem){
+      if(!nuvem||(nuvem._ts||0)<=(db._ts||0))return;
       db=nuvem;
       try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
       try{renderAll();renderFin();renderForn();if(typeof renderOrc==='function')renderOrc();if(typeof renderUrg==='function')renderUrg();if(typeof renderLista==='function')renderLista();}catch(e){}
       toast('Atualizado da nuvem ☁');
-    }
+    });
   });
 }
 document.addEventListener('visibilitychange',function(){if(!document.hidden)cloudCheck();});
