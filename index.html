@@ -373,7 +373,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.21 &middot; 09/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.22 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3741,7 +3741,8 @@ if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(functi
 var SUPA_URL='https://eltjhrhrtuymejojxyhe.supabase.co';
 var SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdGpocmhydHV5bWVqb2p4eWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDUxODcsImV4cCI6MjA5NjAyMTE4N30.cEgQrQ-Svr61s2O9JTLytqHEL8BpPYZWjS6ZCrAop58';
 // Lista de convidados — adicionar aqui o email do pintor quando for liberar
-var ALLOWED_EMAILS=['montlondon@gmail.com'];
+// (sempre em minusculas: a comparacao normaliza o email que vem do Google)
+var ALLOWED_EMAILS=['montlondon@gmail.com','adsonpoprock@hotmail.com'];
 var _supa=null;
 
 function carregarSupabase(){
@@ -3770,7 +3771,7 @@ function loginGoogle(){
 }
 
 function entrarNoApp(user){
-  if(ALLOWED_EMAILS.indexOf(user.email)<0){
+  if(ALLOWED_EMAILS.indexOf(String(user.email||'').toLowerCase())<0){
     loginMsg('E-mail nao autorizado: '+user.email+'. Solicite acesso ao Montgomery.');
     if(_supa)_supa.auth.signOut();
     localStorage.removeItem('mmobras_active_uid');
