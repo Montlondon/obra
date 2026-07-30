@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.28 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.29 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3973,7 +3973,7 @@ window.addEventListener('pageshow',function(ev){
   if(ev.persisted)location.reload();
 });
 
-// ── Backup na nuvem (tabela mmobras_backup) ──
+// ── Backup na nuvem (tabela mmobras_itens: uma linha para cada coisa) ──
 // Faixa fixa: a nuvem nao pode falhar calada. Um backup que falha em silencio e pior
 // que nao ter backup, porque a pessoa confia nele.
 function avisarNuvemMuda(motivo,pedirLogin){
@@ -4011,11 +4011,6 @@ function resumoDb(d){
   });
   return {forn:(d.fornecedores||[]).length,tot:tot,rec:(d.recibos||[]).length,
           orc:(d.orcamentos||[]).length,urg:(d.urgencias||[]).length,ts:Number(d._ts||0)};
-}
-// "novo" empobrece "atual" se perde dinheiro ou perde registro em qualquer frente
-function empobrece(atual,novo){
-  return novo.tot<atual.tot-0.005||novo.forn<atual.forn||novo.rec<atual.rec||
-         novo.orc<atual.orc||novo.urg<atual.urg;
 }
 function quandoTs(ts){
   if(!ts)return 'sem data';
@@ -4062,161 +4057,317 @@ function perguntarQualVale(rAqui,rNuvem,escolheu){
   d.querySelector('#pq-nuvem').onclick=function(){responder('nuvem');};
   d.querySelector('#pq-depois').onclick=function(){responder(null);};
 }
-function aplicarNuvem(nuvem,msg){
-  db=nuvem;
-  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
-  try{renderAll();renderFin();renderForn();if(typeof renderOrc==='function')renderOrc();if(typeof renderUrg==='function')renderUrg();if(typeof renderLista==='function')renderLista();}catch(e){}
-  toast(msg||'Ficou o da nuvem.');
+// ─── Uma linha para cada coisa (tabela mmobras_itens) ────────────────────
+// Antes, TUDO vivia num campo unico de mmobras_backup: obra, fornecedores, contas,
+// recibos, orcamentos e fotos, 1.319 kB que subiam inteiros a cada salvamento. Era por
+// isso que um aparelho substituia o outro: nunca havia como mandar so a Maria sem
+// mandar tambem o Joao por cima.
+// Agora e como na Clinica: cada item tem a sua propria linha. Cadastrar a Maria no
+// celular e o Joao no PC faz nascer duas linhas, e as duas ficam.
+// A hora e sempre a do servidor (gatilho no banco) — nenhum relogio de aparelho decide.
+var ITENS_TIPO={fornecedores:'forn',orcamentos:'orc',urgencias:'urg',recibos:'rec',comprovantes:'cmp',lembretes:'lem'};
+var TIPO_ITENS={};Object.keys(ITENS_TIPO).forEach(function(k){TIPO_ITENS[ITENS_TIPO[k]]=k;});
+// O resto (config, perfil, listas, notas, clientes, equipe...) e pequeno e nao tem id
+// proprio: cada chave vira uma linha 'bloco'. Chave nova no futuro sincroniza sozinha.
+function itemHash(v){
+  var s;try{s=JSON.stringify(v===undefined?null:v);}catch(e){return 'x';}
+  var h=5381,i=s.length;while(i)h=((h<<5)+h+s.charCodeAt(--i))>>>0;
+  return h.toString(36)+':'+s.length;
 }
-var _pushTimer=null;
+function chavePartes(k){var p=k.indexOf('/');return {tipo:k.slice(0,p),id:k.slice(p+1)};}
+// Foto do aparelho agora, item por item
+function mapaLocal(){
+  var m={};
+  Object.keys(ITENS_TIPO).forEach(function(col){
+    if(!Array.isArray(db[col]))return;
+    db[col].forEach(function(it){
+      if(!it||typeof it!=='object')return;
+      if(!it.id)it.id=uid(); // item antigo sem id ganha um agora, senao nao tem linha
+      m[ITENS_TIPO[col]+'/'+it.id]=it;
+    });
+  });
+  Object.keys(db).forEach(function(k){
+    if(k==='_ts'||ITENS_TIPO[k])return;
+    m['bloco/'+k]=db[k];
+  });
+  return m;
+}
+// A sombra: o que este aparelho ja sabe que a nuvem tem (impressao digital + hora dela)
+function sombraKey(){return 'mmobras_sombra_'+(ACTIVE_UID||'local');}
+function lerSombra(){
+  var s=null;try{s=JSON.parse(localStorage.getItem(sombraKey()));}catch(e){}
+  if(!s||typeof s!=='object')s={};
+  if(!s.h)s.h={};if(!s.ts)s.ts={};
+  return s;
+}
+function gravarSombra(s){try{localStorage.setItem(sombraKey(),JSON.stringify(s));}catch(e){}}
+function gravarLocal(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){toast('ERRO: memoria cheia!');return false;}}
+function porItemNoDb(k,dados){
+  var p=chavePartes(k);
+  if(p.tipo==='bloco'){db[p.id]=dados;return;}
+  var col=TIPO_ITENS[p.tipo];if(!col)return;
+  if(!Array.isArray(db[col]))db[col]=[];
+  var i=-1;db[col].forEach(function(x,j){if(x&&String(x.id)===p.id)i=j;});
+  if(i>=0)db[col][i]=dados;else db[col].push(dados);
+}
+function tirarDoDb(k){
+  var p=chavePartes(k);
+  if(p.tipo==='bloco')return; // bloco nunca se apaga, so muda
+  var col=TIPO_ITENS[p.tipo];if(!col||!Array.isArray(db[col]))return;
+  var i=-1;db[col].forEach(function(x,j){if(x&&String(x.id)===p.id)i=j;});
+  if(i>=0)db[col].splice(i,1);
+}
+// Bloco (config, perfil, listas...) que este aparelho nunca tocou: e so o valor de
+// fabrica, entao o da nuvem vale mais. Se foi mexido aqui, o daqui e que vale.
+function blocoIntocado(id){
+  return itemHash(db[id])===itemHash(SEED[id]);
+}
+// Quando os dois lados mexeram no MESMO item, fica o mais completo — nunca o relogio
+function pesoItem(v){
+  if(!v||typeof v!=='object')return 0;
+  var n=0,t=0;
+  ['contas','locacoes','creditos','recibos','pecas','checklist'].forEach(function(k){
+    if(Array.isArray(v[k]))n+=v[k].length;
+  });
+  (v.contas||[]).forEach(function(c){t+=Number(c&&c.valor)||0;});
+  return t*10+n;
+}
+function redesenharTudo(){
+  try{renderAll();renderFin();renderForn();
+    if(typeof renderOrc==='function')renderOrc();
+    if(typeof renderUrg==='function')renderUrg();
+    if(typeof renderLista==='function')renderLista();}catch(e){}
+}
+// ── Subir: so o que mudou ──
+var _pushTimer=null,_pushando=false,_pushPend=false;
 function cloudPush(){
   if(!_supa||!ACTIVE_UID)return;
   clearTimeout(_pushTimer);
-  _pushTimer=setTimeout(function(){
-    _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
-      .then(function(r){
-        if(!r.error){
-          localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
-          limparAvisoNuvem();
-          return;
-        }
-        console.warn('cloudPush:',r.error.message);
+  _pushTimer=setTimeout(function(){subirMudancas();},3000);
+}
+function subirMudancas(cb){
+  if(!_supa||!ACTIVE_UID){if(cb)cb();return;}
+  if(_pushando){_pushPend=true;if(cb)cb();return;}
+  var s=lerSombra(),local=mapaLocal(),linhas=[],novoH={};
+  Object.keys(local).forEach(function(k){
+    var h=itemHash(local[k]);novoH[k]=h;
+    if(s.h[k]===h)return; // igual ao que a nuvem ja tem: nao sobe
+    var p=chavePartes(k);
+    linhas.push({user_id:ACTIVE_UID,tipo:p.tipo,item_id:p.id,dados:local[k],apagado:false});
+  });
+  // O que existia e nao existe mais vira lapide, senao renasce no outro aparelho
+  var lapides=[];
+  Object.keys(s.h).forEach(function(k){
+    if(local[k]!==undefined)return;
+    var p=chavePartes(k);
+    lapides.push(k);
+    linhas.push({user_id:ACTIVE_UID,tipo:p.tipo,item_id:p.id,dados:null,apagado:true});
+  });
+  if(!linhas.length){s.h=novoH;gravarSombra(s);if(cb)cb();return;}
+  _pushando=true;
+  _supa.from('mmobras_itens').upsert(linhas,{onConflict:'user_id,tipo,item_id'})
+    .select('tipo,item_id,updated_at')
+    .then(function(r){
+      _pushando=false;
+      if(r.error){
+        console.warn('subirMudancas:',r.error.message);
         if(nuvemSemSessao(r.error))
           avisarNuvemMuda('Sua entrada com o Google venceu. Seus lançamentos estão salvos <b>só neste aparelho</b> e não sobem para a nuvem até você entrar de novo.',true);
         else
           avisarNuvemMuda('A nuvem recusou o envio: '+String(r.error.message).slice(0,120),false);
+        if(cb)cb(r.error);
+        return;
+      }
+      var s2=lerSombra();
+      s2.h=novoH;
+      lapides.forEach(function(k){delete s2.ts[k];});
+      // Guarda a hora que o SERVIDOR deu a cada linha nossa: e por ela que a proxima
+      // descida sabe que nao precisa baixar de volta o que acabamos de subir.
+      // O cursor NAO anda aqui: se andasse, pularia a linha que o outro aparelho
+      // gravou no meio do caminho, e o trabalho dele nunca chegaria.
+      (r.data||[]).forEach(function(x){
+        var k=x.tipo+'/'+x.item_id;
+        if(novoH[k]!==undefined)s2.ts[k]=x.updated_at;
       });
-  },3000);
+      gravarSombra(s2);
+      localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
+      limparAvisoNuvem();
+      if(_pushPend){_pushPend=false;subirMudancas();}
+      if(cb)cb();
+    });
+}
+// ── Baixar: primeiro a lista de horas (bytes), depois só as linhas que mudaram ──
+function puxarMudancas(cb){
+  if(!_supa||!ACTIVE_UID){if(cb)cb();return;}
+  var s=lerSombra();
+  var q=_supa.from('mmobras_itens').select('tipo,item_id,apagado,updated_at').eq('user_id',ACTIVE_UID);
+  if(s.cursor)q=q.gt('updated_at',s.cursor);
+  q.then(function(r){
+    if(r.error){
+      avisarNuvemMuda('Não consegui falar com a nuvem: '+String(r.error.message).slice(0,110),nuvemSemSessao(r.error));
+      if(cb)cb(r.error);return;
+    }
+    var indice=r.data||[],maxTs=s.cursor||'';
+    indice.forEach(function(x){if(x.updated_at>maxTs)maxTs=x.updated_at;});
+    // Linha cuja hora do servidor a gente ja conhece nao precisa descer de novo
+    var faltam=indice.filter(function(x){return s.ts[x.tipo+'/'+x.item_id]!==x.updated_at;});
+    if(!faltam.length){
+      if(maxTs){s.cursor=maxTs;gravarSombra(s);}
+      if(cb)cb();return;
+    }
+    var ids=[];faltam.forEach(function(x){if(ids.indexOf(x.item_id)<0)ids.push(x.item_id);});
+    _supa.from('mmobras_itens').select('tipo,item_id,dados,apagado,updated_at')
+      .eq('user_id',ACTIVE_UID).in('item_id',ids)
+      .then(function(r2){
+        if(r2.error){
+          avisarNuvemMuda('A nuvem respondeu com erro ao baixar: '+String(r2.error.message).slice(0,110),nuvemSemSessao(r2.error));
+          if(cb)cb(r2.error);return;
+        }
+        var pedidas={};faltam.forEach(function(x){pedidas[x.tipo+'/'+x.item_id]=1;});
+        var sN=lerSombra(),localAgora=mapaLocal(),mudou=false,conflitos=[],reenviar=false;
+        (r2.data||[]).forEach(function(row){
+          var k=row.tipo+'/'+row.item_id;
+          if(!pedidas[k])return; // veio de carona pelo item_id de outro tipo
+          var temAqui=localAgora[k]!==undefined;
+          var hAqui=temAqui?itemHash(localAgora[k]):null;
+          var sujoAqui=temAqui&&sN.h[k]!==hAqui; // mexemos aqui e ainda nao subiu
+          if(row.apagado){
+            if(!temAqui){delete sN.h[k];delete sN.ts[k];return;}
+            if(sujoAqui){delete sN.h[k];reenviar=true;conflitos.push(k);return;} // apagaram lá, mexemos aqui: fica o nosso
+            tirarDoDb(k);delete sN.h[k];delete sN.ts[k];mudou=true;return;
+          }
+          var hNuvem=itemHash(row.dados);
+          if(hAqui===hNuvem){sN.h[k]=hNuvem;sN.ts[k]=row.updated_at;return;}
+          if(sujoAqui){
+            var ficaODaqui=row.tipo==='bloco'
+              ? !blocoIntocado(row.item_id)
+              : pesoItem(localAgora[k])>pesoItem(row.dados);
+            if(row.tipo!=='bloco'||!blocoIntocado(row.item_id))conflitos.push(k);
+            if(ficaODaqui){delete sN.h[k];reenviar=true;return;}
+          }
+          porItemNoDb(k,row.dados);sN.h[k]=hNuvem;sN.ts[k]=row.updated_at;mudou=true;
+        });
+        if(maxTs)sN.cursor=maxTs;
+        gravarSombra(sN);
+        if(mudou){gravarLocal();redesenharTudo();toast('Atualizado da nuvem ☁');}
+        if(conflitos.length)toast('Dois lados mexeram em '+conflitos.length+' item(ns): ficou o mais completo.');
+        if(reenviar)cloudPush();
+        localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
+        limparAvisoNuvem();
+        if(cb)cb();
+      });
+  });
+}
+// Monta um db inteiro a partir das linhas (usado pelo botao Restaurar)
+function montarDaNuvem(cb){
+  _supa.from('mmobras_itens').select('tipo,item_id,dados').eq('user_id',ACTIVE_UID).eq('apagado',false)
+    .then(function(r){
+      if(r.error||!r.data){cb(null,r.error);return;}
+      var novo=JSON.parse(JSON.stringify(SEED));
+      Object.keys(ITENS_TIPO).forEach(function(col){novo[col]=[];});
+      r.data.forEach(function(row){
+        if(row.tipo==='bloco'){novo[row.item_id]=row.dados;return;}
+        var col=TIPO_ITENS[row.tipo];if(!col)return;
+        if(!Array.isArray(novo[col]))novo[col]=[];
+        novo[col].push(row.dados);
+      });
+      cb(novo);
+    });
+}
+// ── Mudanca de casa: o pacote unico antigo entra sem perder nada ──
+// Uniao por id: o que o pacote tinha e este aparelho nao tem, entra. O que este
+// aparelho tem, fica. So roda uma vez, quando ainda nao existe nenhuma linha.
+function juntarPacote(p){
+  if(!p||typeof p!=='object')return;
+  Object.keys(ITENS_TIPO).forEach(function(col){
+    if(!Array.isArray(p[col]))return;
+    if(!Array.isArray(db[col]))db[col]=[];
+    p[col].forEach(function(it){
+      if(!it||!it.id)return;
+      var tem=false;db[col].forEach(function(x){if(x&&String(x.id)===String(it.id))tem=true;});
+      if(!tem)db[col].push(it);
+    });
+  });
+  Object.keys(p).forEach(function(k){
+    if(k==='_ts'||ITENS_TIPO[k])return;
+    var vazio=db[k]===undefined||db[k]===null||(Array.isArray(db[k])&&!db[k].length);
+    if(vazio||blocoIntocado(k))db[k]=p[k]; // nome da obra, perfil, listas: o pacote manda
+  });
+  gravarLocal();
+}
+function migrarDoPacote(cb){
+  var s=lerSombra();
+  if(s.migrado){cb();return;}
+  _supa.from('mmobras_itens').select('item_id').eq('user_id',ACTIVE_UID).limit(1)
+    .then(function(r){
+      if(r.error){
+        avisarNuvemMuda('Não consegui falar com a nuvem: '+String(r.error.message).slice(0,110),nuvemSemSessao(r.error));
+        cb(r.error);return;
+      }
+      if(r.data&&r.data.length){var s1=lerSombra();s1.migrado=true;gravarSombra(s1);cb();return;}
+      // Nenhuma linha ainda: traz o pacote antigo uma ultima vez
+      baixarDaNuvem(function(pacote){
+        if(pacote)juntarPacote(pacote);
+        var s2=lerSombra();s2.migrado=true;gravarSombra(s2);
+        if(pacote)redesenharTudo();
+        cb();
+      });
+    });
 }
 function cloudPull(uid){
   if(!_supa)return;
-  var localVazio=!(db.fornecedores||[]).length&&!(db.recibos||[]).length&&!(db.urgencias||[]).length&&!(db.orcamentos||[]).length;
-  var tsLocal=db._ts||0;
-  // Primeiro so a hora. Se este aparelho ja e o mais recente, nao baixa nada.
-  horaDaNuvem(function(tsNuvem,err){
-    if(tsNuvem===null){
-      avisarNuvemMuda('Não consegui falar com a nuvem: '+String((err&&err.message)||'sem resposta').slice(0,110),nuvemSemSessao(err));
-      try{enxugarFotosAntigas();}catch(e){}
-      return;
-    }
-    if(!(localVazio||tsNuvem>tsLocal)){
-      // Este aparelho tem a hora na frente. Antes ele publicava por cima na hora —
-      // era isso que apagava o trabalho do outro aparelho. Agora confere o que tem la.
-      if(!localVazio&&tsLocal>tsNuvem){
-        if(!tsNuvem){cloudPush();toast('Backup na nuvem ativado!');try{enxugarFotosAntigas();}catch(e){}return;}
-        baixarDaNuvem(function(nuvem){
-          var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
-          if(nuvem&&empobrece(rNuvem,rAqui)){
-            // Subir daqui faria a nuvem perder coisa: quem decide e o Montgomery
-            perguntarQualVale(rAqui,rNuvem,function(esc){
-              if(esc==='aqui'){cloudPush();toast('Ficou o deste aparelho.');}
-              else aplicarNuvem(nuvem);
-            });
-          }else{cloudPush();toast('Backup na nuvem ativado!');}
-          try{enxugarFotosAntigas();}catch(e){}
-        });
-        return;
-      }
-      try{enxugarFotosAntigas();}catch(e){}
-      return;
-    }
-    baixarDaNuvem(function(nuvem){
-      var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
-      if(nuvemTemDados){
-        var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
-        if(!localVazio&&empobrece(rAqui,rNuvem)){
-          // A nuvem esta na frente no relogio, mas tem menos coisa que este aparelho
-          perguntarQualVale(rAqui,rNuvem,function(esc){
-            if(esc==='nuvem')aplicarNuvem(nuvem);
-            else{db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}cloudPush();toast('Ficou o deste aparelho.');}
-          });
-        }else aplicarNuvem(nuvem,'Dados restaurados da nuvem!');
-      }
-      // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
-      try{enxugarFotosAntigas();}catch(e){}
+  // Primeiro ESCUTA, depois fala. Ao contrario, um aparelho recem-aberto subiria os
+  // valores de fabrica por cima do que o outro aparelho ja tinha guardado.
+  migrarDoPacote(function(err){
+    if(err){try{enxugarFotosAntigas();}catch(e){}return;}
+    puxarMudancas(function(){
+      subirMudancas(function(){
+        try{enxugarFotosAntigas();}catch(e){}
+      });
     });
   });
 }
 function enviarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
-  // Confere se subir daqui faria a nuvem perder alguma coisa
-  baixarDaNuvem(function(nuvem){
-    var rAqui=resumoDb(db);
-    if(nuvem&&empobrece(resumoDb(nuvem),rAqui)){
-      perguntarQualVale(rAqui,resumoDb(nuvem),function(esc){
-        if(esc==='aqui')enviarNuvemAgora();
-        else aplicarNuvem(nuvem);
-      });
-      return;
-    }
-    enviarNuvemAgora();
-  });
-}
-function enviarNuvemAgora(){
-  _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
-    .then(function(r){
-      if(r.error){
-        toast('Erro: '+r.error.message);
-        if(nuvemSemSessao(r.error))
-          avisarNuvemMuda('Sua entrada com o Google venceu — por isso a nuvem recusou. Entre de novo e mande outra vez.',true);
-        return;
-      }
-      localStorage.setItem('mmobras_nuvem_ok',new Date().toISOString());
-      limparAvisoNuvem();
-      toast('Enviado para a nuvem!');
-    });
+  // Manda tudo deste aparelho, item por item (nada apaga o que so existe na nuvem)
+  var s=lerSombra();s.h={};gravarSombra(s);
+  subirMudancas(function(err){if(!err)toast('Enviado para a nuvem!');});
 }
 function restaurarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
   // Mostra os dois lados antes de trocar — ninguem substitui no escuro
-  baixarDaNuvem(function(nuvem){
+  montarDaNuvem(function(nuvem){
     if(!nuvem){toast('Nuvem vazia ou erro ao buscar');return;}
     perguntarQualVale(resumoDb(db),resumoDb(nuvem),function(esc){
       if(esc!=='nuvem'){toast('Nada mudou.');return;}
       db=nuvem;
-      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
+      if(!gravarLocal())return;
+      var s=lerSombra();s.h={};s.ts={};s.cursor='';s.migrado=true;gravarSombra(s);
       toast('Restaurado da nuvem!');
       setTimeout(function(){location.reload();},800);
     });
   });
 }
-// Pergunta so a HORA da nuvem: uns bytes, em vez do backup inteiro.
-// Antes, cada aparelho aberto baixava a linha completa a cada 60 segundos — com foto e
-// tudo. Um aparelho aberto uma hora gastava centenas de MB de cota sem nenhuma novidade.
-function horaDaNuvem(cb){
-  if(!_supa||!ACTIVE_UID){cb(null);return;}
-  _supa.from('mmobras_backup').select('_ts:data->_ts').eq('user_id',ACTIVE_UID).maybeSingle()
-    .then(function(r){
-      if(r&&r.error){cb(null,r.error);return;}
-      cb((r&&r.data)?Number(r.data._ts||0):0);
-    });
-}
-// Baixa o backup inteiro — so quando a hora provou que vale a pena
+// Le o pacote unico antigo (mmobras_backup). Fica so para a mudanca de casa: o pacote
+// nao e mais gravado, mas continua la, congelado, como copia de seguranca.
 function baixarDaNuvem(cb){
   _supa.from('mmobras_backup').select('data').eq('user_id',ACTIVE_UID).maybeSingle()
     .then(function(r){cb((r&&!r.error&&r.data&&r.data.data)?r.data.data:null,r&&r.error);});
 }
-// Puxa da nuvem quando a janela volta ao foco (evita aba antiga sobrescrever valor novo)
+// Ronda: pergunta so a hora mais recente da nuvem — uns bytes, nao o backup inteiro
 var _lastCk=0;
 function cloudCheck(){
   if(!_supa||!ACTIVE_UID||_perguntaAberta)return;
   var now=Date.now();if(now-_lastCk<15000)return;_lastCk=now;
-  horaDaNuvem(function(tsNuvem){
-    if(tsNuvem===null||!(tsNuvem>(db._ts||0)))return; // nada novo: nao baixa nada
-    baixarDaNuvem(function(nuvem){
-      if(!nuvem||(nuvem._ts||0)<=(db._ts||0))return;
-      var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
-      if(empobrece(rAqui,rNuvem)){
-        // O relogio da nuvem esta na frente, mas trocar faria sumir lancamento daqui
-        perguntarQualVale(rAqui,rNuvem,function(esc){
-          if(esc==='nuvem')aplicarNuvem(nuvem);
-          else{db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}cloudPush();toast('Ficou o deste aparelho.');}
-        });
-        return;
-      }
-      aplicarNuvem(nuvem,'Atualizado da nuvem ☁');
+  var s=lerSombra();
+  if(!s.migrado){cloudPull(ACTIVE_UID);return;}
+  _supa.from('mmobras_itens').select('updated_at').eq('user_id',ACTIVE_UID)
+    .order('updated_at',{ascending:false}).limit(1)
+    .then(function(r){
+      if(r.error||!r.data||!r.data.length)return;
+      if(s.cursor&&!(r.data[0].updated_at>s.cursor))return; // nada novo: nao baixa nada
+      puxarMudancas();
     });
-  });
 }
 document.addEventListener('visibilitychange',function(){if(!document.hidden)cloudCheck();});
 window.addEventListener('focus',cloudCheck);
