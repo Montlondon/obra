@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.27 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.28 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1199,7 +1199,26 @@ function oDr(){document.getElementById('drawer').classList.add('on');document.ge
 function cDr(){document.getElementById('drawer').classList.remove('on');document.getElementById('dov').classList.remove('on');}
 
 // ─── TOAST ────────────────────────────────────────────────────────────
-function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},3000);}
+// Um aviso espera o outro. Antes, dois avisos na entrada se atropelavam e o segundo
+// apagava o primeiro — o Montgomery achou que o enxugamento nao tinha rodado.
+var _filaToast=[],_toastNoAr=false;
+function toast(msg){
+  if(!msg)return;
+  _filaToast.push(msg);
+  if(_filaToast.length>4)_filaToast.splice(0,_filaToast.length-4);
+  if(!_toastNoAr)proxToast();
+}
+function proxToast(){
+  var el=document.getElementById('toast');
+  if(!el||!_filaToast.length){_toastNoAr=false;return;}
+  _toastNoAr=true;
+  el.textContent=_filaToast.shift();
+  el.classList.add('on');
+  setTimeout(function(){
+    el.classList.remove('on');
+    setTimeout(proxToast,350);
+  },3000);
+}
 window.onerror=function(msg,src,line){toast('ERRO JS: '+String(msg).slice(0,80)+' L'+line);return false;};
 
 // ─── CFG OBRA ─────────────────────────────────────────────────────────
@@ -1460,7 +1479,26 @@ function oDr(){document.getElementById('drawer').classList.add('on');document.ge
 function cDr(){document.getElementById('drawer').classList.remove('on');document.getElementById('dov').classList.remove('on');}
 
 // ─── TOAST ────────────────────────────────────────────────────────────
-function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('on');setTimeout(function(){el.classList.remove('on');},3000);}
+// Um aviso espera o outro. Antes, dois avisos na entrada se atropelavam e o segundo
+// apagava o primeiro — o Montgomery achou que o enxugamento nao tinha rodado.
+var _filaToast=[],_toastNoAr=false;
+function toast(msg){
+  if(!msg)return;
+  _filaToast.push(msg);
+  if(_filaToast.length>4)_filaToast.splice(0,_filaToast.length-4);
+  if(!_toastNoAr)proxToast();
+}
+function proxToast(){
+  var el=document.getElementById('toast');
+  if(!el||!_filaToast.length){_toastNoAr=false;return;}
+  _toastNoAr=true;
+  el.textContent=_filaToast.shift();
+  el.classList.add('on');
+  setTimeout(function(){
+    el.classList.remove('on');
+    setTimeout(proxToast,350);
+  },3000);
+}
 window.onerror=function(msg,src,line){toast('ERRO JS: '+String(msg).slice(0,80)+' L'+line);return false;};
 
 // ─── CFG OBRA ─────────────────────────────────────────────────────────
