@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.26 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.27 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -3960,6 +3960,76 @@ function nuvemSemSessao(err){
   var m=((err&&err.message)||'')+' '+((err&&err.code)||'');
   return /42501|row-level security|JWT|401|Unauthorized|not authenticated/i.test(m);
 }
+// ─── Nunca o relógio decide ──────────────────────────────────────────────
+// Antes, quem tivesse a marca de hora mais recente substituía o outro lado sem avisar.
+// Em 29/07 isso apagou 4 fornecedores e R$ 1.290,00 da nuvem: o computador entrou primeiro,
+// o relógio dele estava na frente, e ele publicou a versão mais pobre por cima.
+// Agora, quando a troca faria PERDER coisa, o app para e pergunta, mostrando os dois lados.
+function resumoDb(d){
+  d=d||{};var tot=0;
+  (d.fornecedores||[]).forEach(function(f){
+    (f.contas||[]).forEach(function(c){tot+=cNet(f,c);});
+    (f.locacoes||[]).forEach(function(l){tot+=calcAlg(f,l);});
+  });
+  return {forn:(d.fornecedores||[]).length,tot:tot,rec:(d.recibos||[]).length,
+          orc:(d.orcamentos||[]).length,urg:(d.urgencias||[]).length,ts:Number(d._ts||0)};
+}
+// "novo" empobrece "atual" se perde dinheiro ou perde registro em qualquer frente
+function empobrece(atual,novo){
+  return novo.tot<atual.tot-0.005||novo.forn<atual.forn||novo.rec<atual.rec||
+         novo.orc<atual.orc||novo.urg<atual.urg;
+}
+function quandoTs(ts){
+  if(!ts)return 'sem data';
+  var d=new Date(ts);
+  return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+function cartaoLado(titulo,r,cor){
+  return '<div style="flex:1;min-width:130px;background:rgba(255,255,255,.06);border:1px solid '+cor+';border-radius:10px;padding:10px">'+
+    '<div style="font-size:10px;font-weight:700;color:'+cor+';letter-spacing:.6px;margin-bottom:6px">'+titulo+'</div>'+
+    '<div style="font-family:Lora,Georgia,serif;font-size:17px;font-weight:700;color:#fff">'+fmt(r.tot)+'</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,.75);line-height:1.6;margin-top:4px">'+
+      r.forn+' fornecedor'+(r.forn===1?'':'es')+'<br>'+
+      r.rec+' recibo'+(r.rec===1?'':'s')+' · '+r.orc+' orçamento'+(r.orc===1?'':'s')+'</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:6px">'+quandoTs(r.ts)+'</div>'+
+  '</div>';
+}
+var _perguntaAberta=false;
+// escolheu('aqui') = fica o deste aparelho · escolheu('nuvem') = fica o da nuvem
+function perguntarQualVale(rAqui,rNuvem,escolheu){
+  if(_perguntaAberta)return;
+  _perguntaAberta=true;
+  var d=document.createElement('div');
+  d.id='perguntaSync';
+  d.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(9,20,33,.88);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Inter,sans-serif';
+  d.innerHTML='<div style="max-width:420px;width:100%;background:#12293f;border:1px solid #C9A84C;border-radius:14px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)">'+
+    '<div style="font-size:11px;font-weight:700;color:#C9A84C;letter-spacing:.8px;margin-bottom:6px">OS DOIS LADOS ESTÃO DIFERENTES</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.55;margin-bottom:12px">Um dos lados tem menos lançamentos que o outro. Nada vai ser substituído sem você dizer qual vale.</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
+      cartaoLado('NESTE APARELHO',rAqui,'#C9A84C')+
+      cartaoLado('NA NUVEM',rNuvem,'#7db8e0')+
+    '</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button id="pq-aqui" style="flex:1;min-width:120px;background:#C9A84C;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:#1B3A5C;cursor:pointer;font-family:Inter,sans-serif">Vale o deste aparelho</button>'+
+      '<button id="pq-nuvem" style="flex:1;min-width:120px;background:#7db8e0;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:#0d2338;cursor:pointer;font-family:Inter,sans-serif">Vale o da nuvem</button>'+
+    '</div>'+
+    '<button id="pq-depois" style="width:100%;margin-top:8px;background:none;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:9px;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;font-family:Inter,sans-serif">Agora não — deixe os dois como estão</button>'+
+  '</div>';
+  document.body.appendChild(d);
+  // Uma escolha so: dois cliques rapidos nao podem mandar duas vezes
+  var feito=false;
+  var fechar=function(){_perguntaAberta=false;var e=document.getElementById('perguntaSync');if(e)e.remove();};
+  var responder=function(esc){if(feito)return;feito=true;fechar();if(esc)escolheu(esc);};
+  d.querySelector('#pq-aqui').onclick=function(){responder('aqui');};
+  d.querySelector('#pq-nuvem').onclick=function(){responder('nuvem');};
+  d.querySelector('#pq-depois').onclick=function(){responder(null);};
+}
+function aplicarNuvem(nuvem,msg){
+  db=nuvem;
+  try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
+  try{renderAll();renderFin();renderForn();if(typeof renderOrc==='function')renderOrc();if(typeof renderUrg==='function')renderUrg();if(typeof renderLista==='function')renderLista();}catch(e){}
+  toast(msg||'Ficou o da nuvem.');
+}
 var _pushTimer=null;
 function cloudPush(){
   if(!_supa||!ACTIVE_UID)return;
@@ -3992,19 +4062,37 @@ function cloudPull(uid){
       return;
     }
     if(!(localVazio||tsNuvem>tsLocal)){
-      // Este aparelho e o mais recente: atualiza a nuvem, sem baixar 5 MB para descobrir
-      if(!localVazio&&tsLocal>tsNuvem){cloudPush();toast('Backup na nuvem ativado!');}
+      // Este aparelho tem a hora na frente. Antes ele publicava por cima na hora —
+      // era isso que apagava o trabalho do outro aparelho. Agora confere o que tem la.
+      if(!localVazio&&tsLocal>tsNuvem){
+        if(!tsNuvem){cloudPush();toast('Backup na nuvem ativado!');try{enxugarFotosAntigas();}catch(e){}return;}
+        baixarDaNuvem(function(nuvem){
+          var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
+          if(nuvem&&empobrece(rNuvem,rAqui)){
+            // Subir daqui faria a nuvem perder coisa: quem decide e o Montgomery
+            perguntarQualVale(rAqui,rNuvem,function(esc){
+              if(esc==='aqui'){cloudPush();toast('Ficou o deste aparelho.');}
+              else aplicarNuvem(nuvem);
+            });
+          }else{cloudPush();toast('Backup na nuvem ativado!');}
+          try{enxugarFotosAntigas();}catch(e){}
+        });
+        return;
+      }
       try{enxugarFotosAntigas();}catch(e){}
       return;
     }
     baixarDaNuvem(function(nuvem){
       var nuvemTemDados=nuvem&&((nuvem.fornecedores||[]).length||(nuvem.recibos||[]).length||(nuvem.urgencias||[]).length||(nuvem.orcamentos||[]).length);
       if(nuvemTemDados){
-        // Nuvem mais recente (ou este aparelho vazio): restaura
-        db=nuvem;
-        try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
-        try{renderAll();renderFin();renderForn();}catch(e){}
-        toast('Dados restaurados da nuvem!');
+        var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
+        if(!localVazio&&empobrece(rAqui,rNuvem)){
+          // A nuvem esta na frente no relogio, mas tem menos coisa que este aparelho
+          perguntarQualVale(rAqui,rNuvem,function(esc){
+            if(esc==='nuvem')aplicarNuvem(nuvem);
+            else{db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}cloudPush();toast('Ficou o deste aparelho.');}
+          });
+        }else aplicarNuvem(nuvem,'Dados restaurados da nuvem!');
       }
       // Empate ou ambos vazios: nao faz nada (nunca sobrescreve as cegas)
       try{enxugarFotosAntigas();}catch(e){}
@@ -4013,6 +4101,20 @@ function cloudPull(uid){
 }
 function enviarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
+  // Confere se subir daqui faria a nuvem perder alguma coisa
+  baixarDaNuvem(function(nuvem){
+    var rAqui=resumoDb(db);
+    if(nuvem&&empobrece(resumoDb(nuvem),rAqui)){
+      perguntarQualVale(rAqui,resumoDb(nuvem),function(esc){
+        if(esc==='aqui')enviarNuvemAgora();
+        else aplicarNuvem(nuvem);
+      });
+      return;
+    }
+    enviarNuvemAgora();
+  });
+}
+function enviarNuvemAgora(){
   _supa.from('mmobras_backup').upsert({user_id:ACTIVE_UID,data:db,updated_at:new Date().toISOString()})
     .then(function(r){
       if(r.error){
@@ -4028,13 +4130,16 @@ function enviarNuvem(){
 }
 function restaurarNuvem(){
   if(!_supa||!ACTIVE_UID){toast('Faca login primeiro');return;}
-  if(!confirm('Substituir os dados DESTE aparelho pelos da nuvem? Esta acao nao pode ser desfeita.'))return;
-  _supa.from('mmobras_backup').select('data').eq('user_id',ACTIVE_UID).maybeSingle().then(function(r){
-    if(r.error||!r.data||!r.data.data){toast('Nuvem vazia ou erro ao buscar');return;}
-    db=r.data.data;
-    try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
-    toast('Restaurado da nuvem!');
-    setTimeout(function(){location.reload();},800);
+  // Mostra os dois lados antes de trocar — ninguem substitui no escuro
+  baixarDaNuvem(function(nuvem){
+    if(!nuvem){toast('Nuvem vazia ou erro ao buscar');return;}
+    perguntarQualVale(resumoDb(db),resumoDb(nuvem),function(esc){
+      if(esc!=='nuvem'){toast('Nada mudou.');return;}
+      db=nuvem;
+      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('ERRO: memoria cheia!');return;}
+      toast('Restaurado da nuvem!');
+      setTimeout(function(){location.reload();},800);
+    });
   });
 }
 // Pergunta so a HORA da nuvem: uns bytes, em vez do backup inteiro.
@@ -4056,16 +4161,22 @@ function baixarDaNuvem(cb){
 // Puxa da nuvem quando a janela volta ao foco (evita aba antiga sobrescrever valor novo)
 var _lastCk=0;
 function cloudCheck(){
-  if(!_supa||!ACTIVE_UID)return;
+  if(!_supa||!ACTIVE_UID||_perguntaAberta)return;
   var now=Date.now();if(now-_lastCk<15000)return;_lastCk=now;
   horaDaNuvem(function(tsNuvem){
     if(tsNuvem===null||!(tsNuvem>(db._ts||0)))return; // nada novo: nao baixa nada
     baixarDaNuvem(function(nuvem){
       if(!nuvem||(nuvem._ts||0)<=(db._ts||0))return;
-      db=nuvem;
-      try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}
-      try{renderAll();renderFin();renderForn();if(typeof renderOrc==='function')renderOrc();if(typeof renderUrg==='function')renderUrg();if(typeof renderLista==='function')renderLista();}catch(e){}
-      toast('Atualizado da nuvem ☁');
+      var rAqui=resumoDb(db),rNuvem=resumoDb(nuvem);
+      if(empobrece(rAqui,rNuvem)){
+        // O relogio da nuvem esta na frente, mas trocar faria sumir lancamento daqui
+        perguntarQualVale(rAqui,rNuvem,function(esc){
+          if(esc==='nuvem')aplicarNuvem(nuvem);
+          else{db._ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}cloudPush();toast('Ficou o deste aparelho.');}
+        });
+        return;
+      }
+      aplicarNuvem(nuvem,'Atualizado da nuvem ☁');
     });
   });
 }
