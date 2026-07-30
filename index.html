@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.29 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.30 &middot; 29/07</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -4123,13 +4123,19 @@ function blocoIntocado(id){
   return itemHash(db[id])===itemHash(SEED[id]);
 }
 // Quando os dois lados mexeram no MESMO item, fica o mais completo — nunca o relogio
+// O dinheiro pesa mais que a contagem: o campo de valor de uma conta e 'val' (com
+// devolucao abatida por cNet), e a locacao vale pelo aluguel calculado.
 function pesoItem(v){
   if(!v||typeof v!=='object')return 0;
   var n=0,t=0;
   ['contas','locacoes','creditos','recibos','pecas','checklist'].forEach(function(k){
     if(Array.isArray(v[k]))n+=v[k].length;
   });
-  (v.contas||[]).forEach(function(c){t+=Number(c&&c.valor)||0;});
+  (v.contas||[]).forEach(function(c){
+    try{t+=cNet(v,c);}catch(e){t+=Number(c&&c.val)||0;}
+  });
+  (v.locacoes||[]).forEach(function(l){try{t+=calcAlg(v,l);}catch(e){}});
+  if(typeof v.val==='number'||typeof v.valor==='number')t+=Number(v.val||v.valor)||0;
   return t*10+n;
 }
 function redesenharTudo(){
