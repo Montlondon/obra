@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.30 &middot; 29/07</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.31 &middot; 08/08</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1937,8 +1937,11 @@ function delDevCred(fid,did){
 }
 function renderRes(){
   var mo=0,mat=0,alg=0,cred=0,pago=0,pend=0;
-  (db.mo||[]).forEach(function(i){if(inF(i.date))mo+=i.val||0;});
-  (db.mat||[]).forEach(function(i){if(inF(i.date))mat+=i.val||0;});
+  // v9.31: as listas antigas db.mo e db.mat saem da conta. Elas somavam no Total do
+  // periodo mas nunca no Pago nem no Pendente — eram uma segunda torneira enchendo a
+  // bacia sem aparecer no medidor. Nenhuma tela grava nelas desde que tudo passou a
+  // ter dono (fornecedor). Os 9 lancamentos que restavam la continuam guardados no
+  // banco, so nao entram mais em nenhum total. A verdade do gasto sao os fornecedores.
   db.fornecedores.forEach(function(f){
     (f.contas||[]).forEach(function(c){if(!inF(c.date))return;var nv=cNet(f,c);if(f.tipo==='servico')mo+=nv;else mat+=nv;if(c.pago)pago+=nv;else pend+=nv;});
     (f.creditos||[]).forEach(function(c){if(inF(c.date)&&!isLinkedDev(c))cred+=c.val||0;});
