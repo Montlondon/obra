@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.31 &middot; 08/08</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.32 &middot; 08/08</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -1719,6 +1719,12 @@ if(!db.recibos)db.recibos=[];
 if(!db.comprovantes)db.comprovantes=[];
 if(!db.perfil)db.perfil={nome:'Montgomery M.',tel:'',pin:'',tema:'light'};
 if(!db.mo)db.mo=[];if(!db.mat)db.mat=[];if(!db.des)db.des=[];
+// v9.32: o caderno velho vai embora de vez. As listas mo/mat/des sao de antes de todo
+// gasto ter dono; nenhuma tela grava nelas desde entao. Restavam 9 lancamentos orfaos
+// (R$ 2.070,50) que ate a v9.30 inchavam o Total do periodo sem entrar no Pago nem no
+// Pendente. Copia de seguranca guardada em Clinica\Backup\mmobras_caderno_velho_backup_2026-08-08.json
+// A marca abaixo faz a limpeza acontecer uma vez so, em cada aparelho, e subir para a nuvem.
+if(!db._cadernoVelhoLimpo){db.mo=[];db.mat=[];db.des=[];db._cadernoVelhoLimpo='2026-08-08';}
 if(!db.fornecedores.length){db.fornecedores=JSON.parse(JSON.stringify(SEED.fornecedores));save();}
 db.fornecedores.forEach(function(f){
   if(!f.tipo)f.tipo='servico';if(!f.tel)f.tel='';
