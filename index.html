@@ -191,7 +191,7 @@ header{background:#1B3A5C;padding:11px 16px;position:sticky;top:0;z-index:50;bor
 .fabw{position:fixed;bottom:80px;right:16px;z-index:100}
 .fab{width:52px;height:52px;border-radius:50%;background:#C9A84C;border:none;color:#1B3A5C;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(201,168,76,.4)}
 .fab svg{width:22px;height:22px;stroke:#1B3A5C;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:.5px solid #ddd;display:grid;grid-template-columns:repeat(5,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:.5px solid #ddd;display:grid;grid-template-columns:repeat(6,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
 .bn{background:transparent;border:none;padding:9px 4px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:#aaa;font-family:'Inter',sans-serif;width:100%}
 .bn.on{color:#1B3A5C}
 .bn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -376,7 +376,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
     <div class="d-av"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
     <div class="d-name">Montgomery M.</div>
     <div class="d-sub" id="d-plan">PESSOA FISICA</div>
-    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.32 &middot; 08/08</div>
+    <div style="font-size:10px;color:#C9A84C;letter-spacing:1px;margin-top:4px;font-weight:600">v9.33 &middot; 27/08</div>
   </div>
 
   <div class="dnlv">GESTÃO</div>
@@ -903,6 +903,7 @@ mark{background:#FFF3CD;color:#1B3A5C;border-radius:2px;padding:0 1px}
 <nav class="bnav">
   <button class="bn on" id="bn-dash" onclick="goPg('dash')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span id="bn-dash-lbl">OBRA</span></button>
   <button class="bn" id="bn-fin" onclick="goPg('fin')"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span id="bn-fin-lbl">FINANCEIRO</span></button>
+  <button class="bn" id="bn-forn" onclick="goPg('forn')"><svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/></svg><span>FORN.<div class="bntv" id="tvf2">0</div></span></button>
   <button class="bn" id="bn-orc" onclick="goPg('orc')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>ORC.<div class="bntv" id="tvOrc">0</div></span></button>
   <button class="bn" id="bn-listas" onclick="goPg('listas')"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="bn-list-lbl">LISTAS</span></button>
   <button class="bn" id="bn-calc" onclick="goPg('calc')"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg><span id="bn-calc-lbl">CALC</span></button>
@@ -2512,10 +2513,54 @@ function renderFin(){
       '</div></div>';
   }).join('');
 }
+// Molde do relatorio financeiro (27/08) -- pedido dele: sair no MESMO formato
+// bonito do Orcamento (orcPDF acima: logo, caixas, cores da casa), nunca mais
+// o <pre> de texto cru que saia antes. Reaproveita o mesmo CSS de orcPDF, so
+// trocando o corpo por fornecedor/pago/pendente.
 function exportFinPDF(){
-  var txt=formatRelatorio();
-  if(navigator.share){navigator.share({title:'Financeiro - '+db.config.nome,text:txt}).catch(function(){});}
-  else{var w=window.open('','_blank');if(w){w.document.write('<pre style="padding:20px;font-family:monospace">'+txt+'</pre>');w.document.close();}}
+  var p=db.perfil||{};var cfg=db.config||{};
+  var logoHtml=cfg.foto?'<img src="'+cfg.foto+'" style="height:60px;max-width:150px;object-fit:contain;border-radius:6px">':'<div style="font-size:26px;font-weight:800;color:#1B3A5C;font-family:Georgia,serif">MM<span style="color:#C9A84C">Obras</span></div>';
+  var w=window.open('','_blank');
+  if(!w){toast('Permita pop-ups para gerar PDF');return;}
+  var d=w.document;
+  d.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Financeiro - '+esc(cfg.nome||'MMObras')+'</title>'+
+  '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;color:#1B3A5C;background:#fff;padding:28px;max-width:720px;margin:0 auto}'+
+  '.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #C9A84C;margin-bottom:20px}'+
+  '.empresa-nome{font-size:13px;font-weight:700;margin-top:8px}'+
+  '.badge{background:#1B3A5C;color:#C9A84C;padding:5px 14px;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:5px}'+
+  '.dt{font-size:11px;color:#888;text-align:right}'+
+  '.sec{margin-bottom:16px}.sec-title{font-size:9px;font-weight:700;color:#C9A84C;letter-spacing:1px;margin-bottom:8px;padding-bottom:3px;border-bottom:1px solid #f0ede8}'+
+  '.forn-row{display:flex;justify-content:space-between;align-items:center;background:#F5F3EE;border-radius:7px;padding:9px 12px;margin-bottom:6px}'+
+  '.forn-row .fn{font-size:13px;font-weight:700}.forn-row .fv{font-size:12px;text-align:right}'+
+  '.forn-row .fv .pg{color:#2d7a4f;font-weight:700}.forn-row .fv .pd{color:#a54242;font-weight:700}'+
+  '.vbox{background:#1B3A5C;border-radius:8px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin:16px 0}'+
+  '.vbox .vl{color:#C9A84C;font-size:9px;font-weight:700;letter-spacing:1px}.vbox .vv{color:#fff;font-size:22px;font-family:Georgia,serif;font-weight:700}'+
+  '.cond{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}'+
+  '.ci{text-align:center;background:#F5F3EE;border-radius:7px;padding:8px 4px}.ci .cv{font-size:14px;font-weight:700}.ci .cl{font-size:9px;color:#aaa;margin-top:2px}'+
+  '.footer{margin-top:20px;padding-top:10px;border-top:.5px solid #eee;font-size:10px;color:#aaa;text-align:center;line-height:1.7}'+
+  '@media print{body{padding:12px}button{display:none!important}@page{margin:12mm}}'+
+  '</style></head><body>');
+  d.write('<div class="hdr"><div>'+logoHtml+'<div class="empresa-nome">'+esc(p.nome||cfg.nome||'MMObras')+'</div></div>'+
+  '<div style="text-align:right"><div class="badge">FINANCEIRO</div><div class="dt">Emitido em '+br(today())+'</div></div></div>');
+  d.write('<div class="sec"><div class="sec-title">Por Fornecedor</div>');
+  var totPg=0,totPd=0;
+  (db.fornecedores||[]).forEach(function(f){
+    var pg=0,pd=0;
+    (f.contas||[]).forEach(function(c){if(c.pago)pg+=cNet(f,c);else pd+=cNet(f,c);});
+    (f.locacoes||[]).forEach(function(l){var tv=calcAlg(f,l);if(l.pago)pg+=tv;else pd+=tv;});
+    totPg+=pg;totPd+=pd;
+    d.write('<div class="forn-row"><span class="fn">'+esc(f.nome)+'</span><span class="fv"><span class="pg">'+fmt(pg)+'</span> pago · <span class="pd">'+fmt(pd)+'</span> pendente</span></div>');
+  });
+  d.write('</div>');
+  d.write('<div class="vbox"><div><div class="vl">SALDO</div></div><div class="vv">'+fmt(totPg-totPd)+'</div></div>');
+  d.write('<div class="cond">'+
+  '<div class="ci"><div class="cv" style="color:#2d7a4f">'+fmt(totPg)+'</div><div class="cl">Total pago</div></div>'+
+  '<div class="ci"><div class="cv" style="color:#a54242">'+fmt(totPd)+'</div><div class="cl">Total pendente</div></div>'+
+  '<div class="ci"><div class="cv">'+fmt(totPg+totPd)+'</div><div class="cl">Movimentado</div></div>'+
+  '</div>');
+  d.write('<div class="footer">Gerado por MMObras &bull; '+br(today())+'<br>Este documento n&atilde;o possui valor fiscal.</div>');
+  d.write('<br><div style="text-align:center"><button onclick="window.print()" style="background:#C9A84C;border:none;padding:10px 24px;border-radius:7px;font-size:13px;font-weight:700;color:#1B3A5C;cursor:pointer">Imprimir / Salvar PDF</button></div>');
+  d.write('</body></html>');d.close();
 }
 function exportFinXML(){
   var xml='<?xml version="1.0"?><financeiro obra="'+esc(db.config.nome||'')+'">'+
